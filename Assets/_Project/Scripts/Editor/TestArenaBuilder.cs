@@ -19,6 +19,7 @@ using Clout.Empire.Reputation;
 using Clout.World.Police;
 using Clout.Inventory;
 using Clout.UI;
+using UnityEditor.Animations;
 
 namespace Clout.Editor
 {
@@ -44,6 +45,19 @@ namespace Clout.Editor
         [MenuItem("Clout/Build Test Arena", false, 100)]
         public static void BuildTestArena()
         {
+            // Auto-create animator controller if it doesn't exist
+            string acPath = "Assets/_Project/Animations/Controllers/AC_Character.controller";
+            if (!System.IO.File.Exists(acPath))
+            {
+                if (EditorUtility.DisplayDialog("Clout — Animator Setup Required",
+                    "No Animator Controller found. Create one from Sharp Accent placeholder animations first?",
+                    "Create & Continue", "Cancel"))
+                {
+                    AnimatorSetup.CreateAnimatorController();
+                }
+                else return;
+            }
+
             if (!EditorUtility.DisplayDialog(
                 "Clout — Build Test Arena",
                 "This will create a new test scene with player, 3 enemies, NavMesh, camera, and HUD.\n\nProceed?",
@@ -210,23 +224,43 @@ namespace Clout.Editor
 
         private static GameObject BuildPlayer(GameObject mainCam)
         {
-            // Root — y=0.01 prevents z-fighting where capsule bottom meets ground surface (both at y=0)
+            // Root
             GameObject player = new GameObject("Player");
             player.tag = "Player";
-            player.transform.position = new Vector3(0f, 0.01f, 0f);
+            player.transform.position = new Vector3(0f, 0f, 0f);
             player.layer = LayerMask.NameToLayer("Default");
 
-            // Capsule model — placeholder for character model
-            GameObject model = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            model.name = "Model";
-            model.transform.SetParent(player.transform);
-            model.transform.localPosition = new Vector3(0f, 1f, 0f);
-            Object.DestroyImmediate(model.GetComponent<Collider>());
+            // Character model — try boxMan first, fall back to capsule
+            GameObject model = null;
+            GameObject boxManPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Placeholder/Models/boxMan.fbx");
+            if (boxManPrefab != null)
+            {
+                model = (GameObject)PrefabUtility.InstantiatePrefab(boxManPrefab);
+                model.name = "Model";
+                model.transform.SetParent(player.transform);
+                model.transform.localPosition = Vector3.zero;
+                model.transform.localRotation = Quaternion.identity;
 
-            Renderer modelRenderer = model.GetComponent<Renderer>();
-            Material playerMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            playerMat.color = new Color(0.2f, 0.6f, 1f); // Blue — player
-            modelRenderer.sharedMaterial = playerMat;
+                // Tint blue for player identification
+                Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
+                Material playerMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                playerMat.color = new Color(0.2f, 0.6f, 1f); // Blue — player
+                foreach (Renderer r in renderers) r.sharedMaterial = playerMat;
+            }
+            else
+            {
+                // Fallback capsule
+                model = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                model.name = "Model";
+                model.transform.SetParent(player.transform);
+                model.transform.localPosition = new Vector3(0f, 1f, 0f);
+                Object.DestroyImmediate(model.GetComponent<Collider>());
+
+                Renderer modelRenderer = model.GetComponent<Renderer>();
+                Material playerMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                playerMat.color = new Color(0.2f, 0.6f, 1f);
+                modelRenderer.sharedMaterial = playerMat;
+            }
 
             // Physics collider on root
             CapsuleCollider col = player.AddComponent<CapsuleCollider>();
@@ -247,9 +281,27 @@ namespace Clout.Editor
             NavMeshAgent agent = player.AddComponent<NavMeshAgent>();
             agent.enabled = false; // Player uses Rigidbody, not NavMesh
 
-            // Animator — placeholder controller
-            Animator anim = player.AddComponent<Animator>();
-            // Note: Requires an AnimatorController assigned in inspector or via SO
+            // Animator — use boxMan's Animator if present, else add one
+            Animator anim = player.GetComponentInChildren<Animator>();
+            if (anim == null) anim = player.AddComponent<Animator>();
+
+            // Wire animator controller
+            AnimatorController ac = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                "Assets/_Project/Animations/Controllers/AC_Character.controller");
+            if (ac != null)
+            {
+                anim.runtimeAnimatorController = ac;
+                Debug.Log("[Clout] Animator Controller assigned to player.");
+            }
+            else
+            {
+                Debug.LogWarning("[Clout] No AC_Character.controller found! Run Clout > Setup > Create Animator Controller first.");
+            }
+
+            // Configure animator for humanoid
+            anim.applyRootMotion = false; // We use Rigidbody for movement
+            anim.updateMode = AnimatorUpdateMode.Normal;
+            anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
             // Camera follow target
             GameObject camTarget = new GameObject("CameraFollowTarget");
@@ -329,22 +381,39 @@ namespace Clout.Editor
 
         private static GameObject BuildEnemyBase(string name, Vector3 position, Color color, float aggression)
         {
-            // y+0.01 lifts root just above ground surface — prevents z-fighting on capsule bottom mesh
             GameObject enemy = new GameObject(name);
-            enemy.transform.position = new Vector3(position.x, position.y + 0.01f, position.z);
+            enemy.transform.position = position;
             enemy.layer = LayerMask.NameToLayer("Default");
 
-            // Capsule model
-            GameObject model = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            model.name = "Model";
-            model.transform.SetParent(enemy.transform);
-            model.transform.localPosition = new Vector3(0f, 1f, 0f);
-            Object.DestroyImmediate(model.GetComponent<Collider>());
+            // Character model — try boxMan first, fall back to capsule
+            GameObject model = null;
+            GameObject boxManPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Placeholder/Models/boxMan.fbx");
+            if (boxManPrefab != null)
+            {
+                model = (GameObject)PrefabUtility.InstantiatePrefab(boxManPrefab);
+                model.name = "Model";
+                model.transform.SetParent(enemy.transform);
+                model.transform.localPosition = Vector3.zero;
+                model.transform.localRotation = Quaternion.identity;
 
-            Renderer r = model.GetComponent<Renderer>();
-            Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            mat.color = color;
-            r.sharedMaterial = mat;
+                Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
+                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                mat.color = color;
+                foreach (Renderer rend in renderers) rend.sharedMaterial = mat;
+            }
+            else
+            {
+                model = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                model.name = "Model";
+                model.transform.SetParent(enemy.transform);
+                model.transform.localPosition = new Vector3(0f, 1f, 0f);
+                Object.DestroyImmediate(model.GetComponent<Collider>());
+
+                Renderer r = model.GetComponent<Renderer>();
+                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                mat.color = color;
+                r.sharedMaterial = mat;
+            }
 
             // Physics
             CapsuleCollider col = enemy.AddComponent<CapsuleCollider>();
@@ -364,8 +433,16 @@ namespace Clout.Editor
             agent.radius = 0.4f;
             agent.height = 2f;
 
-            // Animator
-            Animator anim = enemy.AddComponent<Animator>();
+            // Animator — use model's if present, else add
+            Animator anim = enemy.GetComponentInChildren<Animator>();
+            if (anim == null) anim = enemy.AddComponent<Animator>();
+
+            AnimatorController enemyAC = AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                "Assets/_Project/Animations/Controllers/AC_Character.controller");
+            if (enemyAC != null)
+                anim.runtimeAnimatorController = enemyAC;
+            anim.applyRootMotion = false;
+            anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
             // Lock-on reference
             GameObject lockOnRef = new GameObject("LockOnRef");
