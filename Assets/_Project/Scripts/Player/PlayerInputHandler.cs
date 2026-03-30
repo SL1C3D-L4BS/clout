@@ -111,7 +111,7 @@ namespace Clout.Player
             System.Action<InputAction.CallbackContext> performed,
             System.Action<InputAction.CallbackContext> canceled)
         {
-            if (_playerInput == null) return;
+            if (_playerInput == null || _playerInput.actions == null) return;
             var action = _playerInput.actions.FindAction(actionName);
             if (action == null) return;
 

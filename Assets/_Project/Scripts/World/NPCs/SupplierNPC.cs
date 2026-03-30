@@ -3,6 +3,7 @@ using Clout.Core;
 using Clout.Player;
 using Clout.Empire.Dealing;
 using Clout.Empire.Reputation;
+using Clout.World.Police;
 
 namespace Clout.World.NPCs
 {

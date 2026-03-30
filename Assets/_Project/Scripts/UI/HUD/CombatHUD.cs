@@ -527,7 +527,7 @@ namespace Clout.UI
             Text txt = obj.AddComponent<Text>();
             txt.text = defaultText;
             txt.fontSize = fontSize;
-            txt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            txt.font = GetSafeFont();
             txt.color = Color.white;
             txt.alignment = TextAnchor.MiddleLeft;
             txt.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -535,6 +535,42 @@ namespace Clout.UI
             txt.raycastTarget = false;
 
             return txt;
+        }
+
+        // ─── Font Fallback ──────────────────────────────────────
+        private static Font _cachedFont;
+
+        /// <summary>
+        /// Safely get a font that works across Unity versions.
+        /// Unity 6 removed Arial.ttf and LegacyRuntime.ttf availability varies.
+        /// </summary>
+        private static Font GetSafeFont()
+        {
+            if (_cachedFont != null) return _cachedFont;
+
+            // Try built-in names in order of Unity version preference
+            string[] candidates = { "LegacyRuntime.ttf", "Arial.ttf" };
+            foreach (string name in candidates)
+            {
+                try
+                {
+                    Font f = Resources.GetBuiltinResource<Font>(name);
+                    if (f != null) { _cachedFont = f; return f; }
+                }
+                catch { /* swallow — not available in this Unity version */ }
+            }
+
+            // Last resort — create from OS font
+            _cachedFont = Font.CreateDynamicFontFromOSFont("Arial", 14);
+            if (_cachedFont == null)
+            {
+                // Absolute fallback — pick any available OS font
+                string[] fonts = Font.GetOSInstalledFontNames();
+                if (fonts.Length > 0)
+                    _cachedFont = Font.CreateDynamicFontFromOSFont(fonts[0], 14);
+            }
+
+            return _cachedFont;
         }
     }
 }

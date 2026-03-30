@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 715de7da1ef474aa3bd5fd1da742254c, type: 3}
+  m_Name: SUPP_Lil D
+  m_EditorClassIdentifier: Clout::Clout.Empire.Dealing.SupplierDefinition
+  supplierName: Lil D
+  description: Street-level connect. Unreliable but cheap.
+  portrait: {fileID: 0}
+  catalog:
+  - product: {fileID: 11400000, guid: 7515f331a49914998bd259ba685f9fbf, type: 2}
+    maxQuantityPerRestock: 20
+    wholesalePrice: 25
+    qualityFloor: 0.1
+    qualityCeiling: 0.5
+  - product: {fileID: 11400000, guid: 56aad56609d594caa9aa1f97275b608a, type: 2}
+    maxQuantityPerRestock: 10
+    wholesalePrice: 40
+    qualityFloor: 0.1
+    qualityCeiling: 0.4
+  requiredCloutRank: 0
+  requiredSupplierRep: 0
+  reliability: 0.6
+  restockInterval: 300
+  bustRisk: 0.02
+  preferredDistrict: 

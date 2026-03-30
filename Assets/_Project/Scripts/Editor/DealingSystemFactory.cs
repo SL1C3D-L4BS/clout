@@ -285,8 +285,7 @@ namespace Clout.Editor
                 model.transform.localRotation = Quaternion.identity;
 
                 Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = color;
+                Material mat = EditorShaderHelper.CreateMaterial(color);
                 foreach (Renderer r in renderers) r.sharedMaterial = mat;
             }
             else
@@ -297,8 +296,7 @@ namespace Clout.Editor
                 model.transform.localPosition = new Vector3(0, 1f, 0);
                 Object.DestroyImmediate(model.GetComponent<Collider>());
                 Renderer r = model.GetComponent<Renderer>();
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = color;
+                Material mat = EditorShaderHelper.CreateMaterial(color);
                 r.sharedMaterial = mat;
             }
 
@@ -337,9 +335,7 @@ namespace Clout.Editor
             indicator.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             Object.DestroyImmediate(indicator.GetComponent<Collider>());
             Renderer ir = indicator.GetComponent<Renderer>();
-            Material im = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            im.color = Color.green;
-            im.SetFloat("_Surface", 1); // Transparent
+            Material im = EditorShaderHelper.CreateMaterial(Color.green);
             ir.sharedMaterial = im;
             dealInteract.seekingIndicator = indicator;
 
@@ -364,8 +360,7 @@ namespace Clout.Editor
                 model.transform.localRotation = Quaternion.identity;
 
                 Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = color;
+                Material mat = EditorShaderHelper.CreateMaterial(color);
                 foreach (Renderer r in renderers) r.sharedMaterial = mat;
             }
             else
@@ -376,8 +371,7 @@ namespace Clout.Editor
                 model.transform.localPosition = new Vector3(0, 1f, 0);
                 Object.DestroyImmediate(model.GetComponent<Collider>());
                 Renderer r = model.GetComponent<Renderer>();
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = color;
+                Material mat = EditorShaderHelper.CreateMaterial(color);
                 r.sharedMaterial = mat;
             }
 
@@ -403,8 +397,7 @@ namespace Clout.Editor
             indicator.transform.localScale = new Vector3(0.3f, 0.45f, 0.3f);
             Object.DestroyImmediate(indicator.GetComponent<Collider>());
             Renderer ir = indicator.GetComponent<Renderer>();
-            Material im = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            im.color = new Color(0, 1f, 1f);
+            Material im = EditorShaderHelper.CreateMaterial(new Color(0, 1f, 1f));
             ir.sharedMaterial = im;
 
             Debug.Log($"[Clout] Supplier NPC spawned: {data?.supplierName ?? name} at {position}");

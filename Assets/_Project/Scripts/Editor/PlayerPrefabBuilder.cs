@@ -115,8 +115,7 @@ namespace Clout.Editor
             model.transform.localPosition = new Vector3(0f, 1f, 0f);
             Object.DestroyImmediate(model.GetComponent<Collider>());
             Renderer r = model.GetComponent<Renderer>();
-            Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            mat.color = new Color(0.2f, 0.6f, 1f);
+            Material mat = EditorShaderHelper.CreateMaterial(new Color(0.2f, 0.6f, 1f));
             r.sharedMaterial = mat;
 
             // ── Camera Follow Target ──

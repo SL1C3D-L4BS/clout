@@ -164,8 +164,7 @@ namespace Clout.Editor
 
             // Ground material
             Renderer groundRenderer = ground.GetComponent<Renderer>();
-            Material groundMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            groundMat.color = new Color(0.35f, 0.38f, 0.34f); // Dark asphalt
+            Material groundMat = EditorShaderHelper.CreateMaterial(new Color(0.35f, 0.38f, 0.34f));
             groundRenderer.sharedMaterial = groundMat;
 
             // NavMeshSurface for baking
@@ -198,8 +197,7 @@ namespace Clout.Editor
             cover.layer = LayerMask.NameToLayer("Default");
 
             Renderer r = cover.GetComponent<Renderer>();
-            Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            mat.color = new Color(0.45f, 0.42f, 0.38f);
+            Material mat = EditorShaderHelper.CreateMaterial(new Color(0.45f, 0.42f, 0.38f));
             r.sharedMaterial = mat;
 
             // NavMesh obstacle modifier
@@ -217,8 +215,7 @@ namespace Clout.Editor
             wall.isStatic = true;
 
             Renderer r = wall.GetComponent<Renderer>();
-            Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            mat.color = new Color(0.25f, 0.25f, 0.28f);
+            Material mat = EditorShaderHelper.CreateMaterial(new Color(0.25f, 0.25f, 0.28f));
             r.sharedMaterial = mat;
         }
 
@@ -280,8 +277,7 @@ namespace Clout.Editor
 
                 // Tint blue for player identification
                 Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
-                Material playerMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                playerMat.color = new Color(0.2f, 0.6f, 1f); // Blue — player
+                Material playerMat = EditorShaderHelper.CreateMaterial(new Color(0.2f, 0.6f, 1f));
                 foreach (Renderer r in renderers) r.sharedMaterial = playerMat;
             }
             else
@@ -294,8 +290,7 @@ namespace Clout.Editor
                 Object.DestroyImmediate(model.GetComponent<Collider>());
 
                 Renderer modelRenderer = model.GetComponent<Renderer>();
-                Material playerMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                playerMat.color = new Color(0.2f, 0.6f, 1f);
+                Material playerMat = EditorShaderHelper.CreateMaterial(new Color(0.2f, 0.6f, 1f));
                 modelRenderer.sharedMaterial = playerMat;
             }
 
@@ -446,8 +441,7 @@ namespace Clout.Editor
                 model.transform.localRotation = Quaternion.identity;
 
                 Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = color;
+                Material mat = EditorShaderHelper.CreateMaterial(color);
                 foreach (Renderer rend in renderers) rend.sharedMaterial = mat;
             }
             else
@@ -459,8 +453,7 @@ namespace Clout.Editor
                 Object.DestroyImmediate(model.GetComponent<Collider>());
 
                 Renderer r = model.GetComponent<Renderer>();
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = color;
+                Material mat = EditorShaderHelper.CreateMaterial(color);
                 r.sharedMaterial = mat;
             }
 
@@ -553,8 +546,7 @@ namespace Clout.Editor
             indicator.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
             Object.DestroyImmediate(indicator.GetComponent<Collider>());
             Renderer ir = indicator.GetComponent<Renderer>();
-            Material im = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            im.color = Color.red;
+            Material im = EditorShaderHelper.CreateMaterial(Color.red);
             ir.sharedMaterial = im;
 
             // Equip melee weapon
@@ -592,8 +584,7 @@ namespace Clout.Editor
             indicator.transform.localScale = new Vector3(0.25f, 0.4f, 0.25f);
             Object.DestroyImmediate(indicator.GetComponent<Collider>());
             Renderer ir = indicator.GetComponent<Renderer>();
-            Material im = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            im.color = Color.yellow;
+            Material im = EditorShaderHelper.CreateMaterial(Color.yellow);
             ir.sharedMaterial = im;
 
             // Equip fists for now (until guns are added)
@@ -634,8 +625,7 @@ namespace Clout.Editor
             indicator.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
             Object.DestroyImmediate(indicator.GetComponent<Collider>());
             Renderer ir = indicator.GetComponent<Renderer>();
-            Material im = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            im.color = new Color(0.8f, 0.2f, 0.8f);
+            Material im = EditorShaderHelper.CreateMaterial(new Color(0.8f, 0.2f, 0.8f));
             ir.sharedMaterial = im;
 
             // Equip heavy weapon

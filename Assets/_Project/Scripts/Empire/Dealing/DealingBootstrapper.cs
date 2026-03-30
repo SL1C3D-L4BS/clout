@@ -23,26 +23,34 @@ namespace Clout.Empire.Dealing
         public bool giveProductOnStart = true;
 
         private bool _initialized;
+        private int _retryCount;
 
         private void Start()
         {
             if (!giveProductOnStart) return;
 
-            // Delay one frame to ensure all components are initialized
-            Invoke(nameof(Initialize), 0.1f);
+            // Delay to ensure player Start()/Init() has run
+            Invoke(nameof(Initialize), 0.5f);
         }
 
         private void Initialize()
         {
             if (_initialized) return;
-            _initialized = true;
 
             PlayerStateManager player = FindAnyObjectByType<PlayerStateManager>();
             if (player == null)
             {
-                Debug.LogWarning("[DealingBootstrapper] No player found.");
+                // Retry a few times — player may not be initialized yet
+                _retryCount++;
+                if (_retryCount < 5)
+                {
+                    Invoke(nameof(Initialize), 0.5f);
+                    return;
+                }
+                Debug.LogWarning("[DealingBootstrapper] No player found after retries.");
                 return;
             }
+            _initialized = true;
 
             // Ensure ProductInventory
             ProductInventory inv = player.GetComponent<ProductInventory>();

@@ -183,10 +183,10 @@ namespace Clout.Empire.Dealing
                 float clout = totalCash >= 500f
                     ? ReputationManager.CloutValues.BigDeal
                     : ReputationManager.CloutValues.CompleteDeal;
-                rep.AddClout(clout, "drug deal");
+                rep.AddClout((int)clout, "drug deal");
 
                 if (rep.cloutRank.Value == 0) // First deal ever
-                    rep.AddClout(ReputationManager.CloutValues.FirstSale, "first sale");
+                    rep.AddClout((int)ReputationManager.CloutValues.FirstSale, "first sale");
             }
 
             // Heat
