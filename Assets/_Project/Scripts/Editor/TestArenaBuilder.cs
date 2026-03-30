@@ -111,6 +111,36 @@ namespace Clout.Editor
         }
 
         // ─────────────────────────────────────────────────────────
+        //  HEADLESS BUILD — no dialogs, safe for trigger scripts
+        // ─────────────────────────────────────────────────────────
+
+        public static void BuildTestArenaHeadless()
+        {
+            string acPath = "Assets/_Project/Animations/Controllers/AC_Character.controller";
+            if (!System.IO.File.Exists(acPath))
+                AnimatorSetup.CreateAnimatorControllerHeadless();
+
+            string fistsSO = "Assets/_Project/ScriptableObjects/Weapons/WPN_Fists.asset";
+            if (!System.IO.File.Exists(fistsSO))
+                WeaponAssetFactory.CreateStarterWeaponsHeadless();
+
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            BuildEnvironment();
+            GameObject mainCam = BuildMainCamera();
+            BuildEventSystem();
+            GameObject player = BuildPlayer(mainCam);
+            BuildMeleeEnemy(new Vector3(10f, 0f, 10f));
+            BuildRangedEnemy(new Vector3(-12f, 0f, 15f));
+            BuildHybridEnemy(new Vector3(0f, 0f, 20f));
+            BuildHUD(player);
+            BakeNavMesh();
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
+            EditorSceneManager.SaveScene(scene, SCENE_PATH);
+            AssetDatabase.Refresh();
+            Debug.Log("[Clout] Test Arena built (headless): " + SCENE_PATH);
+        }
+
+        // ─────────────────────────────────────────────────────────
         //  ENVIRONMENT
         // ─────────────────────────────────────────────────────────
 

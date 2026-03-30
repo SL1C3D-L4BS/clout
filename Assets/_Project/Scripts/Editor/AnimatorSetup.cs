@@ -27,6 +27,21 @@ namespace Clout.Editor
         [MenuItem("Clout/Setup/Create Animator Controller", false, 200)]
         public static void CreateAnimatorController()
         {
+            CreateAnimatorControllerHeadless();
+            EditorUtility.DisplayDialog("Clout — Animator Controller",
+                $"Created: {OUTPUT_PATH}/{CONTROLLER_NAME}\n\n" +
+                "• Locomotion blend tree (idle, walk, run, strafe)\n" +
+                "• 8 attack states\n" +
+                "• 5 roll states\n" +
+                "• 3 interaction states\n" +
+                "• 5 damage states\n\n" +
+                "Assign to characters via Clout > Build Test Arena",
+                "Done");
+        }
+
+        /// <summary>Headless variant — no dialog. Safe to call from trigger scripts.</summary>
+        public static void CreateAnimatorControllerHeadless()
+        {
             // Ensure output directory
             if (!AssetDatabase.IsValidFolder("Assets/_Project/Animations"))
                 AssetDatabase.CreateFolder("Assets/_Project", "Animations");
@@ -128,20 +143,22 @@ namespace Clout.Editor
             //  LAYER 1: OVERRIDE (Combat, Rolls, Interactions)
             // ═══════════════════════════════════════════════════════
 
-            // Load avatar mask for upper body
+            // Use AddLayer(string) — Unity creates and registers the AnimatorStateMachine
+            // as a proper sub-asset internally. Manually creating one and calling
+            // AddObjectToAsset does NOT work; Unity still reports it as missing at assign time.
+            controller.AddLayer("Override");
+
+            // controller.layers returns a copy — modify the copy then write it back.
             AvatarMask upperMask = AssetDatabase.LoadAssetAtPath<AvatarMask>(
                 "Assets/_Placeholder/AnimatorControllers/Upper Body.mask");
+            AnimatorControllerLayer[] allLayers = controller.layers;
+            allLayers[1].defaultWeight = 1f;
+            allLayers[1].blendingMode = AnimatorLayerBlendingMode.Override;
+            allLayers[1].avatarMask = upperMask; // May be null if mask didn't import
+            controller.layers = allLayers; // write back
 
-            AnimatorControllerLayer overrideLayer = new AnimatorControllerLayer();
-            overrideLayer.name = "Override";
-            overrideLayer.defaultWeight = 1f;
-            overrideLayer.blendingMode = AnimatorLayerBlendingMode.Override;
-            overrideLayer.avatarMask = upperMask; // May be null if mask didn't import
-            overrideLayer.stateMachine = new AnimatorStateMachine();
-            overrideLayer.stateMachine.name = "Override";
-
-            // Position override layer state machine in graph
-            AnimatorStateMachine overrideSM = overrideLayer.stateMachine;
+            // Now fetch the live state machine reference (registered inside controller asset)
+            AnimatorStateMachine overrideSM = controller.layers[1].stateMachine;
 
             // Empty default state (no override when not attacking)
             AnimatorState overrideEmpty = overrideSM.AddState("Empty", new Vector3(250, 0, 0));
@@ -159,7 +176,7 @@ namespace Clout.Editor
 
             // --- ROLLS ---
             AddOverrideClip(controller, overrideSM, overrideEmpty, "roll_forward", "Rolls/roll_forward", 8);
-            AddOverrideClip(controller, overrideSM, overrideEmpty, "roll_backward", "Rolls/roll_backward", 9);
+            AddOverrideClip(controller, overrideSM, overrideEmpty, "roll_backward", "Rolls/roll_backwards", 9);
             AddOverrideClip(controller, overrideSM, overrideEmpty, "roll_left", "Rolls/roll_left", 10);
             AddOverrideClip(controller, overrideSM, overrideEmpty, "roll_right", "Rolls/roll_right", 11);
             AddOverrideClip(controller, overrideSM, overrideEmpty, "step_back", "Rolls/step_back", 12);
@@ -176,8 +193,6 @@ namespace Clout.Editor
             AddOverrideClip(controller, overrideSM, overrideEmpty, "getting_parried", "Damage/getting_parried", 19);
             AddOverrideClip(controller, overrideSM, overrideEmpty, "getting_backstabbed", "Damage/getting_backstabbed", 20);
 
-            controller.AddLayer(overrideLayer);
-
             // Save
             EditorUtility.SetDirty(controller);
             AssetDatabase.SaveAssets();
@@ -187,16 +202,6 @@ namespace Clout.Editor
             Debug.Log("[Clout] Parameters: vertical, horizontal, isInteracting, lockOn, stance, " +
                       "isAiming, isShooting, weaponType, canDoCombo, mirror, isOnAir, isDead, isGrounded");
             Debug.Log("[Clout] Locomotion blend tree + 21 override states (attacks, rolls, interactions, damage)");
-
-            EditorUtility.DisplayDialog("Clout — Animator Controller",
-                $"Created: {fullPath}\n\n" +
-                "• Locomotion blend tree (idle, walk, run, strafe)\n" +
-                "• 8 attack states\n" +
-                "• 5 roll states\n" +
-                "• 3 interaction states\n" +
-                "• 5 damage states\n\n" +
-                "Assign to characters via Clout > Build Test Arena",
-                "Done");
         }
 
         // ─────────────────────────────────────────────────────────

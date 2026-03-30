@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0a9c1d00771428da7c591d033058e0, type: 3}
+  m_Name: WPN_Bat
+  m_EditorClassIdentifier: Clout::Clout.Combat.WeaponItem
+  itemName: Bat
+  icon: {fileID: 0}
+  modelPrefab: {fileID: 9098448323185633263, guid: a3de27a713e8e4211becac646226aa59, type: 3}
+  weaponType: 1
+  oneHanded_anim: oh_idle
+  twoHanded_anim: Two Handed
+  itemActions:
+  - animNames:
+    - oh_attack_1
+    - oh_attack_2
+    - oh_attack_3
+    itemAction: {fileID: 11400000, guid: 801546a8959ac453bb43dfcbee698bcf, type: 2}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  - animNames:
+    - th_attack_1
+    - th_attack_2
+    itemAction: {fileID: 11400000, guid: 801546a8959ac453bb43dfcbee698bcf, type: 2}
+    attackInput: 1
+    isMirrored: 0
+    isTwoHanded: 0
+  - animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  - animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  primaryDamageType: 0
+  baseDamage: 25
+  motionValueLight: 1
+  motionValueHeavy: 1.8
+  weight: 3
+  poiseDamage: 20
+  overrideStance: 0
+  forcedStance: 0

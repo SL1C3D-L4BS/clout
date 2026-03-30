@@ -32,6 +32,22 @@ namespace Clout.Editor
         [MenuItem("Clout/Setup/Create Starter Weapons", false, 201)]
         public static void CreateStarterWeapons()
         {
+            CreateStarterWeaponsHeadless();
+            EditorUtility.DisplayDialog("Clout — Starter Weapons",
+                "Created 5 weapon SOs + 4 weapon prefabs:\n\n" +
+                "• Fists (unarmed — punch/kick)\n" +
+                "• Bat (Viking Sword mesh — 3-hit combo)\n" +
+                "• Knife (bottle mesh — slash/stab)\n" +
+                "• Lead Pipe (stretched sword — 2-hit heavy)\n" +
+                "• Riot Shield (shield mesh — bash)\n\n" +
+                "Weapon prefabs have DamageColliders ready.\n" +
+                "Assign to player via PlayerStateManager.startingWeapons",
+                "Done");
+        }
+
+        /// <summary>Headless variant — no dialog. Safe to call from trigger scripts.</summary>
+        public static void CreateStarterWeaponsHeadless()
+        {
             EnsureDirectories();
 
             // Shared attack action SO
@@ -241,17 +257,6 @@ namespace Clout.Editor
             Debug.Log("  • WPN_Pipe — Two-hand melee (2-hit heavy, overhead smash)");
             Debug.Log("  • WPN_Shield — Off-hand block/bash");
             Debug.Log("  • MeleeAttackAction — Shared attack logic SO");
-
-            EditorUtility.DisplayDialog("Clout — Starter Weapons",
-                "Created 5 weapon SOs + 4 weapon prefabs:\n\n" +
-                "• Fists (unarmed — punch/kick)\n" +
-                "• Bat (Viking Sword mesh — 3-hit combo)\n" +
-                "• Knife (bottle mesh — slash/stab)\n" +
-                "• Lead Pipe (stretched sword — 2-hit heavy)\n" +
-                "• Riot Shield (shield mesh — bash)\n\n" +
-                "Weapon prefabs have DamageColliders ready.\n" +
-                "Assign to player via PlayerStateManager.startingWeapons",
-                "Done");
         }
 
         // ─────────────────────────────────────────────────────────

@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0a9c1d00771428da7c591d033058e0, type: 3}
+  m_Name: WPN_Shield
+  m_EditorClassIdentifier: Clout::Clout.Combat.WeaponItem
+  itemName: Riot Shield
+  icon: {fileID: 0}
+  modelPrefab: {fileID: 8334519058662159484, guid: fa3445e1d47e1412ebc4a34f68bc5767, type: 3}
+  weaponType: 1
+  oneHanded_anim: Empty
+  twoHanded_anim: Two Handed
+  itemActions:
+  - animNames:
+    - oh_attack_1
+    itemAction: {fileID: 11400000, guid: 801546a8959ac453bb43dfcbee698bcf, type: 2}
+    attackInput: 2
+    isMirrored: 1
+    isTwoHanded: 0
+  - animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  - animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  - animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  primaryDamageType: 0
+  baseDamage: 12
+  motionValueLight: 0.8
+  motionValueHeavy: 1.5
+  weight: 8
+  poiseDamage: 25
+  overrideStance: 0
+  forcedStance: 0

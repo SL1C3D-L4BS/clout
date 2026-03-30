@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0a9c1d00771428da7c591d033058e0, type: 3}
+  m_Name: WPN_Pipe
+  m_EditorClassIdentifier: Clout::Clout.Combat.WeaponItem
+  itemName: Lead Pipe
+  icon: {fileID: 0}
+  modelPrefab: {fileID: 4641528746072999342, guid: a13fdcb6e858d4dbb9def438bb431011, type: 3}
+  weaponType: 2
+  oneHanded_anim: Empty
+  twoHanded_anim: th_idle
+  itemActions:
+  - animNames:
+    - th_attack_1
+    - th_attack_2
+    itemAction: {fileID: 11400000, guid: 801546a8959ac453bb43dfcbee698bcf, type: 2}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 1
+  - animNames:
+    - oh_attack_3
+    itemAction: {fileID: 11400000, guid: 801546a8959ac453bb43dfcbee698bcf, type: 2}
+    attackInput: 1
+    isMirrored: 0
+    isTwoHanded: 1
+  - animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  - animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  primaryDamageType: 0
+  baseDamage: 35
+  motionValueLight: 1
+  motionValueHeavy: 2.2
+  weight: 6
+  poiseDamage: 30
+  overrideStance: 0
+  forcedStance: 0
