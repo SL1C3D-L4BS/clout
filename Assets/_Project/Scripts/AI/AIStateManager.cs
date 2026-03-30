@@ -52,6 +52,9 @@ namespace Clout.AI
         [Tooltip("0 = calm patrol, 1 = berserker. Affects detection, speed, cooldowns.")]
         public float aggressionLevel = 0f;
 
+        [Header("Starting Equipment")]
+        public WeaponItem startingWeapon;
+
         // States
         public State patrolState;
         public State chaseState;
@@ -76,6 +79,14 @@ namespace Clout.AI
             {
                 Transform lockRef = transform.Find("LockOnRef");
                 lockOnTarget = lockRef != null ? lockRef : transform;
+            }
+
+            // Load starting weapon
+            if (startingWeapon != null && weaponHolderManager != null)
+            {
+                weaponHolderManager.Init();
+                weaponHolderManager.LoadWeaponOnHook(startingWeapon, false);
+                UpdateItemActionsWithCurrent();
             }
 
             // === PATROL STATE ===

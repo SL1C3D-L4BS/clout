@@ -58,6 +58,13 @@ namespace Clout.Editor
                 else return;
             }
 
+            // Auto-create starter weapons if they don't exist
+            string fistsSO = "Assets/_Project/ScriptableObjects/Weapons/WPN_Fists.asset";
+            if (!System.IO.File.Exists(fistsSO))
+            {
+                WeaponAssetFactory.CreateStarterWeapons();
+            }
+
             if (!EditorUtility.DisplayDialog(
                 "Clout — Build Test Arena",
                 "This will create a new test scene with player, 3 enemies, NavMesh, camera, and HUD.\n\nProceed?",
@@ -371,7 +378,19 @@ namespace Clout.Editor
             // Init camera (builds virtual cams)
             cameraManager.Init(player.transform, camTarget.transform);
 
+            // Assign starting weapons from SOs
+            WeaponItem fists = AssetDatabase.LoadAssetAtPath<WeaponItem>(
+                "Assets/_Project/ScriptableObjects/Weapons/WPN_Fists.asset");
+            WeaponItem bat = AssetDatabase.LoadAssetAtPath<WeaponItem>(
+                "Assets/_Project/ScriptableObjects/Weapons/WPN_Bat.asset");
+
+            // Default: fists. Bat available as starting weapon too.
+            psm.startingRightWeapon = bat != null ? bat : fists;
+            // Left hand empty by default (can be shield later)
+
             Debug.Log("[Clout] Player built: PlayerStateManager + all combat/empire systems wired.");
+            if (psm.startingRightWeapon != null)
+                Debug.Log($"[Clout] Starting weapon: {psm.startingRightWeapon.itemName}");
             return player;
         }
 
@@ -508,6 +527,12 @@ namespace Clout.Editor
             im.color = Color.red;
             ir.sharedMaterial = im;
 
+            // Equip melee weapon
+            WeaponItem batWeapon = AssetDatabase.LoadAssetAtPath<WeaponItem>(
+                "Assets/_Project/ScriptableObjects/Weapons/WPN_Bat.asset");
+            if (batWeapon != null && ai != null)
+                ai.startingWeapon = batWeapon;
+
             Debug.Log("[Clout] Melee Thug spawned at " + position);
         }
 
@@ -540,6 +565,12 @@ namespace Clout.Editor
             Material im = new Material(Shader.Find("Universal Render Pipeline/Lit"));
             im.color = Color.yellow;
             ir.sharedMaterial = im;
+
+            // Equip fists for now (until guns are added)
+            WeaponItem fistWeapon = AssetDatabase.LoadAssetAtPath<WeaponItem>(
+                "Assets/_Project/ScriptableObjects/Weapons/WPN_Fists.asset");
+            if (fistWeapon != null && ai != null)
+                ai.startingWeapon = fistWeapon;
 
             Debug.Log("[Clout] Ranged Shooter spawned at " + position);
         }
@@ -576,6 +607,12 @@ namespace Clout.Editor
             Material im = new Material(Shader.Find("Universal Render Pipeline/Lit"));
             im.color = new Color(0.8f, 0.2f, 0.8f);
             ir.sharedMaterial = im;
+
+            // Equip heavy weapon
+            WeaponItem pipeWeapon = AssetDatabase.LoadAssetAtPath<WeaponItem>(
+                "Assets/_Project/ScriptableObjects/Weapons/WPN_Pipe.asset");
+            if (pipeWeapon != null && ai != null)
+                ai.startingWeapon = pipeWeapon;
 
             Debug.Log("[Clout] Hybrid Enforcer spawned at " + position);
         }
