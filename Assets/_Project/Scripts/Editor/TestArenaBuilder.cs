@@ -5,7 +5,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.EventSystems;
+using Unity.AI.Navigation;
 using Unity.Cinemachine;
 using Clout.Core;
 using Clout.Combat;
@@ -277,9 +279,7 @@ namespace Clout.Editor
             // Core components
             RuntimeStats stats = player.AddComponent<RuntimeStats>();
             stats.maxHealth = 100;
-            stats.health = 100;
             stats.maxStamina = 100;
-            stats.stamina = 100;
             stats.maxPoise = 100;
             stats.poise = 100;
 
@@ -383,7 +383,6 @@ namespace Clout.Editor
             // Stats
             RuntimeStats stats = enemy.AddComponent<RuntimeStats>();
             stats.maxHealth = 80;
-            stats.health = 80;
             stats.maxPoise = 60;
             stats.poise = 60;
 
@@ -451,7 +450,6 @@ namespace Clout.Editor
 
             RuntimeStats stats = enemy.GetComponent<RuntimeStats>();
             stats.maxHealth = 60; // Squishier
-            stats.health = 60;
 
             // Indicator: diamond shape (two pyramids)
             GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -485,7 +483,6 @@ namespace Clout.Editor
 
             RuntimeStats stats = enemy.GetComponent<RuntimeStats>();
             stats.maxHealth = 120; // Tankier
-            stats.health = 120;
             stats.maxPoise = 100;
             stats.poise = 100;
             stats.armor = 15f;
@@ -531,11 +528,9 @@ namespace Clout.Editor
 
         private static void BakeNavMesh()
         {
-            NavMeshSurface surface = Object.FindFirstObjectByType<NavMeshSurface>();
+            NavMeshSurface surface = Object.FindAnyObjectByType<NavMeshSurface>();
             if (surface != null)
             {
-                surface.collectObjects = CollectObjects.All;
-                surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
                 surface.BuildNavMesh();
                 Debug.Log("[Clout] NavMesh baked successfully.");
             }

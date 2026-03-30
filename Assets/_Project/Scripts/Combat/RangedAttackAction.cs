@@ -70,7 +70,7 @@ namespace Clout.Combat
         /// </summary>
         private Vector3 GetAimDirection(CharacterStateManager stateManager, RangedWeaponHook hook)
         {
-            Camera mainCam = Camera.main;
+            UnityEngine.Camera mainCam = UnityEngine.Camera.main;
             if (mainCam != null && stateManager is PlayerStateManager)
             {
                 Ray aimRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));

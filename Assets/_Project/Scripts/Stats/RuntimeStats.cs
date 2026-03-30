@@ -12,11 +12,11 @@ namespace Clout.Stats
     public class RuntimeStats : NetworkBehaviour
     {
         [Header("Health")]
-        [SyncVar] public int health = 100;
+        public readonly SyncVar<int> health = new SyncVar<int>(100);
         public int maxHealth = 100;
 
         [Header("Stamina")]
-        [SyncVar] public float stamina = 100f;
+        public readonly SyncVar<float> stamina = new SyncVar<float>(100f);
         public float maxStamina = 100f;
         public float staminaRegenRate = 15f;
         public float staminaRegenDelay = 1.5f;
@@ -47,18 +47,18 @@ namespace Clout.Stats
         public void TakeDamage(float damage)
         {
             float mitigated = damage * (1f - Mathf.Clamp01(armor / 100f));
-            health -= Mathf.CeilToInt(mitigated);
-            health = Mathf.Max(0, health);
+            health.Value -= Mathf.CeilToInt(mitigated);
+            health.Value = Mathf.Max(0, health.Value);
             OnHealthChanged?.Invoke();
 
-            if (health <= 0)
+            if (health.Value <= 0)
                 OnDeath?.Invoke();
         }
 
         public bool ConsumeStamina(float amount)
         {
-            if (stamina < amount) return false;
-            stamina -= amount;
+            if (stamina.Value < amount) return false;
+            stamina.Value -= amount;
             _staminaRegenTimer = staminaRegenDelay;
             OnStaminaChanged?.Invoke();
             return true;
@@ -66,7 +66,7 @@ namespace Clout.Stats
 
         public void Heal(int amount)
         {
-            health = Mathf.Min(health + amount, maxHealth);
+            health.Value = Mathf.Min(health.Value + amount, maxHealth);
             OnHealthChanged?.Invoke();
         }
 
@@ -77,19 +77,19 @@ namespace Clout.Stats
         {
             if (isSprinting)
             {
-                stamina -= sprintCostPerSec * delta;
-                stamina = Mathf.Max(0, stamina);
+                stamina.Value -= sprintCostPerSec * delta;
+                stamina.Value = Mathf.Max(0, stamina.Value);
                 _staminaRegenTimer = staminaRegenDelay;
                 OnStaminaChanged?.Invoke();
                 return;
             }
 
-            if (stamina < maxStamina)
+            if (stamina.Value < maxStamina)
             {
                 _staminaRegenTimer -= delta;
                 if (_staminaRegenTimer <= 0)
                 {
-                    stamina = Mathf.Min(stamina + staminaRegenRate * delta, maxStamina);
+                    stamina.Value = Mathf.Min(stamina.Value + staminaRegenRate * delta, maxStamina);
                     OnStaminaChanged?.Invoke();
                 }
             }
@@ -130,12 +130,12 @@ namespace Clout.Stats
         private void Update()
         {
             // Passive stamina regen (fallback when HandleStats isn't running)
-            if (stamina < maxStamina)
+            if (stamina.Value < maxStamina)
             {
                 _staminaRegenTimer -= Time.deltaTime;
                 if (_staminaRegenTimer <= 0)
                 {
-                    stamina = Mathf.Min(stamina + staminaRegenRate * Time.deltaTime, maxStamina);
+                    stamina.Value = Mathf.Min(stamina.Value + staminaRegenRate * Time.deltaTime, maxStamina);
                     OnStaminaChanged?.Invoke();
                 }
             }

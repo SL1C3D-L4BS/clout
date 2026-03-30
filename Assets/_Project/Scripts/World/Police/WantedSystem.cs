@@ -22,8 +22,8 @@ namespace Clout.World.Police
     public class WantedSystem : NetworkBehaviour
     {
         [Header("Heat Config")]
-        [SyncVar] public float currentHeat = 0f;
-        [SyncVar] public WantedLevel currentLevel = WantedLevel.Clean;
+        public readonly SyncVar<float> currentHeat = new SyncVar<float>(0f);
+        public readonly SyncVar<WantedLevel> currentLevel = new SyncVar<WantedLevel>(WantedLevel.Clean);
         public float maxHeat = 500f;
 
         [Header("Decay")]
@@ -51,11 +51,11 @@ namespace Clout.World.Police
         [Server]
         public void AddHeat(float amount, string reason)
         {
-            currentHeat = Mathf.Min(currentHeat + amount, maxHeat);
+            currentHeat.Value = Mathf.Min(currentHeat.Value + amount, maxHeat);
             UpdateWantedLevel();
-            OnHeatChanged?.Invoke(currentHeat);
+            OnHeatChanged?.Invoke(currentHeat.Value);
 
-            Debug.Log($"[Wanted] +{amount:F0} heat ({reason}) -> Total: {currentHeat:F0} [{currentLevel}]");
+            Debug.Log($"[Wanted] +{amount:F0} heat ({reason}) -> Total: {currentHeat.Value:F0} [{currentLevel.Value}]");
         }
 
         /// <summary>
@@ -64,9 +64,9 @@ namespace Clout.World.Police
         [Server]
         public void ReduceHeat(float amount)
         {
-            currentHeat = Mathf.Max(0, currentHeat - amount);
+            currentHeat.Value = Mathf.Max(0, currentHeat.Value - amount);
             UpdateWantedLevel();
-            OnHeatChanged?.Invoke(currentHeat);
+            OnHeatChanged?.Invoke(currentHeat.Value);
         }
 
         public void SetSafeZone(bool inSafeZone) => _isInSafeZone = inSafeZone;
@@ -76,7 +76,7 @@ namespace Clout.World.Police
         private void Update()
         {
             if (!IsServerInitialized) return;
-            if (currentHeat <= 0) return;
+            if (currentHeat.Value <= 0) return;
 
             // Decay heat
             float decay = naturalDecayRate;
@@ -88,7 +88,7 @@ namespace Clout.World.Police
             if (_isHiding) decay *= hidingDecayMultiplier;
             if (_isInSafeZone) decay *= safeZoneDecayMultiplier;
 
-            currentHeat = Mathf.Max(0, currentHeat - decay * Time.deltaTime);
+            currentHeat.Value = Mathf.Max(0, currentHeat.Value - decay * Time.deltaTime);
             UpdateWantedLevel();
         }
 
@@ -96,16 +96,16 @@ namespace Clout.World.Police
         {
             WantedLevel newLevel;
 
-            if (currentHeat >= mostWantedThreshold) newLevel = WantedLevel.MostWanted;
-            else if (currentHeat >= huntedThreshold) newLevel = WantedLevel.Hunted;
-            else if (currentHeat >= wantedThreshold) newLevel = WantedLevel.Wanted;
-            else if (currentHeat >= suspiciousThreshold) newLevel = WantedLevel.Suspicious;
+            if (currentHeat.Value >= mostWantedThreshold) newLevel = WantedLevel.MostWanted;
+            else if (currentHeat.Value >= huntedThreshold) newLevel = WantedLevel.Hunted;
+            else if (currentHeat.Value >= wantedThreshold) newLevel = WantedLevel.Wanted;
+            else if (currentHeat.Value >= suspiciousThreshold) newLevel = WantedLevel.Suspicious;
             else newLevel = WantedLevel.Clean;
 
-            if (newLevel != currentLevel)
+            if (newLevel != currentLevel.Value)
             {
-                currentLevel = newLevel;
-                OnWantedLevelChanged?.Invoke(currentLevel);
+                currentLevel.Value = newLevel;
+                OnWantedLevelChanged?.Invoke(currentLevel.Value);
             }
         }
 

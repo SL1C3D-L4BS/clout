@@ -15,7 +15,6 @@ namespace Clout.AI.Actions
     {
         private float strafeTimer;
         private float strafeDirection = 1f;
-        private float strafeDuration = 2f;
         private float strafeChangeInterval = 1.5f;
 
         private float optimalRangeMin = 8f;

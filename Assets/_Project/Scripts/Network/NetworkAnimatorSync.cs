@@ -36,8 +36,8 @@ namespace Clout.Network
 
             if (stateManager != null && stateManager.runtimeStats != null)
             {
-                _syncHealth.Value = stateManager.runtimeStats.health;
-                _syncStamina.Value = stateManager.runtimeStats.stamina;
+                _syncHealth.Value = stateManager.runtimeStats.health.Value;
+                _syncStamina.Value = stateManager.runtimeStats.stamina.Value;
             }
         }
 
@@ -48,8 +48,8 @@ namespace Clout.Network
 
             if (stateManager.runtimeStats != null)
             {
-                _syncHealth.Value = stateManager.runtimeStats.health;
-                _syncStamina.Value = stateManager.runtimeStats.stamina;
+                _syncHealth.Value = stateManager.runtimeStats.health.Value;
+                _syncStamina.Value = stateManager.runtimeStats.stamina.Value;
             }
 
             _syncIsDead.Value = stateManager.isDead;
@@ -93,7 +93,7 @@ namespace Clout.Network
         {
             if (asServer) return;
             if (stateManager != null && stateManager.runtimeStats != null)
-                stateManager.runtimeStats.health = (int)next;
+                stateManager.runtimeStats.health.Value = (int)next;
         }
 
         private void OnDeadChanged(bool prev, bool next, bool asServer)

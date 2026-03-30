@@ -312,7 +312,7 @@ namespace Clout.Core
             {
                 runtimeStats.TakeDamage(damageEvent.FinalDamage);
 
-                if (runtimeStats.health <= 0)
+                if (runtimeStats.health.Value <= 0)
                 {
                     isDead = true;
                     OnDeath();

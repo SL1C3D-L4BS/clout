@@ -305,26 +305,26 @@ namespace Clout.UI
         {
             if (runtimeStats == null || _healthBar == null) return;
 
-            float ratio = runtimeStats.health / (float)runtimeStats.maxHealth;
+            float ratio = runtimeStats.health.Value / (float)runtimeStats.maxHealth;
             _healthBar.rectTransform.anchorMax = new Vector2(
                 Mathf.Lerp(_healthBar.rectTransform.anchorMin.x, _healthBarBG.rectTransform.anchorMax.x, ratio),
                 _healthBar.rectTransform.anchorMax.y);
 
             _healthBar.color = ratio < 0.3f ? COLOR_HEALTH_LOW : COLOR_HEALTH;
-            _healthText.text = $"HP: {runtimeStats.health}/{runtimeStats.maxHealth}";
+            _healthText.text = $"HP: {runtimeStats.health.Value}/{runtimeStats.maxHealth}";
         }
 
         private void RefreshStamina()
         {
             if (runtimeStats == null || _staminaBar == null) return;
 
-            float ratio = runtimeStats.stamina / runtimeStats.maxStamina;
+            float ratio = runtimeStats.stamina.Value / runtimeStats.maxStamina;
             _staminaBar.rectTransform.anchorMax = new Vector2(
                 Mathf.Lerp(_staminaBar.rectTransform.anchorMin.x, _staminaBarBG.rectTransform.anchorMax.x, ratio),
                 _staminaBar.rectTransform.anchorMax.y);
 
             _staminaBar.color = ratio < 0.25f ? COLOR_STAMINA_LOW : COLOR_STAMINA;
-            _staminaText.text = $"ST: {Mathf.CeilToInt(runtimeStats.stamina)}/{Mathf.CeilToInt(runtimeStats.maxStamina)}";
+            _staminaText.text = $"ST: {Mathf.CeilToInt(runtimeStats.stamina.Value)}/{Mathf.CeilToInt(runtimeStats.maxStamina)}";
         }
 
         private void RefreshAmmo()
@@ -350,7 +350,7 @@ namespace Clout.UI
                 int reserve = 0;
 
                 if (weapon is RangedWeaponItem rangedItem && ammoCacheManager != null)
-                    reserve = ammoCacheManager.GetAmmoCount(rangedItem.ammoType);
+                    reserve = ammoCacheManager.GetAmmo(rangedItem.ammoType);
 
                 _ammoText.text = $"{hook.CurrentAmmo} / {reserve}";
                 _ammoText.color = hook.CurrentAmmo <= 0 ? Color.red : Color.white;

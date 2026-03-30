@@ -26,7 +26,7 @@ namespace Clout.Network
 
         private void Awake()
         {
-            if (FindObjectsByType<NetworkBootstrapper>(FindObjectsInactive.Exclude, FindObjectsSortMode.None).Length > 1)
+            if (FindObjectsByType<NetworkBootstrapper>(FindObjectsInactive.Exclude).Length > 1)
             {
                 Destroy(gameObject);
                 return;

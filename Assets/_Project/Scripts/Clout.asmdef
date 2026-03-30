@@ -3,7 +3,6 @@
     "rootNamespace": "Clout",
     "references": [
         "FishNet.Runtime",
-        "FishNet.Connection",
         "Unity.InputSystem",
         "Unity.Cinemachine",
         "Unity.TextMeshPro",
