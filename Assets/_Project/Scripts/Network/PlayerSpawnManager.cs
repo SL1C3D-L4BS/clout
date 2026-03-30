@@ -26,7 +26,7 @@ namespace Clout.Network
             networkManager = InstanceFinder.NetworkManager;
             if (networkManager == null)
             {
-                Debug.LogError("[PlayerSpawnManager] No NetworkManager found!");
+                enabled = false; // No NetworkManager — disable gracefully for offline play
                 return;
             }
 

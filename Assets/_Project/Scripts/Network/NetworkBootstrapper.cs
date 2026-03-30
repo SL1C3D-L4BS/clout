@@ -39,9 +39,8 @@ namespace Clout.Network
 
             if (networkManager == null)
             {
-                Debug.Log("[Clout Network] No NetworkManager found — running in OFFLINE mode.");
                 _networkReady = false;
-                return;
+                return; // Offline mode — no NetworkManager in scene, totally fine for singleplayer
             }
 
             _networkReady = true;

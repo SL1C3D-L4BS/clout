@@ -475,7 +475,7 @@ namespace Clout.UI
             Text txt = obj.AddComponent<Text>();
             txt.text = defaultText;
             txt.fontSize = fontSize;
-            txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            txt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             txt.color = Color.white;
             txt.alignment = TextAnchor.MiddleLeft;
             txt.horizontalOverflow = HorizontalWrapMode.Overflow;

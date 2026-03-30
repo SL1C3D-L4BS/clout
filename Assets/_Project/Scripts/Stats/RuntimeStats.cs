@@ -70,6 +70,12 @@ namespace Clout.Stats
             OnHealthChanged?.Invoke();
         }
 
+        public void RestoreStamina(float amount)
+        {
+            stamina.Value = Mathf.Min(stamina.Value + amount, maxStamina);
+            OnStaminaChanged?.Invoke();
+        }
+
         /// <summary>
         /// Handle stamina regen/drain. Called by HandleStats action each frame.
         /// </summary>
