@@ -64,6 +64,10 @@ namespace Clout.UI
         // Crosshair
         private Image _crosshair;
 
+        // Cash & Interaction Prompt (OnGUI — quick overlay, no canvas element needed)
+        private string _interactionPrompt = "";
+        private float _playerCash;
+
         // State debug
         private Text _stateDebugText;
 
@@ -138,6 +142,7 @@ namespace Clout.UI
             RefreshAmmo();
             RefreshCrosshair();
             RefreshStateDebug();
+            RefreshCashAndPrompt();
         }
 
         // ─────────────────────────────────────────────────────────
@@ -419,6 +424,53 @@ namespace Clout.UI
         }
 
         private void OnHeatChanged(float heat) { }
+
+        private void RefreshCashAndPrompt()
+        {
+            if (playerStateManager == null) return;
+            _playerCash = playerStateManager.cash;
+            _interactionPrompt = playerStateManager.currentInteractionPrompt ?? "";
+        }
+
+        /// <summary>
+        /// OnGUI overlay for cash display and interaction prompt.
+        /// Lightweight — doesn't need Canvas elements.
+        /// </summary>
+        private void OnGUI()
+        {
+            if (playerStateManager == null) return;
+
+            // Cash display — top center
+            GUIStyle cashStyle = new GUIStyle(GUI.skin.label);
+            cashStyle.fontSize = 20;
+            cashStyle.fontStyle = FontStyle.Bold;
+            cashStyle.normal.textColor = new Color(0.4f, 1f, 0.4f);
+            cashStyle.alignment = TextAnchor.MiddleCenter;
+            GUI.Label(new Rect(Screen.width / 2 - 80, 10, 160, 30), $"${_playerCash:F0}", cashStyle);
+
+            // Product inventory value — small text below cash
+            Empire.Dealing.ProductInventory prodInv = playerStateManager.GetComponent<Empire.Dealing.ProductInventory>();
+            if (prodInv != null && prodInv.Products.Count > 0)
+            {
+                GUIStyle invStyle = new GUIStyle(GUI.skin.label);
+                invStyle.fontSize = 12;
+                invStyle.normal.textColor = new Color(0.7f, 0.7f, 0.7f);
+                invStyle.alignment = TextAnchor.MiddleCenter;
+                GUI.Label(new Rect(Screen.width / 2 - 100, 38, 200, 20),
+                    $"Product: {prodInv.Products.Count} stacks (${prodInv.GetTotalValue():F0})", invStyle);
+            }
+
+            // Interaction prompt — bottom center
+            if (!string.IsNullOrEmpty(_interactionPrompt))
+            {
+                GUIStyle promptStyle = new GUIStyle(GUI.skin.box);
+                promptStyle.fontSize = 16;
+                promptStyle.alignment = TextAnchor.MiddleCenter;
+                promptStyle.normal.textColor = Color.white;
+                string text = $"[E] {_interactionPrompt}";
+                GUI.Box(new Rect(Screen.width / 2 - 100, Screen.height - 120, 200, 35), text, promptStyle);
+            }
+        }
 
         // ─────────────────────────────────────────────────────────
         //  UI BUILDERS

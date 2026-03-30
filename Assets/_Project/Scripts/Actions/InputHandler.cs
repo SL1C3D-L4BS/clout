@@ -156,18 +156,36 @@ namespace Clout.Actions
 
         private void HandleInteractInput(PlayerStateManager player, PlayerInputHandler input)
         {
-            if (!input.interactPressed) return;
             if (player.isInteracting) return;
 
-            Collider[] hits = Physics.OverlapSphere(player.transform.position, 2f);
+            // Scan for nearby interactables — always update prompt
+            IInteractable closest = null;
+            float closestDist = float.MaxValue;
+
+            Collider[] hits = Physics.OverlapSphere(player.transform.position, 2.5f);
             foreach (var hit in hits)
             {
+                if (hit.transform.root == player.transform) continue;
+
                 IInteractable interactable = hit.GetComponent<IInteractable>();
-                if (interactable != null)
+                if (interactable == null) continue;
+                if (!interactable.CanInteract(player)) continue;
+
+                float dist = Vector3.Distance(player.transform.position, hit.transform.position);
+                if (dist < closestDist)
                 {
-                    interactable.OnInteract(player);
-                    return;
+                    closest = interactable;
+                    closestDist = dist;
                 }
+            }
+
+            // Store current prompt for HUD display
+            player.currentInteractionPrompt = closest != null ? closest.InteractionPrompt : "";
+
+            // Execute interaction on input
+            if (input.interactPressed && closest != null)
+            {
+                closest.OnInteract(player);
             }
         }
 

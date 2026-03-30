@@ -48,6 +48,9 @@ namespace Clout.Player
         public WeaponItem startingRightWeapon;
         public WeaponItem startingLeftWeapon;
 
+        // Interaction prompt — set by InputHandler, read by HUD
+        [HideInInspector] public string currentInteractionPrompt = "";
+
         public override void Init()
         {
             base.Init();
