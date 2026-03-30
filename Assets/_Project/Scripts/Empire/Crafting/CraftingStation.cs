@@ -83,13 +83,14 @@ namespace Clout.Empire.Crafting
             }
         }
 
+        public event Action<CraftingBatch> OnBatchComplete;
+
         private void CompleteBatch(CraftingBatch batch)
         {
+            batch.isComplete = true;
             Debug.Log($"[Crafting] Batch complete: {batch.recipe.recipeName} (Quality: {batch.quality:P0})");
-            // TODO: Create product in inventory, check for accidents, trigger events
+            OnBatchComplete?.Invoke(batch);
         }
-
-        public event Action<CraftingBatch> OnBatchComplete;
     }
 
     [System.Serializable]

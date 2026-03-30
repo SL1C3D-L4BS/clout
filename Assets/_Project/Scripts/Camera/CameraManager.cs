@@ -89,6 +89,8 @@ namespace Clout.Camera
 
         private void LateUpdate()
         {
+            if (!isLocalPlayer) return;
+
             if (Mathf.Abs(_currentFOV - _targetFOV) > 0.01f)
             {
                 _currentFOV = Mathf.Lerp(_currentFOV, _targetFOV, fovLerpSpeed * Time.deltaTime);

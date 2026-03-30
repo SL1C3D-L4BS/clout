@@ -210,10 +210,10 @@ namespace Clout.Editor
 
         private static GameObject BuildPlayer(GameObject mainCam)
         {
-            // Root
+            // Root — y=0.01 prevents z-fighting where capsule bottom meets ground surface (both at y=0)
             GameObject player = new GameObject("Player");
             player.tag = "Player";
-            player.transform.position = new Vector3(0f, 0f, 0f);
+            player.transform.position = new Vector3(0f, 0.01f, 0f);
             player.layer = LayerMask.NameToLayer("Default");
 
             // Capsule model — placeholder for character model
@@ -329,8 +329,9 @@ namespace Clout.Editor
 
         private static GameObject BuildEnemyBase(string name, Vector3 position, Color color, float aggression)
         {
+            // y+0.01 lifts root just above ground surface — prevents z-fighting on capsule bottom mesh
             GameObject enemy = new GameObject(name);
-            enemy.transform.position = position;
+            enemy.transform.position = new Vector3(position.x, position.y + 0.01f, position.z);
             enemy.layer = LayerMask.NameToLayer("Default");
 
             // Capsule model
@@ -509,6 +510,9 @@ namespace Clout.Editor
         private static void BuildHUD(GameObject player)
         {
             GameObject hudObj = new GameObject("CombatHUD");
+            // ScreenSpaceOverlay ignores world position at runtime, but placing at y=100
+            // keeps the Canvas rect gizmo out of the arena floor in scene view.
+            hudObj.transform.position = new Vector3(0f, 100f, 0f);
             CombatHUD hud = hudObj.AddComponent<CombatHUD>();
 
             // Wire references — HUD will find canvas and create UI in Awake

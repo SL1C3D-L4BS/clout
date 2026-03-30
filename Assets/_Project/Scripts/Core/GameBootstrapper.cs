@@ -1,4 +1,5 @@
 using UnityEngine;
+using Clout.Network;
 
 namespace Clout.Core
 {
@@ -18,7 +19,7 @@ namespace Clout.Core
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Bootstrap()
         {
-            // Ensure GameManager exists
+            // Ensure GameBootstrapper exists
             if (FindAnyObjectByType<GameBootstrapper>() == null)
             {
                 GameObject go = new GameObject("[Clout] Bootstrapper");
@@ -30,7 +31,21 @@ namespace Clout.Core
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
+
+            if (ensureNetwork)
+                EnsureNetworkBootstrapper();
+
             Debug.Log("[Clout] Game bootstrapper initialized.");
+        }
+
+        private void EnsureNetworkBootstrapper()
+        {
+            if (FindAnyObjectByType<NetworkBootstrapper>() != null) return;
+
+            GameObject go = new GameObject("[Clout] NetworkBootstrapper");
+            var nb = go.AddComponent<NetworkBootstrapper>();
+            nb.autoStartAsHost = autoStartAsHost;
+            DontDestroyOnLoad(go);
         }
     }
 }

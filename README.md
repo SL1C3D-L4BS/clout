@@ -56,8 +56,41 @@ You're nobody. You roll into a boxy low-poly city with nothing. Cook product, hi
 | AI Navigation | Unity AI Navigation 2.0.6 |
 | Level Design | ProBuilder 6.0.9 |
 | UI | TextMeshPro |
-| Asset Pipeline | Addressables |
 | Art Style | Synty POLYGON |
+
+---
+
+## Current Status: Phase 1 Complete ✅
+
+**62 scripts** across all systems. Full combat foundation operational.
+
+### What's Built
+
+| System | Scripts | Status |
+|--------|---------|--------|
+| Core State Machine | 7 | ✅ Complete — StateManager, State, StateAction, CharacterStateManager, Interfaces, Enums, ComboInfo |
+| Controller Actions | 7 | ✅ Complete — Movement, InputHandler, Rotation, Stats, Roll, Interaction, Combo |
+| Combat System | 9 | ✅ Complete — Melee attacks, ranged hitscan, damage colliders, projectiles, recoil, ammo |
+| Camera System | 2 | ✅ Complete — 4-mode Cinemachine (FreeLook/HipFire/ADS/LockOn), collision |
+| Animation | 1 | ✅ Complete — AnimatorHook with IK, root motion, animation events |
+| Player | 2 | ✅ Complete — PlayerStateManager, PlayerInputHandler |
+| AI System | 7 | ✅ Complete — Detection, patrol, chase, ranged attack, combat selector, utility scoring |
+| Network | 4 | ✅ Complete — FishNet bootstrapper, anim sync, damage handler, spawn manager |
+| Empire | 7 | ✅ Complete — Crafting, properties, employees, economy, reputation, territory, vehicles |
+| World | 2 | ✅ Complete — Wanted system (6-tier heat), police response |
+| Inventory | 2 | ✅ Complete — Item management, equipment |
+| Stats | 1 | ✅ Complete — RuntimeStats with FishNet SyncVar<T> |
+| Editor Tools | 2 | ✅ Complete — TestArenaBuilder, PlayerPrefabBuilder |
+| UI/HUD | 1 | ✅ Complete — CombatHUD (health, stamina, CLOUT, wanted, ammo, crosshair) |
+
+### Empire Event Pipeline (Wired)
+```
+Kill Enemy     → +25 CLOUT, +80 heat
+Kill Police    → +50 CLOUT, +150 heat
+Gunfire        → +30 heat per shot
+Melee Assault  → +40 heat (civilian), +100 heat (police)
+Ranged Assault → +40 heat (civilian), +100 heat (police)
+```
 
 ---
 
@@ -70,8 +103,9 @@ Clout/
 │   │   ├── Scripts/
 │   │   │   ├── Core/           # State machine, interfaces, enums, bootstrapper
 │   │   │   ├── Player/         # Player controller, input handling
-│   │   │   ├── AI/             # Enemy AI, NPC behavior, GOAP
-│   │   │   ├── Combat/         # Melee + ranged combat systems
+│   │   │   ├── AI/             # Enemy AI — detection, patrol, chase, combat, scoring
+│   │   │   │   └── Actions/    # Pluggable AI state actions
+│   │   │   ├── Combat/         # Melee + ranged combat, weapons, damage, ammo
 │   │   │   ├── Camera/         # 4-mode Cinemachine camera system
 │   │   │   ├── Input/          # Input System bindings
 │   │   │   ├── Inventory/      # Item management, equipment
@@ -86,95 +120,36 @@ Clout/
 │   │   │   │   ├── Territory/  # Zone control, influence, wars
 │   │   │   │   └── Vehicles/   # Vehicle ownership, mods
 │   │   │   ├── World/
-│   │   │   │   ├── Police/     # Wanted system, heat, raids
-│   │   │   │   ├── NPCs/       # Civilian AI, consumers, dealers
-│   │   │   │   ├── Traffic/    # Vehicle AI, traffic system
-│   │   │   │   ├── DayNight/   # Time of day, lighting
-│   │   │   │   └── Events/     # Random events, opportunities
-│   │   │   ├── Stats/          # Health, stamina, skills
-│   │   │   ├── Save/           # Serialization, cloud saves
-│   │   │   ├── Audio/          # Audio manager, mixer control
+│   │   │   │   └── Police/     # Wanted system, heat, raids
+│   │   │   ├── Stats/          # Health, stamina, skills (SyncVar<T>)
 │   │   │   ├── UI/             # HUD, menus, inventory UI
-│   │   │   └── Utils/          # Helpers, editor tools
-│   │   ├── ScriptableObjects/  # All SO assets (weapons, recipes, NPCs, etc.)
-│   │   ├── Art/                # Models, materials, textures, VFX, UI art
-│   │   ├── Animations/         # Clips, blend trees, controllers
-│   │   ├── Audio/              # Music, SFX, voice, mixers
-│   │   ├── Prefabs/            # Player, NPCs, weapons, vehicles, props
-│   │   ├── Scenes/             # Main, test, UI, additive scenes
-│   │   └── Settings/           # Rendering, input, audio settings
-│   ├── _ThirdParty/            # Synty, FishNet, plugins
-│   ├── StreamingAssets/
-│   └── Resources/
-├── Docs/                       # Design docs, architecture notes
+│   │   │   ├── Editor/         # Test arena builder, prefab tools
+│   │   │   └── Utils/          # Helpers, extensions
+│   │   ├── ScriptableObjects/  # Weapons, recipes, NPCs, items
+│   │   ├── Prefabs/            # Player, NPCs, weapons, props
+│   │   └── Scenes/             # Bootstrap, Main, Test
+│   └── _ThirdParty/            # Synty, FishNet, plugins
+├── Docs/
+│   └── Architecture/           # Design docs, build spec, asset list, phase plans
 ├── Packages/                   # Unity package manifest
 └── ProjectSettings/            # Unity project configuration
 ```
 
 ### Design Patterns
-- **State Machine** — All characters (player + AI) share one `CharacterStateManager` base
+- **State Machine** — All characters (player + AI) share `CharacterStateManager` base
 - **Strategy Pattern** — `StateAction` classes are pluggable behaviors composed into states
 - **ScriptableObject Architecture** — Items, recipes, NPCs, weapons, properties all SO-driven
 - **Server Authority** — FishNet `[Server]`/`[ServerRpc]` for all game-critical logic
-- **SyncVar Replication** — Client-visible state synced via FishNet SyncVars
-- **Assembly Definitions** — `Clout` and `Clout.Editor` for fast iteration
+- **SyncVar<T> Replication** — FishNet 4.7 generic SyncVars for client-visible state
+- **Utility Theory AI** — Weighted scoring for AI combat decisions (distance, angle, health, ammo, aggression)
+- **Assembly Definitions** — `Clout` (runtime) and `Clout.Editor` (editor-only) for fast iteration
 
 ### Heritage
 Built on foundations from:
 - **Sharp Accent Souls-like** — State machine, melee combat, lock-on, inventory, AI utility theory
-- **Sharp Accent TPS/FPS Shooter** — Gunplay, ADS, recoil, stances, FPS camera, multiplayer matches
+- **Sharp Accent TPS/FPS Shooter** — Gunplay, ADS, recoil, stances, FPS camera, multiplayer
 - **NullReach** — FishNet networking layer, per-player systems, hybrid combat engine
 - **Bastaard Engine** — Style meter philosophy (evolved into CLOUT score), mixed melee+ranged
-
----
-
-## Development Phases
-
-### Phase 0: Foundation ✅
-- [x] Unity 6 project setup
-- [x] AAA folder structure
-- [x] Git repository with LFS
-- [x] Core state machine architecture
-- [x] FishNet networking foundation
-- [x] Assembly definitions
-
-### Phase 1: Character Controller
-- [ ] Player state machine (locomotion, combat, interact, vehicle)
-- [ ] Input System bindings (keyboard/mouse + gamepad)
-- [ ] 4-mode Cinemachine camera
-- [ ] Basic melee combat (light/heavy/combo)
-- [ ] Basic ranged combat (hitscan + projectile)
-- [ ] AnimatorHook with IK
-
-### Phase 2: Empire Core
-- [ ] Crafting system (recipes, ingredients, products)
-- [ ] Property system (buy, upgrade, manage)
-- [ ] Employee system (hire, assign, manage)
-- [ ] Basic economy (static pricing)
-- [ ] Inventory system
-
-### Phase 3: World Systems
-- [ ] Wanted system (heat, police AI, evidence)
-- [ ] CLOUT reputation system
-- [ ] Day/night cycle
-- [ ] NPC consumers (buy product, have preferences)
-- [ ] Basic vehicle system
-
-### Phase 4: Multiplayer
-- [ ] Player spawning and session management
-- [ ] Territory system (zone control, influence)
-- [ ] PvP combat synchronization
-- [ ] Co-op empire sharing
-- [ ] Lobby / matchmaking
-
-### Phase 5: Content & Polish
-- [ ] Synty POLYGON art integration
-- [ ] Full weapon set (melee + ranged)
-- [ ] Property interiors
-- [ ] Advanced AI (rival cartels, police tactics)
-- [ ] UI/UX polish
-- [ ] Audio design
-- [ ] Save/load system
 
 ---
 
@@ -186,7 +161,7 @@ Built on foundations from:
 
 ### Setup
 ```bash
-git clone <repo-url> Clout
+git clone git@github.com:SL1C3D-L4BS/clout.git Clout
 cd Clout
 git lfs pull
 ```
@@ -194,10 +169,29 @@ git lfs pull
 Open in Unity Hub. The project targets Unity 6 with URP.
 
 ### First Run
-1. Open Unity Hub → Add Project → Select `Clout/` folder
+1. Open Unity Hub → Add Project → select `Clout/` folder
 2. Wait for package resolution and import
-3. Open `Assets/_Project/Scenes/Test/TestArena.unity`
+3. Use menu: **Clout > Build Test Arena** to generate the test scene
 4. Press Play
+
+### Build Test Arena
+The editor tool (`Clout > Build Test Arena`) programmatically creates:
+- Ground plane with baked NavMesh
+- Cover objects and boundary walls
+- Player with full component stack (StateManager, Combat, Camera, Network)
+- 3 enemy types: melee thug, ranged shooter, hybrid enforcer
+- Cinemachine 4-mode camera rig
+- Combat HUD (health, stamina, CLOUT rank, wanted level, ammo, crosshair)
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| `Docs/Architecture/BUILD_SPECIFICATION.md` | Full 30-section game design document |
+| `Docs/Architecture/SYNTY_ASSET_LIST.md` | Synty POLYGON asset requirements & integration guide |
+| `Docs/Architecture/PHASE_1_EXECUTION_PLAN.md` | Phase 1 step-by-step completion log |
 
 ---
 
@@ -207,4 +201,4 @@ Proprietary. All rights reserved.
 
 ---
 
-*Built with obsession by TheArchitect. 2026.*
+*Built with obsession by TheArchitect × Claude. SlicedLabs 2026.*

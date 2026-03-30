@@ -1,0 +1,880 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1653031302578635630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 997220440385258591}
+  m_Layer: 0
+  m_Name: CameraFollowTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &997220440385258591
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653031302578635630}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9001952519918302945}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1694972147796146680
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7239102860685465308}
+  - component: {fileID: 6727661834071694219}
+  m_Layer: 0
+  m_Name: LeftWeaponHook
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7239102860685465308
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1694972147796146680}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.3, y: 0.9, z: 0.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9001952519918302945}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6727661834071694219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1694972147796146680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9f8a31793dd1450ca0e71b842e20093, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Combat.WeaponHolderHook
+  isLeftHook: 1
+--- !u!1 &4787673657650980063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5219424975679996580}
+  - component: {fileID: 6688228294882391467}
+  - component: {fileID: 9046331619833961434}
+  m_Layer: 0
+  m_Name: Model
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5219424975679996580
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4787673657650980063}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9001952519918302945}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &6688228294882391467
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4787673657650980063}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &9046331619833961434
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4787673657650980063}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4858907435251428630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1486241549415575612}
+  - component: {fileID: 2485070007708923269}
+  m_Layer: 0
+  m_Name: CameraManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1486241549415575612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4858907435251428630}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9001952519918302945}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2485070007708923269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4858907435251428630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6626ccd341cb4bb580433f1142cf615, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Camera.CameraManager
+  freeLookCam: {fileID: 0}
+  lockOnCam: {fileID: 0}
+  hipFireCam: {fileID: 0}
+  adsCam: {fileID: 0}
+  playerTransform: {fileID: 0}
+  cameraFollowTarget: {fileID: 0}
+  topRigHeight: 4.5
+  topRigRadius: 2.5
+  midRigHeight: 2.5
+  midRigRadius: 5
+  botRigHeight: 0.5
+  botRigRadius: 2
+  lockOnOffset: {x: 0.5, y: 2.5, z: -4}
+  hipFireOffset: {x: 1.2, y: 1.8, z: -2.5}
+  adsOffset: {x: 0.3, y: 1.6, z: -0.8}
+  defaultFOV: 60
+  adsFOV: 40
+  fovLerpSpeed: 8
+--- !u!1 &6066167562080517305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3426786609352877493}
+  - component: {fileID: 2838995202870524509}
+  m_Layer: 0
+  m_Name: RightWeaponHook
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3426786609352877493
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6066167562080517305}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.3, y: 0.9, z: 0.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9001952519918302945}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2838995202870524509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6066167562080517305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9f8a31793dd1450ca0e71b842e20093, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Combat.WeaponHolderHook
+  isLeftHook: 0
+--- !u!1 &6606108874507730265
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9001952519918302945}
+  - component: {fileID: 7879976652940138883}
+  - component: {fileID: 163803745867285172}
+  - component: {fileID: 2470240288144902655}
+  - component: {fileID: 7620507426662374735}
+  - component: {fileID: 8986452949318440576}
+  - component: {fileID: 4042392496439574887}
+  - component: {fileID: 1611793524855631606}
+  - component: {fileID: 2689285977499480984}
+  - component: {fileID: 8830574249988029703}
+  - component: {fileID: 8961176103778753597}
+  - component: {fileID: 4423211434020430515}
+  - component: {fileID: 3173268735077401810}
+  - component: {fileID: 4454782841465655831}
+  - component: {fileID: 3476794616902307398}
+  - component: {fileID: 2883208373960231360}
+  - component: {fileID: 5752990275656506478}
+  - component: {fileID: 7047902608380195108}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9001952519918302945
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5219424975679996580}
+  - {fileID: 997220440385258591}
+  - {fileID: 1673269050495042834}
+  - {fileID: 3426786609352877493}
+  - {fileID: 7239102860685465308}
+  - {fileID: 1486241549415575612}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7879976652940138883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Object.NetworkObject
+  _useLevelOfDetail: 0
+  _useRootLevelOfDetail: 1
+  NetworkObserver: {fileID: 0}
+  _enablePrediction: 0
+  _predictionType: 0
+  _localReconcileCorrectionType: 2
+  _graphicalObject: {fileID: 0}
+  _detachGraphicalObject: 0
+  _enableStateForwarding: 1
+  _networkTransform: {fileID: 0}
+  _ownerInterpolation: 1
+  _ownerSmoothedProperties: 255
+  _adaptiveInterpolation: 3
+  _spectatorSmoothedProperties: 255
+  _spectatorInterpolation: 2
+  _enableTeleport: 0
+  _teleportThreshold: 1
+  <PrefabId>k__BackingField: 65535
+  <SpawnableCollectionId>k__BackingField: 0
+  <AssetPathHash>k__BackingField: 7135599519075005763
+  SceneId: 0
+  SerializedTransformProperties:
+    Position: {x: 0, y: 0, z: 0}
+    Rotation: {x: 0, y: 0, z: 0, w: 0}
+    Scale: {x: 0, y: 0, z: 0}
+    IsValid: 0
+  <IsNested>k__BackingField: 0
+  WasActiveDuringEdit: 0
+  WasActiveDuringEdit_Set1: 1
+  <ComponentIndex>k__BackingField: 0
+  <PredictedSpawn>k__BackingField: {fileID: 0}
+  <PredictedOwner>k__BackingField: {fileID: 0}
+  NetworkBehaviours: []
+  InitializedParentNetworkBehaviour: {fileID: 0}
+  InitializedNestedNetworkObjects: []
+  RuntimeParentNetworkBehaviour: {fileID: 0}
+  RuntimeChildNetworkBehaviours: []
+  _isNetworked: 1
+  _isSpawnable: 1
+  _isGlobal: 0
+  _initializeOrder: 0
+  _preventDespawnOnDisconnect: 0
+  _defaultDespawnType: 0
+  _initializedTimestamp: 0
+--- !u!114 &163803745867285172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2836e36774ca1c4bbbee976e17b649c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Component.Transforming.NetworkTransform
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  _componentConfiguration: 0
+  _synchronizeParent: 0
+  _packing:
+    Position: 1
+    Rotation: 1
+    Scale: 0
+  _useScaledTime: 1
+  _interpolation: 2
+  _extrapolation: 2
+  _enableTeleport: 0
+  _teleportThreshold: 1
+  _clientAuthoritative: 1
+  _sendToOwner: 1
+  _interval: 1
+  _synchronizePosition: 1
+  _positionSensitivity: 0.001
+  _positionSnapping:
+    X: 0
+    Y: 0
+    Z: 0
+  _synchronizeRotation: 1
+  _rotationSnapping:
+    X: 0
+    Y: 0
+    Z: 0
+  _synchronizeScale: 1
+  _scaleSensitivity: 0.001
+  _scaleSnapping:
+    X: 0
+    Y: 0
+    Z: 0
+--- !u!114 &2470240288144902655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fb1e3f265f4b4b418298cfc29ad4e4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Network.NetworkAnimatorSync
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  stateManager: {fileID: 0}
+--- !u!136 &7620507426662374735
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.35
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!54 &8986452949318440576
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  serializedVersion: 5
+  m_Mass: 70
+  m_LinearDamping: 4
+  m_AngularDamping: 999
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 1
+  m_Constraints: 112
+  m_CollisionDetection: 2
+--- !u!195 &4042392496439574887
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 0
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!95 &1611793524855631606
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2689285977499480984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3b32a703d6db46b29f5684f8438450b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Combat.WeaponHolderManager
+  rightHook: {fileID: 0}
+  leftHook: {fileID: 0}
+--- !u!114 &8830574249988029703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d294fb37006d540fba62f22e13db9c90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Stats.RuntimeStats
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  maxHealth: 100
+  maxStamina: 100
+  staminaRegenRate: 15
+  staminaRegenDelay: 1.5
+  poise: 100
+  maxPoise: 100
+  poiseRegenRate: 20
+  poiseRegenDelay: 2
+  isStaggered: 0
+  lightAttackCost: 15
+  heavyAttackCost: 25
+  rollCost: 20
+  sprintCostPerSec: 10
+  armor: 0
+  bulletResistance: 0
+--- !u!114 &8961176103778753597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5a12c3edebb44a20ad525652e4335f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Combat.AmmoCacheManager
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  startingPistol: 24
+  startingSMG: 60
+  startingRifle: 30
+  startingShotgun: 16
+  startingSniper: 10
+  startingExplosive: 4
+  maxPistol: 96
+  maxSMG: 240
+  maxRifle: 120
+  maxShotgun: 48
+  maxSniper: 30
+  maxExplosive: 8
+--- !u!114 &4423211434020430515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ee654718b0f421c8dbb0e81983beaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Empire.Reputation.ReputationManager
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  rankThresholds: 0000000064000000f4010000d00700001027000050c30000
+  rankNames:
+  - Nobody
+  - Corner Boy
+  - Hustler
+  - Shot Caller
+  - Kingpin
+  - Legend
+--- !u!114 &3173268735077401810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6395e0166b85b40368482d9a75fdcf8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.World.Police.WantedSystem
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  maxHeat: 500
+  naturalDecayRate: 1
+  hidingDecayMultiplier: 3
+  safeZoneDecayMultiplier: 5
+  suspiciousThreshold: 50
+  wantedThreshold: 150
+  huntedThreshold: 300
+  mostWantedThreshold: 450
+--- !u!114 &4454782841465655831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66ca85da4f3094599be357665d2ef6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Inventory.InventoryManager
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  maxSlots: 30
+  maxCarryWeight: 50
+  weaponSlots: 4
+  consumableSlots: 4
+--- !u!114 &3476794616902307398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: 0}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: 
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &2883208373960231360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a859d7e240ba4466196c1db24612c227, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Player.PlayerInputHandler
+  moveInput: {x: 0, y: 0}
+  lookInput: {x: 0, y: 0}
+  moveAmount: 0
+  rbPressed: 0
+  rtPressed: 0
+  lbPressed: 0
+  ltPressed: 0
+  fireHeld: 0
+  aimHeld: 0
+  reloadPressed: 0
+  stancePressed: 0
+  rollPressed: 0
+  sprintHeld: 0
+  jumpPressed: 0
+  interactPressed: 0
+  inventoryPressed: 0
+  phonePressed: 0
+  enterVehiclePressed: 0
+--- !u!114 &5752990275656506478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db2c5f4df3d3c49788392b0cc869f396, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Network.NetworkDamageHandler
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  maxHitDistance: 5
+  hitCooldown: 0.2
+--- !u!114 &7047902608380195108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6606108874507730265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2288f0cf6e254ddba3864a9396c8902, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Clout::Clout.Player.PlayerStateManager
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7879976652940138883}
+  _networkObjectCache: {fileID: 0}
+  _currentStateId: 
+  anim: {fileID: 1611793524855631606}
+  rigid: {fileID: 8986452949318440576}
+  agent: {fileID: 4042392496439574887}
+  animHook: {fileID: 0}
+  lockOnTarget: {fileID: 1673269050495042834}
+  model: {fileID: 5219424975679996580}
+  locomotionStateId: locomotion
+  attackStateId: attack
+  rollStateId: roll
+  staggerStateId: stagger
+  deathStateId: death
+  interactStateId: interact
+  vehicleStateId: vehicle
+  isGrounded: 0
+  isOnAir: 0
+  isInteracting: 0
+  useRootMotion: 0
+  canRotate: 1
+  isDead: 0
+  lockOn: 0
+  isTwoHanded: 0
+  canDoCombo: 0
+  isSprinting: 0
+  isAiming: 0
+  isShooting: 0
+  isReloading: 0
+  currentStance: 0
+  currentWeaponType: 0
+  horizontal: 0
+  vertical: 0
+  moveAmount: 0
+  moveDirection: {x: 0, y: 0, z: 0}
+  rotationSpeed: 10
+  sprintSpeed: 6
+  runSpeed: 4
+  walkSpeed: 2
+  crouchSpeedMultiplier: 0.6
+  proneSpeedMultiplier: 0.3
+  aimSpeedMultiplier: 0.7
+  sprintSpeedMultiplier: 1.5
+  weaponHolderManager: {fileID: 2689285977499480984}
+  currentItemAction:
+    animNames: []
+    itemAction: {fileID: 0}
+    attackInput: 0
+    isMirrored: 0
+    isTwoHanded: 0
+  currentWeaponInUse: {fileID: 0}
+  currentCombo: []
+  comboIndex: 0
+  ammoCacheManager: {fileID: 8961176103778753597}
+  runtimeStats: {fileID: 8830574249988029703}
+  lockOnRadius: 20
+  networkDamageHandler: {fileID: 0}
+  currentWantedLevel: 0
+  cash: 0
+  lastAttacker: {fileID: 0}
+  hashVertical: 0
+  hashHorizontal: 0
+  hashIsInteracting: 0
+  hashLockOn: 0
+  hashStance: 0
+  hashIsAiming: 0
+  hashIsShooting: 0
+  hashWeaponType: 0
+  hashCanDoCombo: 0
+  hashMirror: 0
+  hashIsOnAir: 0
+  cameraTransform: {fileID: 0}
+  cameraManager: {fileID: 2485070007708923269}
+  inputHandler: {fileID: 2883208373960231360}
+  maxDodgeCharges: 2
+  currentDodgeCharges: 2
+  dodgeCooldown: 3
+  reputationManager: {fileID: 4423211434020430515}
+  wantedSystem: {fileID: 3173268735077401810}
+  inventoryManager: {fileID: 4454782841465655831}
+  startingRightWeapon: {fileID: 0}
+  startingLeftWeapon: {fileID: 0}
+--- !u!1 &7851495554816189720
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1673269050495042834}
+  m_Layer: 0
+  m_Name: LockOnRef
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1673269050495042834
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7851495554816189720}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9001952519918302945}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
