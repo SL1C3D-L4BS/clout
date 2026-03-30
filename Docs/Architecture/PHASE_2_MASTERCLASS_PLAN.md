@@ -743,4 +743,88 @@ If time is short, implement in this order (each step is playable):
 
 ---
 
-*CLOUT Phase 2 Masterclass Plan v1.0 — SlicedLabs — March 2026*
+---
+
+## Appendix A: Sharp Accent Cross-Analysis & Port Map
+
+### What We Extracted (701 files analyzed → 11 systems ported)
+
+The Sharp Accent codebase (`sharpaccent-full/`) contains 701 C# scripts across the root and 16 tutorial folders (Parts 151–169). It's a **combat-focused action game engine** — no business simulation, economy, or property systems exist. Everything useful is about character systems, inventory, save/load, and utility infrastructure.
+
+### Systems Ported to CLOUT (SA → Clout namespace)
+
+| SA System | SA File(s) | CLOUT File | What Changed |
+|-----------|-----------|------------|-------------|
+| Object Pooling | ObjectPooler.cs, ObjectPoolAsset.cs | Utils/ObjectPooler.cs, ObjectPoolConfig.cs | Auto-expand pools, delayed return, DontDestroyOnLoad, typed API |
+| Item Database | ResourcesManager.cs | Utils/ResourceDatabase.cs | Generic typed lookup, auto-init singleton, multi-type support |
+| Event System | EventsManager.cs | Utils/EventBus.cs | String-based → type-safe generics, game event structs defined |
+| Save System | Serialization.cs, SaveFile.cs, SaveableMonobehavior.cs | Save/SaveManager.cs | BinaryFormatter → JSON, 3 slots, versioning, full empire data model |
+| Clothing | ClothManager.cs, ClothItem.cs, ClothItemHook.cs | Player/AppearanceManager.cs | Synty modular character support, palette variants, disguise system |
+| Consumables | Consumable.cs, ConsumableHolder.cs, AddStatOverTime.cs | Inventory/ConsumableItem.cs | SO-driven effects, tick-based healing, multiple effect types |
+| Doors | DoorHook.cs | World/Interactables/DoorInteractable.cs | Scene transitions, lock system, auto-close, rotation override |
+| Pickups | PickableHook.cs | World/Interactables/PickupInteractable.cs | Multi-type items, respawn, animation, quantity support |
+| Destructibles | DestructiblePropObject.cs, ShootableHook.cs | World/Interactables/DestructibleProp.cs | Combined into one, health pool, pooled VFX, loot drops, reset |
+| Interactions | IInteractable, IShootable, IDamageable | Core/Interactables.cs | InteractionType enum, IDestructible, IPickupable added |
+| Stats Over Time | AddStatOverTime.cs (LogicHook) | Inventory/ConsumableItem.cs (StatOverTimeEffect) | Self-destroying MonoBehaviour, supports health + stamina |
+
+### Systems NOT in Sharp Accent (Must Build from Scratch)
+
+These systems are **100% original CLOUT code** — no Sharp Accent foundation exists:
+
+| System | Why It's New | Phase |
+|--------|-------------|-------|
+| Dealing / Trading | SA has no NPC commerce | Phase 2 |
+| Production / Cooking | SA has no crafting | Phase 2 |
+| Property Management | SA has no building ownership | Phase 2 |
+| Workforce / Employees | SA has no NPC management | Phase 2 |
+| Economy / Pricing | SA has no dynamic economy | Phase 2 |
+| Police / Wanted AI | SA has no law enforcement | Phase 2 |
+| Territory Control | SA has no zone system | Phase 3 |
+| Vehicle System | SA has no vehicles | Phase 3 |
+| Day/Night Cycle | SA has no time system | Phase 3 |
+| Money Laundering | SA has no financial sim | Phase 3 |
+| Command Mode | SA has no RTS layer | Phase 3 |
+
+### Sharp Accent Systems Already Ported in Phase 1
+
+These were ported in the initial Phase 1 sprint and form the combat backbone:
+
+| SA System | Lesson Refs | CLOUT Location |
+|-----------|------------|----------------|
+| State Machine | L9-10, L18-19 | Core/StateManager.cs, State.cs, StateAction.cs |
+| Character Controller | L26-28 | Core/CharacterStateManager.cs, Player/PlayerStateManager.cs |
+| Melee Combat | L4, L9-15, L20-21, L43-44, L90, L95-96, L100 | Combat/AttackAction.cs, DamageCollider.cs |
+| Ranged Combat | COD-like all seasons | Combat/RangedAttackAction.cs, RangedWeaponHook.cs |
+| Weapon System | L157-162 | Combat/WeaponItem.cs, WeaponHolderManager.cs |
+| Camera System | L27, L37, L75-76 | Camera/CameraManager.cs, CameraCollision.cs |
+| Animation | L13, L109 | Animation/AnimatorHook.cs |
+| AI Utility Theory | L30-34, L70, L80-81 | AI/AIStateManager.cs, AI/Actions/* |
+| Inventory Base | L60-67 | Inventory/InventoryManager.cs |
+| Lock-On | L5-6, L16, L75-76, L88 | Core/Interfaces.cs (ILockable) |
+| Combo System | L14, L20, L114, L121 | Core/Interfaces.cs (Combo), Actions/InputsForCombo.cs |
+| Input System | L35 | Player/PlayerInputHandler.cs |
+
+### What's Left Unported (Low Priority for Phase 2)
+
+| SA System | SA Files | Why Deferred |
+|-----------|----------|-------------|
+| Icon Maker | IconMakerAsset.cs, IconMakerActual.cs | Cosmetic — need when building full inventory UI |
+| Match System | MatchManager.cs (11 versions) | PvP multiplayer — Phase 4 |
+| Leaderboard | LeaderboardsManager.cs | Multiplayer feature — Phase 4 |
+| Level Generator | LevelManager.cs, LevelTemplate.cs | Procedural levels — Phase 5 |
+| Bonfire/Checkpoint | BonefireHook.cs | Checkpoint saves — Phase 3 (adapt for safehouses) |
+| UI Navigation | NavigateManager.cs, NavigatableGroupManager.cs | Gamepad menu nav — Phase 5 polish |
+| FPS Handler | FPSHandler.cs, TPSHandler.cs | FPS camera mode — Phase 3 (optional) |
+| Network (SA) | NetworkManager.cs, NetworkPrint.cs | Already replaced by FishNet |
+
+### Total Script Inventory
+
+| Category | Scripts |
+|----------|---------|
+| Phase 1 (combat foundation) | 62 |
+| Phase 1.5 (Sharp Accent ports + fixes) | 11 |
+| **Current Total** | **73** |
+| Phase 2 (planned new scripts) | ~53 |
+| **Projected After Phase 2** | **~126** |
+
+*CLOUT Phase 2 Masterclass Plan v1.1 — SlicedLabs — March 2026*
