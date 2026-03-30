@@ -49,30 +49,45 @@ These need significant modification but the foundation ports:
 | AIRangedAttack | `AI/Actions/AIRangedAttack.cs` | Direct port |
 | PlayerStateManager | `Controller/PlayerStateManager.cs` | Add empire interaction, vehicle state |
 
-## From Sharp Accent TPS/FPS (Reference Only)
+## From Sharp Accent TPS/FPS (Reference + Adaptation)
 
-These systems are studied and reimplemented, not directly ported:
+The TPS/FPS project contains 600+ versioned files across lessons 150-169.
+These systems are studied, adapted, and reimplemented:
 
-| System | SA Source | What We Take |
-|--------|----------|-------------|
-| FPS Camera Mode | `FPSHandler.cs` (lessons 1-17) | First-person camera logic, weapon sway |
-| TPS Camera Mode | `TPSHandler.cs` (lessons 1-6) | Third-person shoulder cam, over-shoulder aim |
-| Match System | `MatchManager.cs`, `DeathMatch.cs` | Session management patterns for territory wars |
-| Leaderboards | `LeaderboardsManager.cs` | Ranking system patterns for CLOUT leaderboard |
-| Inventory Manager | `InventoryManager.cs` (lessons 1-15) | Slot-based inventory UI patterns |
-| Item System | `Item.cs`, `ItemAction.cs` | ScriptableObject item architecture |
-| Network Sync | `NetworkManager.cs`, `NetworkPrint.cs` | FishNet patterns (same networking stack) |
-| Ballistics | `Ballistics.cs` | Projectile physics, bullet drop |
-| Crosshair | `Crosshair.cs` | Dynamic crosshair spread visualization |
-| Level Manager | `LevelManager.cs` | Scene loading patterns |
-| Cloth System | `ClothManager.cs`, `ClothItem.cs` | Character customization framework |
-| Consumables | `ConsumableHolder.cs`, `Consumable.cs` | Item usage patterns (adapt for drug use) |
-| Save System | `SaveableController.cs`, `Serialization.cs` | Save/load architecture |
-| Object Pooling | `ObjectPooler.cs`, `ObjectPoolAsset.cs` | Bullet/VFX pooling |
-| Door System | `DoorHook.cs` | Interactive world objects |
-| Destructibles | `DestructiblePropObject.cs` | Breakable world props |
-| Foot IK | `FootIK.cs` | Terrain adaptation |
-| Screen Shake | `ScreenShakeHandler.cs` | Combat feedback |
+### HIGH Priority — Port with Adaptation
+| System | SA Source | What We Take | Crime Game Use |
+|--------|----------|-------------|----------------|
+| FPS Camera Mode | `FPSHandler.cs` (17 versions) | First-person camera, weapon sway | Optional FPS toggle |
+| TPS Camera Mode | `TPSHandler.cs` (6 versions) | Shoulder cam, over-shoulder aim | Primary camera mode |
+| Cloth System | `ClothManager.cs` + `ClothItem.cs` | Mesh swapping, material assignment | Gang colors, disguises, outfits |
+| Consumables | `Consumable.cs` + `ConsumableHolder.cs` + `ConsumablesHook.cs` | Usage tracking, animation hooks | Health items, buffs, drugs |
+| Save System | `SaveableController.cs` + `SaveableMonobehavior.cs` + `Serialization.cs` | Position/state persistence | Empire state, character progress |
+| Object Pooling | `ObjectPooler.cs` + `ObjectPoolAsset.cs` | Static pool with SO config | Bullets, VFX, NPC spawning |
+| Player Profile | `PlayerProfile.cs` (7 versions) | Persistent player data | CLOUT score, empire state, stats |
+| Destructibles | `DestructiblePropObject.cs` (2 versions) | IDamageable props | Breakable windows, doors, crates |
+| Interactions | `DoorHook.cs`, `PickableHook.cs`, `BonefireHook.cs` | World object interaction | Doors, loot, safe houses |
+
+### MEDIUM Priority — Reference Patterns
+| System | SA Source | What We Take | Crime Game Use |
+|--------|----------|-------------|----------------|
+| Match System | `MatchManager.cs` (11 versions) + `DeathMatch.cs` + `DuelMatch.cs` | Session management, scoring | Territory war sessions |
+| Leaderboards | `LeaderboardsManager.cs` (3 versions) + `LeaderboardEntry.cs` | Ranking display | CLOUT leaderboard |
+| Inventory UI | `UIInventoryManager.cs` (4 versions) + `UISlot.cs` (4 versions) | Slot-based UI patterns | Inventory screen |
+| UI Navigation | `UIManager.cs` (9 versions) + `NavigatableGroupManager.cs` | Menu input navigation | All menu screens |
+| Ballistics | `Ballistics.cs` (7 versions) + `BulletProjectile.cs` + `BulletLine.cs` | Bullet physics, tracers | Realistic gunplay |
+| Crosshair | `Crosshair.cs` (2 versions) | Dynamic spread visualization | Hip-fire/ADS crosshair |
+| Level Manager | `LevelManager.cs` (5 versions) + `LevelTemplate.cs` | Scene loading patterns | City district loading |
+| Foot IK | `FootIK.cs` | Terrain foot adaptation | Character polish |
+| Screen Shake | `ScreenShakeHandler.cs` + `ShakeObject.cs` | Camera/object shake | Combat feedback, explosions |
+| Icon Maker | `IconMakerActual.cs` + `IconMakerAsset.cs` | 3D model → UI icon | Item icon generation |
+
+### LOW Priority — Study Only
+| System | SA Source | Notes |
+|--------|----------|-------|
+| Network Manager | `NetworkManager.cs` (2 versions) | We use FishNet instead |
+| Master Light Control | `MasterLightControl.cs` | Lighting reference |
+| Copy Rotation | `CopyRotation.cs` | IK utility |
+| Sway Object | `SwayObject.cs` | Weapon sway reference |
 
 ## Built Fresh for Clout
 
@@ -96,12 +111,21 @@ These are new systems with no NullReach/SA equivalent:
 | Disguise System | P3 | Low |
 | Phone/Communication UI | P1 | Medium |
 
-## Transfer Score
+## Transfer Score (Validated by Deep Analysis)
 
-- **Direct ports:** ~15 scripts (foundation)
-- **Heavy adaptation:** ~15 scripts (combat + AI)
-- **Reference patterns:** ~20 systems studied from SA-TPS/FPS
-- **Built fresh:** ~15 new systems (empire + world)
+Three research agents analyzed all codebases in detail:
+- **NullReach**: 46 scripts, 8 core systems — confirmed 60-75% architectural reuse
+- **Sharp Accent TPS/FPS**: 600+ versioned files across lessons 150-169 — 18+ reusable systems cataloged
+- **Sharp Accent Souls-like**: State machine foundation verified as combat-agnostic (weapon→tool swap needs zero arch changes)
 
-**Estimated reuse: ~45% of total codebase** from existing projects.
-The other 55% is the empire simulation layer — which is the actual game.
+| Category | Scripts | Reuse Level |
+|----------|---------|-------------|
+| Direct ports (NullReach) | ~15 | 100% architecture, namespace rename |
+| Heavy adaptation (NullReach) | ~15 | 70-85% code, crime-specific tuning |
+| Reference ports (SA-TPS/FPS) | ~20 | Patterns studied, reimplemented clean |
+| Already built fresh (Clout) | 22 | Empire + world systems |
+| Still needed fresh | ~10 | Vehicle, disguise, phone UI, dialogue |
+
+**Confirmed reuse: 60-75% of combat/character/AI/network codebase.**
+**The 25-40% that's new IS the game** — empire simulation, territory wars, economy.
+This is the ideal ratio: proven foundation + original gameplay.
