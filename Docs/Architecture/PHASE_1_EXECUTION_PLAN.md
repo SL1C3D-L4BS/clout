@@ -9,61 +9,84 @@ A playable character that can walk around a test arena, fight enemies with melee
 
 ## Execution Order
 
-### Step 1: Port Core Architecture (Day 1)
+### Step 1: Port Core Architecture ✅ COMPLETE
 Port from NullReach with `NullReach` → `Clout` namespace rename:
 
-| NullReach File | Clout Target | Action |
+| NullReach File | Clout Target | Status |
 |------|------|--------|
-| Core/StateManager.cs | ✅ Already created | Done |
-| Core/State.cs | ✅ Already created | Done |
-| Core/StateAction.cs | ✅ Already created | Done |
-| Core/CharacterStateManager.cs | ✅ Already created | Done |
-| Core/Interfaces.cs | ✅ Already created | Done |
-| Stats/RuntimeStats.cs | ✅ Already created | Done |
-| Core/ComboInfo.cs | Core/ComboInfo.cs | Port |
+| Core/StateManager.cs | ✅ Core/StateManager.cs | Done |
+| Core/State.cs | ✅ Core/State.cs | Done |
+| Core/StateAction.cs | ✅ Core/StateAction.cs | Done |
+| Core/CharacterStateManager.cs | ✅ Core/CharacterStateManager.cs | Done — added combat fields, lock-on, combo, weapon references |
+| Core/Interfaces.cs | ✅ Core/Interfaces.cs | Done — added AttackInputs, IParryable, Combo, crime WeaponTypes |
+| Stats/RuntimeStats.cs | ✅ Stats/RuntimeStats.cs | Done — added HandleStamina, HandlePoise, ApplyPoiseDamage |
+| Core/ComboInfo.cs | ✅ Core/ComboInfo.cs | Done |
 
-### Step 2: Port Controller Actions (Day 1-2)
-These are the StateAction implementations that make the character work:
+### Step 2: Port Controller Actions ✅ COMPLETE
 
-| File | System |
-|------|--------|
-| Actions/MovePlayerCharacter.cs | Movement with stance speed modifiers |
-| Actions/InputHandler.cs | Combat input routing (melee vs ranged context) |
-| Actions/HandleRotation.cs | Character rotation logic |
-| Actions/HandleStats.cs | Stamina regen, stat monitoring |
-| Actions/HandleRollVelocity.cs | Dodge/roll physics |
-| Actions/MonitorInteraction.cs | Animation-to-state transition monitor |
-| Actions/InputsForCombo.cs | Combo chain input buffering |
+| File | System | Status |
+|------|--------|--------|
+| Actions/MovePlayerCharacter.cs | Movement with stance speed modifiers | ✅ Done — added overweight penalty |
+| Actions/InputHandler.cs | Combat input routing (melee vs ranged context) | ✅ Done |
+| Actions/HandleRotation.cs | Character rotation logic | ✅ Done |
+| Actions/HandleStats.cs | Stamina regen, stat monitoring | ✅ Done |
+| Actions/HandleRollVelocity.cs | Dodge/roll physics | ✅ Done |
+| Actions/MonitorInteraction.cs | Animation-to-state transition monitor | ✅ Done |
+| Actions/InputsForCombo.cs | Combo chain input buffering | ✅ Done |
 
-### Step 3: Port Combat System (Day 2-3)
-| File | System |
-|------|--------|
-| Combat/WeaponItem.cs + RangedWeaponItem.cs | Weapon ScriptableObjects |
-| Combat/AttackAction.cs | Melee attack execution |
-| Combat/RangedAttackAction.cs | Ranged attack with RangedWeaponHook |
-| Combat/DamageCollider.cs | Melee hit detection |
-| Combat/Projectile.cs | Projectile physics |
-| Combat/RangedWeaponHook.cs | Gun behavior (ammo, spread, ADS) |
-| Combat/RecoilController.cs | Camera recoil |
-| Combat/AmmoCacheManager.cs | Ammo reserve management |
-| Combat/AmmoDefinition.cs | Ammo type definitions |
-| Combat/WeaponHolderManager.cs | Weapon model management |
-| Combat/WeaponHolderHook.cs | Hand attachment points |
+### Step 3: Port Combat System ✅ COMPLETE
 
-### Step 4: Port Camera System (Day 3)
-| File | System |
-|------|--------|
-| Camera/CameraManager.cs | 4-mode Cinemachine camera |
-| Camera/CameraCollision.cs | SphereCast collision prevention |
+| File | System | Status |
+|------|--------|--------|
+| Combat/WeaponItem.cs | Weapon SOs + ItemAction + WeaponHook + WeaponHolderManager | ✅ Done — crime weapon types |
+| Combat/AttackAction.cs | Melee attack execution | ✅ Done |
+| Combat/RangedAttackAction.cs | Ranged attack with RangedWeaponHook | ✅ Done |
+| Combat/DamageCollider.cs | Melee hit detection + ParryCollider | ✅ Done |
+| Combat/Projectile.cs | Projectile physics + IParryable reflect | ✅ Done |
+| Combat/RangedWeaponHook.cs | Gun behavior (ammo, spread, ADS) | ✅ Done |
+| Combat/RecoilController.cs | Camera recoil | ✅ Done |
+| Combat/AmmoCacheManager.cs | Ammo reserve management | ✅ Done — crime ammo types |
+| Combat/AmmoDefinition.cs | Ammo type definitions | ✅ Done |
 
-### Step 5: Port Animation System (Day 3-4)
-| File | System |
-|------|--------|
-| Animation/AnimatorHook.cs | IK + animation events |
-| Player/PlayerStateManager.cs | ✅ Already created (needs combat wiring) |
-| Player/PlayerInputHandler.cs | ✅ Already created |
+### Step 4: Port Camera System ✅ COMPLETE
 
-### Step 6: Port AI System (Day 4-5)
+| File | System | Status |
+|------|--------|--------|
+| Camera/CameraManager.cs | 4-mode Cinemachine camera | ✅ Done |
+| Camera/CameraCollision.cs | SphereCast collision prevention | ✅ Done |
+
+### Step 5: Port Animation System ✅ COMPLETE
+
+| File | System | Status |
+|------|--------|--------|
+| Animation/AnimatorHook.cs | IK + animation events + root motion | ✅ Done |
+| Player/PlayerStateManager.cs | Full combat wiring with all state actions | ✅ Done |
+| Player/PlayerInputHandler.cs | New Input System handler | ✅ Done (existed) |
+
+### Step 6: Port Network Layer ✅ COMPLETE
+
+| File | System | Status |
+|------|--------|--------|
+| Network/NetworkBootstrapper.cs | FishNet initialization | ✅ Done |
+| Network/NetworkAnimatorSync.cs | Animation replication | ✅ Done |
+| Network/NetworkDamageHandler.cs | Server damage validation | ✅ Done |
+| Network/PlayerSpawnManager.cs | Player spawning | ✅ Done |
+
+### Step 7: Build Test Arena (NEXT)
+- [ ] Editor script to create test scene
+- [ ] Player prefab with all components
+- [ ] 3 enemy NPCs (melee, ranged, hybrid)
+- [ ] Ground plane with NavMesh
+- [ ] Cinemachine camera rig
+- [ ] Basic HUD (health, CLOUT, ammo)
+
+### Step 8: Wire Empire Systems
+- [ ] Connect ReputationManager to combat events
+- [ ] Connect WantedSystem to combat actions (gunfire = heat)
+- [ ] Add CLOUT rank display to HUD
+- [ ] Add wanted level indicator to HUD
+
+### Step 9: Port AI System
 | File | System |
 |------|--------|
 | AI/AIStateManager.cs | Base enemy AI |
@@ -74,44 +97,37 @@ These are the StateAction implementations that make the character work:
 | AI/Actions/AIActionScoring.cs | Utility theory scoring |
 | AI/Actions/AIPatrol.cs | Patrol behavior |
 
-### Step 7: Port Network Layer (Day 5-6)
-| File | System |
-|------|--------|
-| Network/NetworkBootstrapper.cs | FishNet initialization |
-| Network/NetworkAnimatorSync.cs | Animation replication |
-| Network/NetworkDamageHandler.cs | Server damage validation |
-| Network/PlayerSpawnManager.cs | Player spawning |
-
-### Step 8: Build Test Arena (Day 6-7)
-- Editor script to create test scene
-- Player prefab with all components
-- 3 enemy NPCs (melee, ranged, hybrid)
-- Ground plane with NavMesh
-- Cinemachine camera rig
-- Basic HUD (health, CLOUT, ammo)
-
-### Step 9: Wire Empire Systems (Day 7-8)
-- Connect ReputationManager to combat events
-- Connect WantedSystem to combat actions (gunfire = heat)
-- Add CLOUT rank display to HUD
-- Add wanted level indicator to HUD
-
 ---
 
-## Port Checklist
+## Script Count
 
-Total files to port: ~35 scripts from NullReach
-Already created: 22 scripts (foundation + empire)
-Remaining: ~13 scripts (combat + AI + network)
-New for Clout: ~15 scripts (empire systems — already created)
-
-**Estimated total codebase at Phase 1 complete: ~50 scripts**
+| Category | Count | Status |
+|----------|-------|--------|
+| Core (StateManager, State, Interfaces, etc.) | 7 | ✅ Complete |
+| Controller Actions | 7 | ✅ Complete |
+| Combat System | 9 | ✅ Complete |
+| Camera System | 2 | ✅ Complete |
+| Animation System | 1 | ✅ Complete |
+| Network Layer | 4 | ✅ Complete |
+| Player | 2 | ✅ Complete |
+| Stats | 1 | ✅ Complete |
+| Empire Systems | 7 | ✅ Complete (existed) |
+| World Systems | 2 | ✅ Complete (existed) |
+| Inventory | 2 | ✅ Complete (existed) |
+| AI System | 7 | 🔲 Phase 1 Step 9 |
+| **TOTAL** | **46 + 7 AI** | **46 done, 7 remaining** |
 
 ---
 
 ## Validation Criteria
 
 Phase 1 is DONE when:
+- [x] Core state machine compiles clean
+- [x] All combat scripts ported with Clout namespaces
+- [x] Controller actions wired into PlayerStateManager states
+- [x] Camera system ported with 4-mode switching
+- [x] Network layer ported with server-authoritative damage
+- [x] Animation system with IK + root motion + events
 - [ ] Player can walk, sprint, crouch in test arena
 - [ ] Player can light attack, heavy attack, combo chain
 - [ ] Player can dodge/roll with i-frames

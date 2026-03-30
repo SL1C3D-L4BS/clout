@@ -45,6 +45,12 @@ namespace Clout.Core
         string GetImpactType();
     }
 
+    public interface IParryable
+    {
+        void OnParried(Vector3 direction);
+        bool IsProjectile();
+    }
+
     // ─────────────────────────────────────────────────────────────
     //  INTERACTION SYSTEM
     // ─────────────────────────────────────────────────────────────
@@ -58,13 +64,22 @@ namespace Clout.Core
 
     public interface ILockable
     {
-        Transform LockOnTarget { get; }
-        bool IsValidLockTarget { get; }
+        Transform GetLockOnTarget();
+        bool IsAlive();
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  ENUMS
+    //  COMBAT ENUMS
     // ─────────────────────────────────────────────────────────────
+
+    public enum AttackInputs
+    {
+        rb,     // Right bumper — light melee / hip fire
+        rt,     // Right trigger — heavy melee / ADS fire
+        lb,     // Left bumper — parry / block / alt fire
+        lt,     // Left trigger — lock-on / ADS toggle
+        none
+    }
 
     public enum WeaponType
     {
@@ -76,7 +91,10 @@ namespace Clout.Core
         Rifle,          // Assault rifles, sniper
         Shotgun,        // Shotguns
         Heavy,          // RPG, minigun
-        Thrown          // Grenades, molotovs, bricks
+        Thrown,          // Grenades, molotovs, bricks
+        Ranged,         // Generic ranged (backward compat)
+        Staff,          // Magic staff / hybrid
+        Hybrid          // Melee + ranged capability
     }
 
     public enum Stance
@@ -100,6 +118,31 @@ namespace Clout.Core
         Cinematic       // Cutscene camera
     }
 
+    public enum AmmoType
+    {
+        Pistol,
+        SMG,
+        Rifle,
+        Shotgun,
+        Sniper,
+        Explosive,
+        Infinite        // Melee / thrown
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  COMBO SYSTEM
+    // ─────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Combo data — maps a button input to the next animation in the chain.
+    /// </summary>
+    [System.Serializable]
+    public class Combo
+    {
+        public string animName;
+        public AttackInputs inp;
+    }
+
     // ─────────────────────────────────────────────────────────────
     //  EMPIRE ENUMS
     // ─────────────────────────────────────────────────────────────
@@ -117,55 +160,44 @@ namespace Clout.Core
 
     public enum PropertyType
     {
-        Safehouse,          // Base of operations
-        Lab,                // Production facility
-        Growhouse,          // Cannabis cultivation
-        Storefront,         // Legit business front
-        Warehouse,          // Bulk storage
-        Nightclub,          // Money laundering + social
-        AutoShop,           // Vehicle modifications
-        Restaurant          // Money laundering front
+        Safehouse,
+        Lab,
+        Growhouse,
+        Storefront,
+        Warehouse,
+        Nightclub,
+        AutoShop,
+        Restaurant
     }
 
     public enum EmployeeRole
     {
-        Dealer,             // Sells on the street
-        Cook,               // Produces product
-        Grower,             // Cultivates plants
-        Guard,              // Protects properties
-        Driver,             // Delivery runs
-        Accountant,         // Manages finances
-        Lookout,            // Warns of police
-        Enforcer            // Handles rival threats
+        Dealer,
+        Cook,
+        Grower,
+        Guard,
+        Driver,
+        Accountant,
+        Lookout,
+        Enforcer
     }
 
     public enum ReputationType
     {
-        Street,             // Criminal underworld rep
-        Police,             // Heat / wanted level
-        Civilian,           // Public perception
-        Rival,              // Other empire relations
-        Supplier            // Wholesale connections
+        Street,
+        Police,
+        Civilian,
+        Rival,
+        Supplier
     }
 
     public enum WantedLevel
     {
-        Clean = 0,          // No heat
-        Suspicious = 1,     // Being watched
-        Wanted = 2,         // Active pursuit
-        Hunted = 3,         // Aggressive response
-        MostWanted = 4,     // Full SWAT / special units
-        Kingpin = 5         // Perpetual high alert
-    }
-
-    public enum AmmoType
-    {
-        Pistol,
-        SMG,
-        Rifle,
-        Shotgun,
-        Sniper,
-        Explosive,
-        Infinite            // Melee / thrown
+        Clean = 0,
+        Suspicious = 1,
+        Wanted = 2,
+        Hunted = 3,
+        MostWanted = 4,
+        Kingpin = 5
     }
 }

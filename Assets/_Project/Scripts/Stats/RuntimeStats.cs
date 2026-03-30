@@ -22,6 +22,14 @@ namespace Clout.Stats
         public float staminaRegenDelay = 1.5f;
         private float _staminaRegenTimer;
 
+        [Header("Poise")]
+        public float poise = 100f;
+        public float maxPoise = 100f;
+        public float poiseRegenRate = 20f;
+        public float poiseRegenDelay = 2f;
+        private float _poiseRegenTimer;
+        [HideInInspector] public bool isStaggered;
+
         [Header("Combat Costs")]
         public float lightAttackCost = 15f;
         public float heavyAttackCost = 25f;
@@ -62,9 +70,66 @@ namespace Clout.Stats
             OnHealthChanged?.Invoke();
         }
 
+        /// <summary>
+        /// Handle stamina regen/drain. Called by HandleStats action each frame.
+        /// </summary>
+        public void HandleStamina(float delta, bool isSprinting)
+        {
+            if (isSprinting)
+            {
+                stamina -= sprintCostPerSec * delta;
+                stamina = Mathf.Max(0, stamina);
+                _staminaRegenTimer = staminaRegenDelay;
+                OnStaminaChanged?.Invoke();
+                return;
+            }
+
+            if (stamina < maxStamina)
+            {
+                _staminaRegenTimer -= delta;
+                if (_staminaRegenTimer <= 0)
+                {
+                    stamina = Mathf.Min(stamina + staminaRegenRate * delta, maxStamina);
+                    OnStaminaChanged?.Invoke();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handle poise recovery. Called by HandleStats action each frame.
+        /// </summary>
+        public void HandlePoise(float delta)
+        {
+            if (poise < maxPoise)
+            {
+                _poiseRegenTimer -= delta;
+                if (_poiseRegenTimer <= 0)
+                {
+                    poise = Mathf.Min(poise + poiseRegenRate * delta, maxPoise);
+                    if (poise >= maxPoise * 0.5f)
+                        isStaggered = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Apply poise damage — stagger when poise breaks.
+        /// </summary>
+        public void ApplyPoiseDamage(float amount)
+        {
+            poise -= amount;
+            _poiseRegenTimer = poiseRegenDelay;
+
+            if (poise <= 0)
+            {
+                poise = 0;
+                isStaggered = true;
+            }
+        }
+
         private void Update()
         {
-            // Stamina regen
+            // Passive stamina regen (fallback when HandleStats isn't running)
             if (stamina < maxStamina)
             {
                 _staminaRegenTimer -= Time.deltaTime;
