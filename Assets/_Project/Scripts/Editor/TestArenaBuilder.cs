@@ -20,6 +20,7 @@ using Clout.World.Police;
 using Clout.Inventory;
 using Clout.UI;
 using UnityEditor.Animations;
+using FishNet.Object;
 
 namespace Clout.Editor
 {
@@ -45,6 +46,9 @@ namespace Clout.Editor
         [MenuItem("Clout/Build Test Arena", false, 100)]
         public static void BuildTestArena()
         {
+            // Ensure URP pipeline is configured before building anything
+            URPSetup.EnsureURPConfigured();
+
             // Auto-create animator controller if it doesn't exist
             string acPath = "Assets/_Project/Animations/Controllers/AC_Character.controller";
             if (!System.IO.File.Exists(acPath))
@@ -116,6 +120,9 @@ namespace Clout.Editor
 
         public static void BuildTestArenaHeadless()
         {
+            // Ensure URP pipeline is configured before building anything
+            URPSetup.EnsureURPConfigured();
+
             string acPath = "Assets/_Project/Animations/Controllers/AC_Character.controller";
             if (!System.IO.File.Exists(acPath))
                 AnimatorSetup.CreateAnimatorControllerHeadless();
@@ -360,6 +367,9 @@ namespace Clout.Editor
             WeaponHolderHook leftHook = leftHookObj.AddComponent<WeaponHolderHook>();
             leftHook.isLeftHook = true;
 
+            // FishNet: Add NetworkObject BEFORE any NetworkBehaviour to prevent auto-add log spam
+            player.AddComponent<NetworkObject>();
+
             // Core components
             RuntimeStats stats = player.AddComponent<RuntimeStats>();
             stats.maxHealth = 100;
@@ -499,6 +509,9 @@ namespace Clout.Editor
             rightHookObj.transform.localPosition = new Vector3(0.3f, 0.9f, 0.2f);
             WeaponHolderHook rightHook = rightHookObj.AddComponent<WeaponHolderHook>();
             rightHook.isLeftHook = false;
+
+            // FishNet: Add NetworkObject BEFORE any NetworkBehaviour to prevent auto-add log spam
+            enemy.AddComponent<NetworkObject>();
 
             // Stats
             RuntimeStats stats = enemy.AddComponent<RuntimeStats>();

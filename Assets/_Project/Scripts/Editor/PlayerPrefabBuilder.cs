@@ -52,6 +52,7 @@ namespace Clout.Editor
         /// <summary>No-dialog entry point — safe to call from auto-triggers.</summary>
         public static void BuildPlayerPrefabHeadless()
         {
+            URPSetup.EnsureURPConfigured();
             System.IO.Directory.CreateDirectory(PREFAB_DIR);
 
             GameObject root = BuildPlayerHierarchy();

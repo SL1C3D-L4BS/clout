@@ -60,9 +60,9 @@ You're nobody. You roll into a boxy low-poly city with nothing. Cook product, hi
 
 ---
 
-## Current Status: Phase 1 Complete ✅
+## Current Status: Phase 2 In Progress 🔨
 
-**62 scripts** across all systems. Full combat foundation operational.
+**80+ scripts** across all systems. Combat foundation + dealing system operational.
 
 ### What's Built
 
@@ -76,12 +76,23 @@ You're nobody. You roll into a boxy low-poly city with nothing. Cook product, hi
 | Player | 2 | ✅ Complete — PlayerStateManager, PlayerInputHandler |
 | AI System | 7 | ✅ Complete — Detection, patrol, chase, ranged attack, combat selector, utility scoring |
 | Network | 4 | ✅ Complete — FishNet bootstrapper, anim sync, damage handler, spawn manager |
-| Empire | 7 | ✅ Complete — Crafting, properties, employees, economy, reputation, territory, vehicles |
-| World | 2 | ✅ Complete — Wanted system (6-tier heat), police response |
+| Empire Core | 7 | ✅ Complete — Crafting, properties, employees, economy, reputation, territory, vehicles |
+| Empire Dealing | 7 | ✅ Complete — ProductInventory, DealManager, SupplierNPC, CustomerAI, DealUI, SupplierUI, DealingBootstrapper |
+| World | 4 | ✅ Complete — Wanted system (6-tier heat), police response, DealInteraction, NPC customer AI |
 | Inventory | 2 | ✅ Complete — Item management, equipment |
 | Stats | 1 | ✅ Complete — RuntimeStats with FishNet SyncVar<T> |
-| Editor Tools | 2 | ✅ Complete — TestArenaBuilder, PlayerPrefabBuilder |
-| UI/HUD | 1 | ✅ Complete — CombatHUD (health, stamina, CLOUT, wanted, ammo, crosshair) |
+| Editor Tools | 7 | ✅ Complete — TestArenaBuilder, PlayerPrefabBuilder, WeaponAssetFactory, DealingSystemFactory, AnimatorSetup, EditorShaderHelper, URPSetup |
+| UI/HUD | 3 | ✅ Complete — CombatHUD (health, stamina, CLOUT, wanted, ammo, cash, interaction prompts), DealUI, SupplierUI |
+
+### Dealing Pipeline (Wired)
+```
+Supplier → Player buys wholesale product → ProductInventory
+Player approaches Customer NPC → DealManager negotiation
+Quality tiers affect pricing: Trash(0.5x) → Street(1x) → Mid(1.5x) → Fire(2.5x) → Pure(4x)
+Successful deal → Cash earned + CLOUT gained + Heat generated
+Customer addiction/loyalty → repeat business
+Snitch risk → police heat spikes
+```
 
 ### Empire Event Pipeline (Wired)
 ```
@@ -90,6 +101,7 @@ Kill Police    → +50 CLOUT, +150 heat
 Gunfire        → +30 heat per shot
 Melee Assault  → +40 heat (civilian), +100 heat (police)
 Ranged Assault → +40 heat (civilian), +100 heat (police)
+Complete Deal  → +CLOUT (scales with value), +heat (scales with product type)
 ```
 
 ---
@@ -113,6 +125,7 @@ Clout/
 │   │   │   ├── Network/        # FishNet networking layer
 │   │   │   ├── Empire/
 │   │   │   │   ├── Crafting/   # Recipe system, cooking, mixing
+│   │   │   │   ├── Dealing/    # Product inventory, deal manager, supplier/customer systems
 │   │   │   │   ├── Properties/ # Property purchase, upgrade, management
 │   │   │   │   ├── Employees/  # Hiring, loyalty, skill progression
 │   │   │   │   ├── Economy/    # Dynamic pricing, supply/demand
@@ -120,10 +133,13 @@ Clout/
 │   │   │   │   ├── Territory/  # Zone control, influence, wars
 │   │   │   │   └── Vehicles/   # Vehicle ownership, mods
 │   │   │   ├── World/
-│   │   │   │   └── Police/     # Wanted system, heat, raids
+│   │   │   │   ├── Police/     # Wanted system, heat, raids
+│   │   │   │   └── NPCs/       # CustomerAI, SupplierNPC, DealInteraction
 │   │   │   ├── Stats/          # Health, stamina, skills (SyncVar<T>)
-│   │   │   ├── UI/             # HUD, menus, inventory UI
-│   │   │   ├── Editor/         # Test arena builder, prefab tools
+│   │   │   ├── UI/
+│   │   │   │   ├── HUD/        # CombatHUD (health, stamina, CLOUT, cash, prompts)
+│   │   │   │   └── Dealing/    # DealUI, SupplierUI
+│   │   │   ├── Editor/         # TestArenaBuilder, PlayerPrefabBuilder, WeaponAssetFactory, DealingSystemFactory, URPSetup
 │   │   │   └── Utils/          # Helpers, extensions
 │   │   ├── ScriptableObjects/  # Weapons, recipes, NPCs, items
 │   │   ├── Prefabs/            # Player, NPCs, weapons, props
@@ -192,6 +208,8 @@ The editor tool (`Clout > Build Test Arena`) programmatically creates:
 | `Docs/Architecture/BUILD_SPECIFICATION.md` | Full 30-section game design document |
 | `Docs/Architecture/SYNTY_ASSET_LIST.md` | Synty POLYGON asset requirements & integration guide |
 | `Docs/Architecture/PHASE_1_EXECUTION_PLAN.md` | Phase 1 step-by-step completion log |
+| `Docs/Architecture/PHASE_2_MASTERCLASS_PLAN.md` | Phase 2 vertical slice sprint — 10 steps to playable |
+| `Docs/Architecture/SYSTEM_PORT_MAP.md` | Sharp Accent → CLOUT system port analysis |
 
 ---
 

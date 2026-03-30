@@ -10,10 +10,10 @@
 
 | Spec Phase | Status | Coverage |
 |-----------|--------|----------|
-| Phase 0: Foundation | ✅ DONE | Codebase merged, SO architecture, asmdef, URP, player controller, camera, test scene |
-| Phase 1: Core Loop | 🟡 60% | Combat ✅, Inventory skeleton ✅, Dealing ❌, Production ❌, Economy ❌, Playable district ❌ |
-| Phase 2: Empire Systems | 🔴 15% | Heat basics ✅, Reputation skeleton ✅, everything else ❌ |
-| Phase 3: World & AI | 🔴 10% | Combat AI ✅, everything else ❌ |
+| Phase 0: Foundation | ✅ DONE | Codebase merged, SO architecture, asmdef, URP configured, player controller, camera, test scene |
+| Phase 1: Core Loop | 🟡 75% | Combat ✅, Inventory skeleton ✅, Dealing ✅, Production ❌, Economy basics ✅, Playable district ❌ |
+| Phase 2: Empire Systems | 🟡 35% | Heat ✅, Reputation ✅, Dealing pipeline ✅, Properties ❌, Workers ❌, Laundering ❌ |
+| Phase 3: World & AI | 🔴 15% | Combat AI ✅, Customer AI ✅, everything else ❌ |
 | Phase 4: Multiplayer | 🟡 30% | FishNet foundation ✅, SyncVars ✅, spawning ✅, actual MP gameplay ❌ |
 | Phase 5: Polish & Content | 🔴 0% | Not started |
 | Phase 6: Ship | 🔴 0% | Not started |
@@ -57,7 +57,7 @@ Phase 1's code compiles. The architecture is solid. But there's no **gameplay lo
 
 ---
 
-## Step 1: ScriptableObject Data Foundation (Week 1, Days 1–2)
+## Step 1: ScriptableObject Data Foundation ✅ COMPLETE (Week 1, Days 1–2)
 
 Before any gameplay works, we need the actual data assets that drive every system.
 
@@ -142,7 +142,7 @@ Animations/
 
 ---
 
-## Step 2: The Dealing System (Week 1, Days 3–5)
+## Step 2: The Dealing System ✅ COMPLETE (Week 1, Days 3–5)
 
 The core money-making mechanic. This is Schedule 1's bread and butter.
 
@@ -248,6 +248,8 @@ public class CustomerProfile : ScriptableObject
 - `AI/NPCs/CustomerSpawner.cs`
 - `UI/Dealing/DealUI.cs`
 - `UI/Dealing/DealManager.cs`
+
+> **✅ IMPLEMENTED:** Full dealing pipeline operational. Created: ProductDefinition (SO), ProductInventory (quality-aware stacking), DealManager (singleton orchestrator), SupplierNPC (wholesale buying with bust risk), CustomerAI (seeking/negotiating/satisfied states), DealUI (OnGUI negotiation panel), SupplierUI (catalog browsing), DealInteraction (IInteractable), DealingBootstrapper (testing helper), DealingSystemFactory (editor tool). 5 products (Weed, Crystal, Powder, Pills, Shroom), 2 suppliers (Lil D, Mr Kim), 3 test customers wired into test arena. Quality tiers with price multipliers (0.5x–4x). Addiction, loyalty, snitch mechanics integrated with WantedSystem and ReputationManager.
 
 ---
 
@@ -823,8 +825,11 @@ These were ported in the initial Phase 1 sprint and form the combat backbone:
 |----------|---------|
 | Phase 1 (combat foundation) | 62 |
 | Phase 1.5 (Sharp Accent ports + fixes) | 11 |
-| **Current Total** | **73** |
-| Phase 2 (planned new scripts) | ~53 |
-| **Projected After Phase 2** | **~126** |
+| Phase 2 Step 1 (SO data, weapons, animator, editor tools) | 5 |
+| Phase 2 Step 2 (dealing system) | 10 |
+| Phase 2 infrastructure (URP setup, shader helper) | 2 |
+| **Current Total** | **~90** |
+| Phase 2 remaining (Steps 3–10) | ~43 |
+| **Projected After Phase 2** | **~133** |
 
 *CLOUT Phase 2 Masterclass Plan v1.1 — SlicedLabs — March 2026*

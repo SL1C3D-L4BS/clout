@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine.AI;
 using Clout.Core;
 using Clout.Empire.Crafting;
@@ -272,6 +273,7 @@ namespace Clout.Editor
 
             GameObject npc = new GameObject(name);
             npc.transform.position = position;
+            EnsureTag("Civilian");
             npc.tag = "Civilian";
 
             // Model
@@ -427,6 +429,17 @@ namespace Clout.Editor
             player.cash = 500f;
 
             Debug.Log("[Clout] Player given: 10x Weed (Street), 5x Pills (Street), $500 cash.");
+        }
+
+        private static void EnsureTag(string tagName)
+        {
+            // Check if tag already exists
+            foreach (string tag in InternalEditorUtility.tags)
+            {
+                if (tag == tagName) return;
+            }
+            InternalEditorUtility.AddTag(tagName);
+            Debug.Log($"[Clout] Tag '{tagName}' added to TagManager.");
         }
 
         private static void EnsureFolder(string path)
