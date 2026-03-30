@@ -1,6 +1,7 @@
 using UnityEngine;
 using Clout.Core;
 using Clout.Player;
+using Clout.World.Police;
 
 namespace Clout.Combat
 {
@@ -46,6 +47,9 @@ namespace Clout.Combat
                     FireHitscan(rangedWeapon, stateManager, hook, spreadDirection);
                 else
                     FireProjectile(rangedWeapon, stateManager, hook, spreadDirection);
+
+                // Gunfire generates heat for players
+                NotifyGunfireHeat(stateManager);
 
                 return;
             }
@@ -116,6 +120,11 @@ namespace Clout.Combat
                         hitDirection = direction
                     };
                     target.OnDamage(dmg);
+
+                    // Assault heat for player hitting characters
+                    CharacterStateManager targetCSM = hit.collider.GetComponent<CharacterStateManager>();
+                    if (targetCSM == null) targetCSM = hit.collider.GetComponentInParent<CharacterStateManager>();
+                    if (targetCSM != null) NotifyAssaultHeat(stateManager, targetCSM);
                 }
 
                 IShootable shootable = hit.collider.GetComponent<IShootable>();
@@ -148,6 +157,31 @@ namespace Clout.Combat
             Projectile projectile = proj.GetComponent<Projectile>();
             if (projectile != null)
                 projectile.Init(stateManager, weapon);
+        }
+
+        /// <summary>
+        /// Gunfire in public generates heat. Player-only — AI gunfire doesn't generate police heat.
+        /// </summary>
+        private void NotifyGunfireHeat(CharacterStateManager stateManager)
+        {
+            PlayerStateManager player = stateManager as PlayerStateManager;
+            if (player == null || player.wantedSystem == null) return;
+            player.wantedSystem.AddHeat(WantedSystem.HeatValues.GunfireInPublic, "gunfire");
+        }
+
+        /// <summary>
+        /// Hitting a character with bullets generates assault heat.
+        /// </summary>
+        private void NotifyAssaultHeat(CharacterStateManager attacker, CharacterStateManager target)
+        {
+            PlayerStateManager player = attacker as PlayerStateManager;
+            if (player == null || player.wantedSystem == null) return;
+
+            bool isPolice = target.gameObject.CompareTag("Police");
+            float heat = isPolice
+                ? WantedSystem.HeatValues.AssaultPolice
+                : WantedSystem.HeatValues.AssaultCivilian;
+            player.wantedSystem.AddHeat(heat, isPolice ? "shot officer" : "shot target");
         }
 
         #region Legacy Fire (no RangedWeaponHook)

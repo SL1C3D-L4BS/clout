@@ -80,9 +80,13 @@ Port from NullReach with `NullReach` → `Clout` namespace rename:
 - [x] Cinemachine camera rig (4-mode system built programmatically)
 - [x] Basic HUD (health, stamina, CLOUT, ammo, wanted level, crosshair, state debug)
 
-### Step 8: Wire Empire Systems (NEXT)
-- [ ] Connect ReputationManager to combat events (damage dealt, kills)
-- [ ] Connect WantedSystem to combat actions (gunfire = heat)
+### Step 8: Wire Empire Systems ✅ COMPLETE
+- [x] Connect ReputationManager to combat events — AIStateManager.OnDeath() awards CLOUT via PlayerStateManager.OnEnemyKilled()
+- [x] Connect WantedSystem to combat actions:
+  - Gunfire: RangedAttackAction.NotifyGunfireHeat() → +30 heat per shot
+  - Melee hit: DamageCollider.NotifyAssaultHeat() → +40/+100 heat (civilian/police)
+  - Ranged hit: RangedAttackAction.NotifyAssaultHeat() → +40/+100 heat
+  - Kill: OnEnemyKilled() → +80/+150 heat (civilian/police)
 - [x] Add CLOUT rank display to HUD (CombatHUD.cs)
 - [x] Add wanted level indicator to HUD (CombatHUD.cs — 5-star system)
 

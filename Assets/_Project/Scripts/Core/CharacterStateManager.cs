@@ -98,6 +98,9 @@ namespace Clout.Core
         [HideInInspector] public WantedLevel currentWantedLevel = WantedLevel.Clean;
         [HideInInspector] public float cash;
 
+        // ─── Combat Tracking ──────────────────────────────────
+        [HideInInspector] public CharacterStateManager lastAttacker;
+
         // ─── Animation Hashes ──────────────────────────────────
         [HideInInspector] public int hashVertical;
         [HideInInspector] public int hashHorizontal;
@@ -300,6 +303,10 @@ namespace Clout.Core
         public virtual void OnDamage(DamageEvent damageEvent)
         {
             if (isDead) return;
+
+            // Track last attacker for kill credit
+            if (damageEvent.attacker != null)
+                lastAttacker = damageEvent.attacker;
 
             if (runtimeStats != null)
             {

@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using Clout.Core;
 using Clout.Combat;
 using Clout.Actions;
+using Clout.Player;
 
 namespace Clout.AI
 {
@@ -186,6 +187,23 @@ namespace Clout.AI
             {
                 currentTarget = damageEvent.attacker;
                 ChangeState(chaseStateId);
+            }
+        }
+
+        protected override void OnDeath()
+        {
+            base.OnDeath();
+
+            // Award kill credit to the attacker
+            if (lastAttacker != null)
+            {
+                PlayerStateManager killer = lastAttacker as PlayerStateManager;
+                if (killer != null)
+                {
+                    // Determine NPC type for heat calculation
+                    bool isPolice = gameObject.CompareTag("Police");
+                    killer.OnEnemyKilled(isPolice);
+                }
             }
         }
 

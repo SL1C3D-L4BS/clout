@@ -1,5 +1,7 @@
 using UnityEngine;
 using Clout.Core;
+using Clout.Player;
+using Clout.World.Police;
 
 namespace Clout.Combat
 {
@@ -73,6 +75,22 @@ namespace Clout.Combat
             {
                 damageable.OnDamage(damageEvent);
             }
+
+            // Generate assault heat for player attackers
+            NotifyAssaultHeat(target);
+        }
+
+        private void NotifyAssaultHeat(CharacterStateManager target)
+        {
+            if (target == null || owner == null) return;
+            PlayerStateManager player = owner as PlayerStateManager;
+            if (player == null || player.wantedSystem == null) return;
+
+            bool isPolice = target.gameObject.CompareTag("Police");
+            float heat = isPolice
+                ? WantedSystem.HeatValues.AssaultPolice
+                : WantedSystem.HeatValues.AssaultCivilian;
+            player.wantedSystem.AddHeat(heat, isPolice ? "assaulted officer" : "assault");
         }
     }
 
