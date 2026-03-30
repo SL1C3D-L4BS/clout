@@ -72,30 +72,30 @@ Port from NullReach with `NullReach` → `Clout` namespace rename:
 | Network/NetworkDamageHandler.cs | Server damage validation | ✅ Done |
 | Network/PlayerSpawnManager.cs | Player spawning | ✅ Done |
 
-### Step 7: Build Test Arena (NEXT)
-- [ ] Editor script to create test scene
-- [ ] Player prefab with all components
-- [ ] 3 enemy NPCs (melee, ranged, hybrid)
-- [ ] Ground plane with NavMesh
-- [ ] Cinemachine camera rig
-- [ ] Basic HUD (health, CLOUT, ammo)
+### Step 7: Build Test Arena ✅ COMPLETE
+- [x] Editor script to create test scene (Editor/TestArenaBuilder.cs)
+- [x] Player prefab with all components (PlayerStateManager, RuntimeStats, CameraManager, etc.)
+- [x] 3 enemy NPCs (melee thug, ranged shooter, hybrid enforcer)
+- [x] Ground plane with NavMesh + cover objects + boundary walls
+- [x] Cinemachine camera rig (4-mode system built programmatically)
+- [x] Basic HUD (health, stamina, CLOUT, ammo, wanted level, crosshair, state debug)
 
-### Step 8: Wire Empire Systems
-- [ ] Connect ReputationManager to combat events
+### Step 8: Wire Empire Systems (NEXT)
+- [ ] Connect ReputationManager to combat events (damage dealt, kills)
 - [ ] Connect WantedSystem to combat actions (gunfire = heat)
-- [ ] Add CLOUT rank display to HUD
-- [ ] Add wanted level indicator to HUD
+- [x] Add CLOUT rank display to HUD (CombatHUD.cs)
+- [x] Add wanted level indicator to HUD (CombatHUD.cs — 5-star system)
 
-### Step 9: Port AI System
-| File | System |
-|------|--------|
-| AI/AIStateManager.cs | Base enemy AI |
-| AI/Actions/AIDetection.cs | Detection + FOV |
-| AI/Actions/AIChaseTarget.cs | NavMesh pursuit |
-| AI/Actions/AICombatSelector.cs | Melee vs ranged decision |
-| AI/Actions/AIRangedAttack.cs | Ranged AI behavior |
-| AI/Actions/AIActionScoring.cs | Utility theory scoring |
-| AI/Actions/AIPatrol.cs | Patrol behavior |
+### Step 9: Port AI System ✅ COMPLETE
+| File | System | Status |
+|------|--------|--------|
+| AI/AIStateManager.cs | Base enemy AI | ✅ Done — aggression system |
+| AI/Actions/AIDetection.cs | Detection + FOV | ✅ Done |
+| AI/Actions/AIChaseTarget.cs | NavMesh pursuit | ✅ Done |
+| AI/Actions/AICombatSelector.cs | Melee vs ranged decision | ✅ Done |
+| AI/Actions/AIRangedAttack.cs | Ranged AI behavior | ✅ Done |
+| AI/Actions/AIActionScoring.cs | Utility theory scoring | ✅ Done |
+| AI/Actions/AIPatrol.cs | Patrol behavior | ✅ Done |
 
 ---
 
@@ -114,8 +114,10 @@ Port from NullReach with `NullReach` → `Clout` namespace rename:
 | Empire Systems | 7 | ✅ Complete (existed) |
 | World Systems | 2 | ✅ Complete (existed) |
 | Inventory | 2 | ✅ Complete (existed) |
-| AI System | 7 | 🔲 Phase 1 Step 9 |
-| **TOTAL** | **46 + 7 AI** | **46 done, 7 remaining** |
+| AI System | 7 | ✅ Complete |
+| Editor Tools | 1 | ✅ Complete (TestArenaBuilder) |
+| UI / HUD | 1 | ✅ Complete (CombatHUD) |
+| **TOTAL** | **55** | **All scripts complete** |
 
 ---
 
