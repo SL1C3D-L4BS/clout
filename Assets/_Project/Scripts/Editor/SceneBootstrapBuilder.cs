@@ -100,7 +100,6 @@ namespace Clout.Editor
             // ── Clout NetworkBootstrapper ──
             GameObject nbGO = new GameObject("[Clout] NetworkBootstrapper");
             NetworkBootstrapper nb = nbGO.AddComponent<NetworkBootstrapper>();
-            nb.networkManager = nm;
             nb.autoStartAsHost = true;
             nb.serverPort = 7770;
             nb.serverAddress = "localhost";

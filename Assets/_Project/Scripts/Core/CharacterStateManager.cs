@@ -255,7 +255,7 @@ namespace Clout.Core
         /// </summary>
         public virtual void UpdateItemActionsWithCurrent()
         {
-            if (weaponHolderManager == null) return;
+            if (weaponHolderManager == null || anim == null) return;
 
             if (weaponHolderManager.rightItem != null)
             {
@@ -264,7 +264,12 @@ namespace Clout.Core
                     : weaponHolderManager.rightItem.oneHanded_anim;
 
                 if (!string.IsNullOrEmpty(targetIdle))
-                    anim.CrossFade(targetIdle, 0.2f);
+                {
+                    // Only crossfade if the state exists in the animator
+                    int stateHash = Animator.StringToHash(targetIdle);
+                    if (anim.HasState(0, stateHash) || (anim.layerCount > 1 && anim.HasState(1, stateHash)))
+                        anim.CrossFade(targetIdle, 0.2f);
+                }
             }
         }
 

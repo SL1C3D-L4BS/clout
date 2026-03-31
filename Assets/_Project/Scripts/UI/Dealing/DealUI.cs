@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Clout.Empire.Dealing;
 using Clout.World.NPCs;
 
@@ -103,7 +104,7 @@ namespace Clout.UI.Dealing
             }
 
             // ESC to cancel
-            if (_visible && Input.GetKeyDown(KeyCode.Escape))
+            if (_visible && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 dealManager?.CancelDeal("Player cancelled.");
             }

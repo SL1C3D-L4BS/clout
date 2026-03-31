@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Clout.Empire.Crafting;
 using Clout.Empire.Dealing;
 using Clout.Player;
@@ -84,7 +85,7 @@ namespace Clout.UI.Production
                 productionManager = ProductionManager.Instance;
 
             // Subscribe to all station events in scene
-            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude);
+            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (var station in stations)
             {
                 station.OnStationOpened += Open;
@@ -462,7 +463,7 @@ namespace Clout.UI.Production
         private void Update()
         {
             // ESC to close
-            if (_isOpen && Input.GetKeyDown(KeyCode.Escape))
+            if (_isOpen && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 _currentStation?.CloseStation();
             }
@@ -471,7 +472,7 @@ namespace Clout.UI.Production
         private void OnDestroy()
         {
             // Unsubscribe from stations
-            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude);
+            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (var station in stations)
             {
                 station.OnStationOpened -= Open;

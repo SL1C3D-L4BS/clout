@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Clout.World.NPCs;
 using Clout.Empire.Dealing;
 
@@ -55,7 +56,7 @@ namespace Clout.UI.Dealing
                 if (_resultTimer <= 0) _resultMessage = "";
             }
 
-            if (_visible && Input.GetKeyDown(KeyCode.Escape))
+            if (_visible && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 _context.npc?.CloseSupplier(_context.player);
             }

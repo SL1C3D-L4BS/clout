@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Cinemachine;
-using FishNet.Object;
 using Clout.Core;
 using Clout.Combat;
 
@@ -64,22 +63,7 @@ namespace Clout.Camera
             playerTransform = player;
             cameraFollowTarget = followTarget;
 
-            // Network ownership check — safe for offline (no NetworkManager)
-            try
-            {
-                NetworkObject nob = player.GetComponent<NetworkObject>();
-                if (nob != null && nob.IsSpawned && !nob.IsOwner)
-                {
-                    isLocalPlayer = false;
-                    gameObject.SetActive(false);
-                    return;
-                }
-            }
-            catch
-            {
-                // No NetworkManager — offline mode, this is the local player
-                isLocalPlayer = true;
-            }
+            // Phase 2 singleplayer — always local player. Network ownership check restored in Phase 4.
 
             if (freeLookCam == null) BuildFreeLookCamera();
             if (lockOnCam == null) BuildLockOnCamera();

@@ -341,6 +341,9 @@ namespace Clout.Editor
             anim.updateMode = AnimatorUpdateMode.Normal;
             anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
+            // AnimatorHook — receives animation events (damage colliders, combos, etc.)
+            AnimatorHook playerAnimHook = anim.gameObject.AddComponent<AnimatorHook>();
+
             // Camera follow target
             GameObject camTarget = new GameObject("CameraFollowTarget");
             camTarget.transform.SetParent(player.transform);
@@ -405,19 +408,15 @@ namespace Clout.Editor
             psm.runtimeStats = stats;
             psm.weaponHolderManager = weaponHolder;
             psm.ammoCacheManager = ammoCache;
+            psm.animHook = playerAnimHook;
 
             // Init camera (builds virtual cams)
             cameraManager.Init(player.transform, camTarget.transform);
 
-            // Assign starting weapons from SOs
-            WeaponItem fists = AssetDatabase.LoadAssetAtPath<WeaponItem>(
-                "Assets/_Project/ScriptableObjects/Weapons/WPN_Fists.asset");
-            WeaponItem bat = AssetDatabase.LoadAssetAtPath<WeaponItem>(
-                "Assets/_Project/ScriptableObjects/Weapons/WPN_Bat.asset");
-
-            // Default: fists. Bat available as starting weapon too.
-            psm.startingRightWeapon = bat != null ? bat : fists;
-            // Left hand empty by default (can be shield later)
+            // Starting weapons — unarmed for Phase 2 (no sword/bat clutter)
+            // Weapons will be acquirable through gameplay in later phases
+            psm.startingRightWeapon = null;
+            psm.startingLeftWeapon = null;
 
             Debug.Log("[Clout] Player built: PlayerStateManager + all combat/empire systems wired.");
             if (psm.startingRightWeapon != null)
@@ -492,6 +491,9 @@ namespace Clout.Editor
             anim.applyRootMotion = false;
             anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
+            // AnimatorHook — receives animation events (damage colliders, combos, etc.)
+            AnimatorHook enemyAnimHook = anim.gameObject.AddComponent<AnimatorHook>();
+
             // Lock-on reference
             GameObject lockOnRef = new GameObject("LockOnRef");
             lockOnRef.transform.SetParent(enemy.transform);
@@ -521,6 +523,7 @@ namespace Clout.Editor
             aiSM.anim = anim;
             aiSM.runtimeStats = stats;
             aiSM.weaponHolderManager = weaponHolder;
+            aiSM.animHook = enemyAnimHook;
             aiSM.aggressionLevel = aggression;
             aiSM.detectionRadius = 20f;
             aiSM.attackDistance = 2.5f;
