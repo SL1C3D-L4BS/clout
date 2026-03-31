@@ -185,7 +185,17 @@ namespace Clout.Core
             this.isInteracting = isInteracting;
             anim.SetBool(hashIsInteracting, isInteracting);
             anim.SetBool(hashMirror, isMirrored);
-            anim.CrossFade(animName, 0.2f);
+
+            int stateHash = Animator.StringToHash(animName);
+            for (int layer = 0; layer < anim.layerCount; layer++)
+            {
+                if (anim.HasState(layer, stateHash))
+                {
+                    anim.CrossFade(animName, 0.2f, layer);
+                    return;
+                }
+            }
+            // State not in controller — skip silently
         }
 
         /// <summary>
