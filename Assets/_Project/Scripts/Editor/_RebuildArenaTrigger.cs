@@ -6,7 +6,8 @@ namespace Clout.Editor
 {
     /// <summary>
     /// Self-deleting trigger — rebuilds the test arena with all Phase 2 systems
-    /// (economy, shops, properties) then removes itself from the project.
+    /// (economy, shops, properties, street grid, 160x160 city block layout)
+    /// then removes itself from the project.
     ///
     /// Drop this file into the Editor folder and Unity will rebuild the arena
     /// automatically on the next domain reload.
@@ -23,7 +24,7 @@ namespace Clout.Editor
         {
             EditorApplication.delayCall -= RunOnce;
 
-            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding test arena...");
+            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding test arena (160x160 city block)...");
 
             try
             {
