@@ -127,10 +127,11 @@ namespace Clout.Utils
 
     public struct MoneyChangedEvent
     {
-        public float dirtyMoney;
-        public float cleanMoney;
+        public float totalCash;
+        public float dirtyCash;
+        public float cleanCash;
         public float changeAmount;
-        public string reason;
+        public string source;
     }
 
     // World

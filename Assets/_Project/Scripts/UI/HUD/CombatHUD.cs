@@ -5,6 +5,7 @@ using Clout.Combat;
 using Clout.Stats;
 using Clout.Player;
 using Clout.Empire.Reputation;
+using Clout.Empire.Economy;
 using Clout.World.Police;
 
 namespace Clout.UI
@@ -67,6 +68,8 @@ namespace Clout.UI
         // Cash & Interaction Prompt (OnGUI — quick overlay, no canvas element needed)
         private string _interactionPrompt = "";
         private float _playerCash;
+        private float _dirtyCash;
+        private float _cleanCash;
 
         // State debug
         private Text _stateDebugText;
@@ -428,7 +431,22 @@ namespace Clout.UI
         private void RefreshCashAndPrompt()
         {
             if (playerStateManager == null) return;
-            _playerCash = playerStateManager.cash;
+
+            // Read from CashManager if available, fallback to legacy field
+            CashManager cash = CashManager.Instance;
+            if (cash != null)
+            {
+                _playerCash = cash.TotalCash;
+                _dirtyCash = cash.DirtyCash;
+                _cleanCash = cash.CleanCash;
+            }
+            else
+            {
+                _playerCash = playerStateManager.cash;
+                _dirtyCash = _playerCash;
+                _cleanCash = 0;
+            }
+
             _interactionPrompt = playerStateManager.currentInteractionPrompt ?? "";
         }
 
@@ -448,6 +466,17 @@ namespace Clout.UI
             cashStyle.alignment = TextAnchor.MiddleCenter;
             GUI.Label(new Rect(Screen.width / 2 - 80, 10, 160, 30), $"${_playerCash:F0}", cashStyle);
 
+            // Dirty/clean breakdown — small text below total
+            if (_dirtyCash > 0 || _cleanCash > 0)
+            {
+                GUIStyle breakdownStyle = new GUIStyle(GUI.skin.label);
+                breakdownStyle.fontSize = 11;
+                breakdownStyle.alignment = TextAnchor.MiddleCenter;
+                breakdownStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+                GUI.Label(new Rect(Screen.width / 2 - 120, 32, 240, 18),
+                    $"Dirty: ${_dirtyCash:F0}  |  Clean: ${_cleanCash:F0}", breakdownStyle);
+            }
+
             // Product inventory value — small text below cash
             Empire.Dealing.ProductInventory prodInv = playerStateManager.GetComponent<Empire.Dealing.ProductInventory>();
             if (prodInv != null && prodInv.Products.Count > 0)
@@ -456,7 +485,7 @@ namespace Clout.UI
                 invStyle.fontSize = 12;
                 invStyle.normal.textColor = new Color(0.7f, 0.7f, 0.7f);
                 invStyle.alignment = TextAnchor.MiddleCenter;
-                GUI.Label(new Rect(Screen.width / 2 - 100, 38, 200, 20),
+                GUI.Label(new Rect(Screen.width / 2 - 100, 50, 200, 20),
                     $"Product: {prodInv.Products.Count} stacks (${prodInv.GetTotalValue():F0})", invStyle);
             }
 

@@ -19,19 +19,22 @@ namespace Clout.Editor
 
             try
             {
-                Debug.Log("[RebuildArena] 1/4 — Building clean Test Arena...");
+                Debug.Log("[RebuildArena] 1/5 — Building Test Arena...");
                 TestArenaBuilder.BuildTestArenaHeadless();
 
-                Debug.Log("[RebuildArena] 2/4 — Spawning Dealing NPCs...");
+                Debug.Log("[RebuildArena] 2/5 — Spawning Economy System (shops)...");
+                EconomySystemFactory.CreateEconomySystemHeadless();
+
+                Debug.Log("[RebuildArena] 3/5 — Spawning Dealing NPCs...");
                 DealingSystemFactory.SpawnDealingNPCsHeadless();
 
-                Debug.Log("[RebuildArena] 3/4 — Spawning Crafting Stations...");
+                Debug.Log("[RebuildArena] 4/5 — Spawning Crafting Stations...");
                 ProductionSystemFactory.SpawnCraftingStationsHeadless();
 
-                Debug.Log("[RebuildArena] 4/4 — Saving scene...");
+                Debug.Log("[RebuildArena] 5/5 — Saving scene...");
                 EditorSceneManager.SaveOpenScenes();
 
-                Debug.Log("[RebuildArena] DONE. Humanoid avatar active. Press Play.");
+                Debug.Log("[RebuildArena] DONE. Press Play — WASD, E=interact, shops are live.");
             }
             catch (System.Exception ex)
             {

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Clout.Player;
 using Clout.Empire.Crafting;
+using Clout.Empire.Economy;
 
 namespace Clout.Empire.Dealing
 {
@@ -57,8 +58,12 @@ namespace Clout.Empire.Dealing
             if (inv == null)
                 inv = player.gameObject.AddComponent<ProductInventory>();
 
-            // Give starting cash
-            player.cash = startingCash;
+            // Give starting cash through CashManager (dirty — street money)
+            CashManager cash = CashManager.Instance;
+            if (cash != null)
+                cash.EarnDirty(startingCash, "Starting cash");
+            else
+                player.cash = startingCash;
 
             // Give starting products
             if (startingProducts != null)
@@ -98,7 +103,7 @@ namespace Clout.Empire.Dealing
             }
 
             // Last resort: scan all PlayerInputHandler (always a MonoBehaviour, not NetworkBehaviour)
-            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude);
+            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (var input in inputs)
             {
                 p = input.GetComponent<PlayerStateManager>();

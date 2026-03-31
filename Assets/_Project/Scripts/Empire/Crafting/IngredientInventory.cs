@@ -85,6 +85,42 @@ namespace Clout.Empire.Crafting
         }
 
         /// <summary>
+        /// Add ingredients by string ID (for shop purchases where SO ref isn't available).
+        /// Stacks with existing if possible. Returns actual quantity added.
+        /// </summary>
+        public int AddIngredientById(string ingredientId, int quantity)
+        {
+            if (string.IsNullOrEmpty(ingredientId) || quantity <= 0) return 0;
+
+            // Try stacking with existing (may have SO reference from prior adds)
+            for (int i = 0; i < _stacks.Count; i++)
+            {
+                if (_stacks[i].ingredientId == ingredientId)
+                {
+                    var stack = _stacks[i];
+                    stack.quantity += quantity;
+                    _stacks[i] = stack;
+                    OnInventoryChanged?.Invoke();
+                    return quantity;
+                }
+            }
+
+            // New stack (no SO reference — will resolve on next crafting lookup)
+            if (_stacks.Count >= maxSlots) return 0;
+
+            _stacks.Add(new IngredientStack
+            {
+                ingredientId = ingredientId,
+                ingredient = null,
+                quantity = quantity,
+                acquiredTime = Time.time
+            });
+
+            OnInventoryChanged?.Invoke();
+            return quantity;
+        }
+
+        /// <summary>
         /// Remove ingredients. Returns actual quantity removed.
         /// Prefers oldest stacks first (FIFO — use freshest last).
         /// </summary>

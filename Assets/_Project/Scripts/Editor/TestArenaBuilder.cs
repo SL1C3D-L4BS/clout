@@ -18,6 +18,7 @@ using Clout.Camera;
 using Clout.Empire.Reputation;
 using Clout.World.Police;
 using Clout.Inventory;
+using Clout.Empire.Economy;
 using Clout.UI;
 using UnityEditor.Animations;
 
@@ -97,6 +98,9 @@ namespace Clout.Editor
             // === HUD ===
             BuildHUD(player);
 
+            // === ECONOMY ===
+            BuildEconomy();
+
             // === NAVMESH ===
             BakeNavMesh();
 
@@ -109,7 +113,8 @@ namespace Clout.Editor
                 "• 1 Player (all systems wired)\n" +
                 "• 3 Enemies (melee, ranged, hybrid)\n" +
                 "• NavMesh baked\n" +
-                "• Combat HUD active\n\n" +
+                "• Combat HUD active\n" +
+                "• Economy system (CashManager, Ledger, Market)\n\n" +
                 "Hit Play to test.", "Let's Go");
         }
 
@@ -139,6 +144,7 @@ namespace Clout.Editor
             BuildRangedEnemy(new Vector3(-12f, 0f, 15f));
             BuildHybridEnemy(new Vector3(0f, 0f, 20f));
             BuildHUD(player);
+            BuildEconomy();
             BakeNavMesh();
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
@@ -667,6 +673,28 @@ namespace Clout.Editor
             hud.ammoCacheManager = player.GetComponent<AmmoCacheManager>();
 
             Debug.Log("[Clout] Combat HUD created and wired to player.");
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  ECONOMY
+        // ─────────────────────────────────────────────────────────
+
+        private static void BuildEconomy()
+        {
+            GameObject econObj = new GameObject("EconomySystem");
+
+            // CashManager — player wallet (dirty/clean cash tracking)
+            CashManager cashMgr = econObj.AddComponent<CashManager>();
+            cashMgr.startingDirtyCash = 500f;
+            cashMgr.startingCleanCash = 0f;
+
+            // TransactionLedger — financial record keeping
+            econObj.AddComponent<TransactionLedger>();
+
+            // EconomyManager — market price simulation
+            econObj.AddComponent<EconomyManager>();
+
+            Debug.Log("[Clout] Economy system created: CashManager + TransactionLedger + EconomyManager.");
         }
 
         // ─────────────────────────────────────────────────────────

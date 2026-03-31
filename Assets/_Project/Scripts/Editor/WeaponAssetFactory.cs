@@ -15,10 +15,8 @@ namespace Clout.Editor
     ///
     /// Creates:
     /// - Fists (Unarmed) — no model, punch/kick combo
-    /// - Bat (one-hand melee) — uses Viking Sword mesh as placeholder
+    /// - Bat (one-hand melee) — uses BaseballBat_Low mesh
     /// - Knife (one-hand melee) — uses bottle mesh as placeholder
-    /// - Thrown Bottle — uses bottle mesh, throwable
-    /// - Shield (off-hand) — uses prop_shield_01 mesh
     /// - AttackAction SO (shared by all melee weapons)
     /// - Weapon model prefabs with DamageColliders
     /// </summary>
@@ -28,18 +26,18 @@ namespace Clout.Editor
         private const string ACTION_SO_PATH = "Assets/_Project/ScriptableObjects/Actions";
         private const string PREFAB_PATH = "Assets/_Project/Prefabs/Weapons";
         private const string PLACEHOLDER_MODELS = "Assets/_Placeholder/Models";
+        private const string PROJECT_MODELS = "Assets/_Project/Models/Weapons";
 
         [MenuItem("Clout/Setup/Create Starter Weapons", false, 201)]
         public static void CreateStarterWeapons()
         {
             CreateStarterWeaponsHeadless();
             EditorUtility.DisplayDialog("Clout — Starter Weapons",
-                "Created 5 weapon SOs + 4 weapon prefabs:\n\n" +
+                "Created 4 weapon SOs + 3 weapon prefabs:\n\n" +
                 "• Fists (unarmed — punch/kick)\n" +
-                "• Bat (Viking Sword mesh — 3-hit combo)\n" +
+                "• Bat (BaseballBat mesh — 3-hit combo)\n" +
                 "• Knife (bottle mesh — slash/stab)\n" +
-                "• Lead Pipe (stretched sword — 2-hit heavy)\n" +
-                "• Riot Shield (shield mesh — bash)\n\n" +
+                "• Lead Pipe (stretched bat — 2-hit heavy)\n\n" +
                 "Weapon prefabs have DamageColliders ready.\n" +
                 "Assign to player via PlayerStateManager.startingWeapons",
                 "Done");
@@ -95,10 +93,11 @@ namespace Clout.Editor
             EditorUtility.SetDirty(fists);
 
             // ═══════════════════════════════════════════════════════
-            //  2. BAT / MACHETE (one-hand melee — Viking Sword mesh)
+            //  2. BAT (one-hand melee — BaseballBat_Low mesh)
             // ═══════════════════════════════════════════════════════
-            GameObject batPrefab = CreateWeaponPrefab("Viking Sword", "WPN_Bat",
-                new Vector3(0, 0, 0), new Vector3(0, 0, 0), Vector3.one);
+            GameObject batPrefab = CreateWeaponPrefab("BaseballBat_Low", "WPN_Bat",
+                new Vector3(0, 0, 0), new Vector3(90, 0, 0), Vector3.one,
+                PROJECT_MODELS);
 
             WeaponItem bat = CreateOrLoadAsset<WeaponItem>(
                 $"{WEAPON_SO_PATH}/WPN_Bat.asset");
@@ -175,10 +174,11 @@ namespace Clout.Editor
             EditorUtility.SetDirty(knife);
 
             // ═══════════════════════════════════════════════════════
-            //  4. PIPE (two-hand melee — Viking Sword mesh, different stats)
+            //  4. PIPE (two-hand melee — stretched bat mesh)
             // ═══════════════════════════════════════════════════════
-            GameObject pipePrefab = CreateWeaponPrefab("Viking Sword", "WPN_Pipe",
-                new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0.7f, 0.7f, 1.5f));
+            GameObject pipePrefab = CreateWeaponPrefab("BaseballBat_Low", "WPN_Pipe",
+                new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.7f, 0.7f, 1.5f),
+                PROJECT_MODELS);
 
             WeaponItem pipe = CreateOrLoadAsset<WeaponItem>(
                 $"{WEAPON_SO_PATH}/WPN_Pipe.asset");
@@ -214,48 +214,15 @@ namespace Clout.Editor
             pipe.itemActions[3] = new ItemActionContainer();
             EditorUtility.SetDirty(pipe);
 
-            // ═══════════════════════════════════════════════════════
-            //  5. SHIELD (off-hand — prop_shield_01 mesh)
-            // ═══════════════════════════════════════════════════════
-            GameObject shieldPrefab = CreateWeaponPrefab("prop_shield_01", "WPN_Shield",
-                new Vector3(0, 0, 0), new Vector3(0, 0, 0), Vector3.one);
-
-            WeaponItem shield = CreateOrLoadAsset<WeaponItem>(
-                $"{WEAPON_SO_PATH}/WPN_Shield.asset");
-            shield.itemName = "Riot Shield";
-            shield.weaponType = WeaponType.MeleeOneHand;
-            shield.primaryDamageType = DamageType.Blunt;
-            shield.baseDamage = 12f;
-            shield.motionValueLight = 0.8f;
-            shield.motionValueHeavy = 1.5f;
-            shield.weight = 8f;
-            shield.poiseDamage = 25f;
-            shield.oneHanded_anim = "Empty";
-            shield.modelPrefab = shieldPrefab;
-            shield.itemActions = new ItemActionContainer[4];
-            shield.itemActions[0] = new ItemActionContainer
-            {
-                attackInput = AttackInputs.lb,
-                animNames = new[] { "oh_attack_1" },
-                itemAction = meleeAttack,
-                isMirrored = true,
-                isTwoHanded = false
-            };
-            shield.itemActions[1] = new ItemActionContainer();
-            shield.itemActions[2] = new ItemActionContainer();
-            shield.itemActions[3] = new ItemActionContainer();
-            EditorUtility.SetDirty(shield);
-
             // Save everything
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             Debug.Log("[Clout] Starter weapons created:");
             Debug.Log("  • WPN_Fists — Unarmed (punch/kick combo)");
-            Debug.Log("  • WPN_Bat — One-hand melee (3-hit light, 2-hit heavy)");
+            Debug.Log("  • WPN_Bat — One-hand melee (BaseballBat mesh, 3-hit light, 2-hit heavy)");
             Debug.Log("  • WPN_Knife — One-hand melee (3-hit slash, parry stab)");
             Debug.Log("  • WPN_Pipe — Two-hand melee (2-hit heavy, overhead smash)");
-            Debug.Log("  • WPN_Shield — Off-hand block/bash");
             Debug.Log("  • MeleeAttackAction — Shared attack logic SO");
         }
 
@@ -297,7 +264,8 @@ namespace Clout.Editor
         /// for the DamageCollider system.
         /// </summary>
         private static GameObject CreateWeaponPrefab(string modelName, string prefabName,
-            Vector3 posOffset, Vector3 rotOffset, Vector3 scale)
+            Vector3 posOffset, Vector3 rotOffset, Vector3 scale,
+            string searchPath = null)
         {
             string prefabPath = $"{PREFAB_PATH}/{prefabName}.prefab";
 
@@ -305,8 +273,11 @@ namespace Clout.Editor
             GameObject existingPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
             if (existingPrefab != null) return existingPrefab;
 
-            // Find the source model
-            string[] modelGuids = AssetDatabase.FindAssets(modelName, new[] { PLACEHOLDER_MODELS });
+            // Find the source model — search project path first, then placeholder
+            string[] searchPaths = searchPath != null
+                ? new[] { searchPath, PLACEHOLDER_MODELS }
+                : new[] { PLACEHOLDER_MODELS };
+            string[] modelGuids = AssetDatabase.FindAssets(modelName, searchPaths);
             GameObject sourceModel = null;
             foreach (string guid in modelGuids)
             {

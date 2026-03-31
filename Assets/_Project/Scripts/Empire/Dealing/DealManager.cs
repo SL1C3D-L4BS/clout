@@ -5,6 +5,7 @@ using Clout.Empire.Crafting;
 using Clout.Empire.Reputation;
 using Clout.World.Police;
 using Clout.World.NPCs;
+using Clout.Empire.Economy;
 using Clout.Utils;
 
 namespace Clout.Empire.Dealing
@@ -168,8 +169,12 @@ namespace Clout.Empire.Dealing
             // Remove product from player
             inventory.RemoveProduct(productStack.productId, quantity);
 
-            // Add cash to player
-            _currentPlayer.cash += totalCash;
+            // Add dirty cash through CashManager (drug deals = dirty money)
+            CashManager cash = CashManager.Instance;
+            if (cash != null)
+                cash.EarnDirty(totalCash, $"Deal: {productStack.productId} x{quantity}");
+            else
+                _currentPlayer.cash += totalCash; // Fallback if CashManager not in scene
 
             // Update customer
             _currentCustomer.CompletePurchase(0, quality); // dealerId 0 = local player
@@ -220,10 +225,11 @@ namespace Clout.Empire.Dealing
 
             EventBus.Publish(new MoneyChangedEvent
             {
-                dirtyMoney = _currentPlayer.cash,
-                cleanMoney = 0,
+                totalCash = cash != null ? cash.TotalCash : _currentPlayer.cash,
+                dirtyCash = cash != null ? cash.DirtyCash : _currentPlayer.cash,
+                cleanCash = cash != null ? cash.CleanCash : 0,
                 changeAmount = totalCash,
-                reason = $"Sold {quantity}x {productStack.productId}"
+                source = $"Deal: {productStack.productId} x{quantity}"
             });
 
             DealResult result = new DealResult

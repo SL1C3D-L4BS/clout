@@ -2,6 +2,7 @@ using UnityEngine;
 using Clout.Core;
 using Clout.Player;
 using Clout.Empire.Dealing;
+using Clout.Empire.Economy;
 using Clout.Empire.Reputation;
 using Clout.World.Police;
 
@@ -113,8 +114,10 @@ namespace Clout.World.NPCs
 
             // Cash check
             float totalCost = entry.wholesalePrice * quantity;
-            if (player.cash < totalCost)
-                return new PurchaseResult { success = false, message = $"Need ${totalCost:F0}. You have ${player.cash:F0}." };
+            CashManager cash = CashManager.Instance;
+            float availableCash = cash != null ? cash.TotalCash : player.cash;
+            if (availableCash < totalCost)
+                return new PurchaseResult { success = false, message = $"Need ${totalCost:F0}. You have ${availableCash:F0}." };
 
             // Bust check
             if (Random.value < supplierData.bustRisk)
@@ -125,8 +128,11 @@ namespace Clout.World.NPCs
                 return new PurchaseResult { success = false, message = "IT'S A SETUP! RUN!" };
             }
 
-            // Execute purchase
-            player.cash -= totalCost;
+            // Execute purchase — spend through CashManager (buying supplies = dirty money)
+            if (cash != null)
+                cash.Spend(totalCost, $"Supplier: {supplierData.supplierName} ({entry.product.productName} x{quantity})");
+            else
+                player.cash -= totalCost;
 
             // Generate quality within supplier range
             float quality = Random.Range(entry.qualityFloor, entry.qualityCeiling);
@@ -144,10 +150,11 @@ namespace Clout.World.NPCs
             // Publish money event
             Utils.EventBus.Publish(new Utils.MoneyChangedEvent
             {
-                dirtyMoney = player.cash,
-                cleanMoney = 0,
+                totalCash = cash != null ? cash.TotalCash : player.cash,
+                dirtyCash = cash != null ? cash.DirtyCash : player.cash,
+                cleanCash = cash != null ? cash.CleanCash : 0,
                 changeAmount = -totalCost,
-                reason = $"Bought {added}x {entry.product.productName}"
+                source = $"Supplier: {entry.product.productName} x{added}"
             });
 
             string tierName = GetQualityTierName(entry.product, quality);
