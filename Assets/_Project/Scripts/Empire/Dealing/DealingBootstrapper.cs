@@ -103,7 +103,7 @@ namespace Clout.Empire.Dealing
             }
 
             // Last resort: scan all PlayerInputHandler (always a MonoBehaviour, not NetworkBehaviour)
-            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude);
             foreach (var input in inputs)
             {
                 p = input.GetComponent<PlayerStateManager>();

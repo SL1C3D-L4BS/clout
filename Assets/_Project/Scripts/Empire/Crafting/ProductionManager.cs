@@ -166,7 +166,7 @@ namespace Clout.Empire.Crafting
         private void ProcessAllDegradation()
         {
             // Find all IngredientInventories in the scene and process degradation
-            var inventories = FindObjectsByType<IngredientInventory>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var inventories = FindObjectsByType<IngredientInventory>(FindObjectsInactive.Exclude);
             foreach (var inv in inventories)
             {
                 inv.ProcessDegradation();

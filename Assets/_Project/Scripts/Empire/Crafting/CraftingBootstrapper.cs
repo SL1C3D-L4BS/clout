@@ -105,7 +105,7 @@ namespace Clout.Empire.Crafting
             ProductionManager pm = ProductionManager.Instance;
             if (pm == null) return;
 
-            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude);
             foreach (var station in stations)
             {
                 pm.RegisterStation(station);
@@ -129,7 +129,7 @@ namespace Clout.Empire.Crafting
                 if (p != null) return p;
             }
 
-            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude);
             foreach (var input in inputs)
             {
                 p = input.GetComponent<PlayerStateManager>();

@@ -118,6 +118,20 @@ namespace Clout.Utils
         public float price;
     }
 
+    public struct PropertyRaidedEvent
+    {
+        public string propertyId;
+        public int productConfiscated;
+        public float cashConfiscated;
+    }
+
+    public struct PropertyUpgradedEvent
+    {
+        public string propertyId;
+        public string upgradeName;
+        public float cost;
+    }
+
     public struct WorkerHiredEvent
     {
         public string workerId;

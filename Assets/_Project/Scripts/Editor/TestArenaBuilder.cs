@@ -19,6 +19,7 @@ using Clout.Empire.Reputation;
 using Clout.World.Police;
 using Clout.Inventory;
 using Clout.Empire.Economy;
+using Clout.Empire.Properties;
 using Clout.UI;
 using UnityEditor.Animations;
 
@@ -101,6 +102,13 @@ namespace Clout.Editor
             // === ECONOMY ===
             BuildEconomy();
 
+            // === SHOPS ===
+            EconomySystemFactory.CreateEconomySystemHeadless();
+
+            // === PROPERTIES ===
+            PropertySystemFactory.CreatePropertySystemHeadless();
+            PropertySystemFactory.SpawnPropertiesHeadless();
+
             // === NAVMESH ===
             BakeNavMesh();
 
@@ -114,7 +122,9 @@ namespace Clout.Editor
                 "• 3 Enemies (melee, ranged, hybrid)\n" +
                 "• NavMesh baked\n" +
                 "• Combat HUD active\n" +
-                "• Economy system (CashManager, Ledger, Market)\n\n" +
+                "• Economy system (CashManager, Ledger, Market)\n" +
+                "• 3 Shop NPCs (Chemo's Supply, Pawn It, Big Tony's)\n" +
+                "• 8 Property buildings (surrounding arena)\n\n" +
                 "Hit Play to test.", "Let's Go");
         }
 
@@ -145,6 +155,9 @@ namespace Clout.Editor
             BuildHybridEnemy(new Vector3(0f, 0f, 20f));
             BuildHUD(player);
             BuildEconomy();
+            EconomySystemFactory.CreateEconomySystemHeadless();
+            PropertySystemFactory.CreatePropertySystemHeadless();
+            PropertySystemFactory.SpawnPropertiesHeadless();
             BakeNavMesh();
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
@@ -694,7 +707,10 @@ namespace Clout.Editor
             // EconomyManager — market price simulation
             econObj.AddComponent<EconomyManager>();
 
-            Debug.Log("[Clout] Economy system created: CashManager + TransactionLedger + EconomyManager.");
+            // PropertyManager — property ownership and daily tick
+            econObj.AddComponent<PropertyManager>();
+
+            Debug.Log("[Clout] Economy system created: CashManager + TransactionLedger + EconomyManager + PropertyManager.");
         }
 
         // ─────────────────────────────────────────────────────────

@@ -14,11 +14,9 @@ namespace Clout.Network
         public string serverAddress = "localhost";
         public ushort serverPort = 7770;
 
-        private bool _networkReady;
-
         private void Awake()
         {
-            if (FindObjectsByType<NetworkBootstrapper>(FindObjectsInactive.Exclude, FindObjectsSortMode.None).Length > 1)
+            if (FindObjectsByType<NetworkBootstrapper>(FindObjectsInactive.Exclude).Length > 1)
             {
                 Destroy(gameObject);
                 return;
@@ -26,8 +24,6 @@ namespace Clout.Network
 
             DontDestroyOnLoad(gameObject);
 
-            // Phase 2: no FishNet NetworkManager expected — offline mode
-            _networkReady = false;
             Debug.Log("[Clout Network] NetworkBootstrapper running in offline mode (Phase 2 singleplayer).");
         }
 
