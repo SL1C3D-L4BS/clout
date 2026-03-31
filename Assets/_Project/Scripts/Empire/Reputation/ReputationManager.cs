@@ -50,7 +50,7 @@ namespace Clout.Empire.Reputation
         /// <summary>
         /// Whether FishNet is active and this object is network-spawned.
         /// </summary>
-        private bool IsNetworked
+        private new bool IsNetworked
         {
             get
             {

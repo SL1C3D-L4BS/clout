@@ -132,26 +132,31 @@ namespace Clout.Player
             CalculateMoveAmount();
 
             // Fallback direct movement — if the state machine isn't initialized yet,
-            // apply basic movement so the player isn't completely frozen
+            // apply basic movement so the player isn't completely frozen.
+            // Uses GetComponent<Rigidbody>() directly since psm.rigid may not be set yet.
             if (moveAmount > 0.1f)
             {
                 var psm = GetComponent<Clout.Player.PlayerStateManager>();
-                if (psm != null && !psm.IsInitialized && psm.rigid != null)
+                if (psm != null && !psm.IsInitialized)
                 {
-                    Transform cam = UnityEngine.Camera.main?.transform;
-                    Vector3 dir;
-                    if (cam != null)
+                    Rigidbody rb = GetComponent<Rigidbody>();
+                    if (rb != null)
                     {
-                        Vector3 fwd = cam.forward; fwd.y = 0; fwd.Normalize();
-                        Vector3 right = cam.right; right.y = 0; right.Normalize();
-                        dir = fwd * moveInput.y + right * moveInput.x;
+                        Transform cam = UnityEngine.Camera.main?.transform;
+                        Vector3 dir;
+                        if (cam != null)
+                        {
+                            Vector3 fwd = cam.forward; fwd.y = 0; fwd.Normalize();
+                            Vector3 right = cam.right; right.y = 0; right.Normalize();
+                            dir = fwd * moveInput.y + right * moveInput.x;
+                        }
+                        else
+                        {
+                            dir = new Vector3(moveInput.x, 0, moveInput.y);
+                        }
+                        float yVel = rb.linearVelocity.y;
+                        rb.linearVelocity = dir * 4f + Vector3.up * yVel;
                     }
-                    else
-                    {
-                        dir = new Vector3(moveInput.x, 0, moveInput.y);
-                    }
-                    float yVel = psm.rigid.linearVelocity.y;
-                    psm.rigid.linearVelocity = dir * 4f + Vector3.up * yVel;
                 }
             }
         }

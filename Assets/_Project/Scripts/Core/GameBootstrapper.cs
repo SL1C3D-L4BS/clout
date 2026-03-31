@@ -1,4 +1,6 @@
 using UnityEngine;
+using FishNet.Managing;
+using FishNet.Transporting.Tugboat;
 using Clout.Network;
 
 namespace Clout.Core
@@ -7,13 +9,16 @@ namespace Clout.Core
     /// Game entry point — ensures all singletons and essential managers exist.
     /// Runs before any other MonoBehaviour via Script Execution Order or [RuntimeInitializeOnLoadMethod].
     ///
-    /// Clout architecture: scene-agnostic bootstrapper that creates persistent managers
-    /// for networking, audio, save/load, and game state.
+    /// CRITICAL: Must create FishNet NetworkManager BEFORE scene loads, because
+    /// all NetworkBehaviour components (StateManager, RuntimeStats, etc.) need
+    /// a NetworkManager to exist during their Awake() — FishNet's IL weaving
+    /// injects code that looks for the singleton.
+    ///
+    /// Singleplayer runs as Host (server + client on same machine).
     /// </summary>
     public class GameBootstrapper : MonoBehaviour
     {
         [Header("Bootstrap Config")]
-        [SerializeField] private bool ensureNetwork = false;    // Disabled for offline/testing — enable for multiplayer
         [SerializeField] private bool autoStartAsHost = true;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -32,10 +37,32 @@ namespace Clout.Core
         {
             DontDestroyOnLoad(gameObject);
 
-            if (ensureNetwork)
-                EnsureNetworkBootstrapper();
+            // ALWAYS ensure NetworkManager exists — FishNet NetworkBehaviour components
+            // break silently without one. Singleplayer = host mode.
+            EnsureNetworkManager();
+            EnsureNetworkBootstrapper();
 
-            Debug.Log("[Clout] Game bootstrapper initialized.");
+            Debug.Log("[Clout] Game bootstrapper initialized (NetworkManager ensured).");
+        }
+
+        /// <summary>
+        /// Create a FishNet NetworkManager if one doesn't exist.
+        /// This MUST happen before any NetworkBehaviour.Awake() runs.
+        /// </summary>
+        private void EnsureNetworkManager()
+        {
+            if (FindAnyObjectByType<NetworkManager>() != null) return;
+
+            GameObject nmObj = new GameObject("[FishNet] NetworkManager");
+            DontDestroyOnLoad(nmObj);
+
+            // Add NetworkManager
+            nmObj.AddComponent<NetworkManager>();
+
+            // Add Tugboat transport (FishNet's built-in UDP transport)
+            Tugboat transport = nmObj.AddComponent<Tugboat>();
+
+            Debug.Log("[Clout] FishNet NetworkManager created (singleplayer/host mode).");
         }
 
         private void EnsureNetworkBootstrapper()

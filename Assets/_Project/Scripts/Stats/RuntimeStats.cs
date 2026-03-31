@@ -56,7 +56,7 @@ namespace Clout.Stats
 
         // ─── Network Check ───────────────────────────────────────
 
-        private bool IsNetworked
+        private new bool IsNetworked
         {
             get
             {

@@ -21,6 +21,8 @@ using Clout.Inventory;
 using Clout.UI;
 using UnityEditor.Animations;
 using FishNet.Object;
+using FishNet.Managing;
+using FishNet.Transporting.Tugboat;
 
 namespace Clout.Editor
 {
@@ -78,6 +80,9 @@ namespace Clout.Editor
             // Create new scene
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+            // === FISHNET NETWORK MANAGER (must be first — NetworkBehaviours need it) ===
+            BuildNetworkManager();
+
             // === ENVIRONMENT ===
             BuildEnvironment();
 
@@ -109,6 +114,7 @@ namespace Clout.Editor
             EditorUtility.DisplayDialog("Clout", "Test Arena built!\n\n" +
                 "• 1 Player (all systems wired)\n" +
                 "• 3 Enemies (melee, ranged, hybrid)\n" +
+                "• FishNet NetworkManager (host mode)\n" +
                 "• NavMesh baked\n" +
                 "• Combat HUD active\n\n" +
                 "Hit Play to test.", "Let's Go");
@@ -132,6 +138,7 @@ namespace Clout.Editor
                 WeaponAssetFactory.CreateStarterWeaponsHeadless();
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            BuildNetworkManager();
             BuildEnvironment();
             GameObject mainCam = BuildMainCamera();
             BuildEventSystem();
@@ -145,6 +152,46 @@ namespace Clout.Editor
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
             AssetDatabase.Refresh();
             Debug.Log("[Clout] Test Arena built (headless): " + SCENE_PATH);
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  FISHNET NETWORK MANAGER
+        // ─────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Create a FishNet NetworkManager in the scene.
+        /// MUST be created BEFORE any GameObject with NetworkBehaviour components,
+        /// because FishNet's IL weaving injects code into every NetworkBehaviour.Awake()
+        /// that looks up the NetworkManager singleton. Without one, all NetworkBehaviours
+        /// (StateManager, RuntimeStats, WantedSystem, etc.) silently break.
+        ///
+        /// For singleplayer testing, the NetworkBootstrapper auto-starts as Host.
+        /// </summary>
+        private static void BuildNetworkManager()
+        {
+            // Try using the FishNet demo prefab first (has all sub-managers pre-wired)
+            string prefabPath = "Packages/com.firstgeargames.fishnet/Demos/Prefabs/NetworkManager.prefab";
+            GameObject nmPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+
+            if (nmPrefab != null)
+            {
+                GameObject nm = (GameObject)PrefabUtility.InstantiatePrefab(nmPrefab);
+                nm.name = "[FishNet] NetworkManager";
+                Debug.Log("[Clout] FishNet NetworkManager instantiated from demo prefab.");
+            }
+            else
+            {
+                // Fallback: create manually
+                GameObject nmObj = new GameObject("[FishNet] NetworkManager");
+                nmObj.AddComponent<NetworkManager>();
+                nmObj.AddComponent<Tugboat>();
+                Debug.Log("[Clout] FishNet NetworkManager created manually with Tugboat transport.");
+            }
+
+            // Add NetworkBootstrapper for auto-host
+            GameObject bootObj = new GameObject("[Clout] NetworkBootstrapper");
+            var nb = bootObj.AddComponent<Clout.Network.NetworkBootstrapper>();
+            nb.autoStartAsHost = true;
         }
 
         // ─────────────────────────────────────────────────────────

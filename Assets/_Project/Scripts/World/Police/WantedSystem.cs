@@ -50,7 +50,7 @@ namespace Clout.World.Police
         /// <summary>
         /// Whether FishNet is active.
         /// </summary>
-        private bool IsNetworked
+        private new bool IsNetworked
         {
             get
             {

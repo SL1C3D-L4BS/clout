@@ -84,7 +84,7 @@ namespace Clout.UI.Production
                 productionManager = ProductionManager.Instance;
 
             // Subscribe to all station events in scene
-            var stations = FindObjectsByType<CraftingStation>(FindObjectsSortMode.None);
+            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude);
             foreach (var station in stations)
             {
                 station.OnStationOpened += Open;
@@ -471,7 +471,7 @@ namespace Clout.UI.Production
         private void OnDestroy()
         {
             // Unsubscribe from stations
-            var stations = FindObjectsByType<CraftingStation>(FindObjectsSortMode.None);
+            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude);
             foreach (var station in stations)
             {
                 station.OnStationOpened -= Open;
