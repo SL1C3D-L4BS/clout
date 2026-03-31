@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b1468ed7b3a46428a968fba7a3d998, type: 3}
+  m_Name: PROP_Eastside_Warehouse
+  m_EditorClassIdentifier: Clout::Clout.Empire.Properties.PropertyDefinition
+  propertyName: Eastside Warehouse
+  description: Massive industrial storage. Loading docks, forklifts, and room for
+    serious weight.
+  icon: {fileID: 0}
+  exteriorPhoto: {fileID: 0}
+  propertyType: 4
+  purchasePrice: 40000
+  dailyUpkeep: 500
+  dailyRevenue: 200
+  maxStorage: 200
+  maxEmployeeSlots: 4
+  availableUpgrades:
+  - upgradeName: Climate Control
+    description: Temperature-regulated storage. Product stays fresh.
+    cost: 5000
+    constructionTime: 6
+    effects:
+    - type: 0
+      value: 100
+  - upgradeName: Loading Bay
+    description: Faster logistics. Reduces transfer time.
+    cost: 8000
+    constructionTime: 8
+    effects:
+    - type: 2
+      value: 0.2
+  - upgradeName: Guard Post
+    description: Armed security. Deters raids and theft.
+    cost: 6000
+    constructionTime: 4
+    effects:
+    - type: 4
+      value: 0.4
+  - upgradeName: Shell Company
+    description: Paperwork says it's a furniture business.
+    cost: 10000
+    constructionTime: 12
+    effects:
+    - type: 5
+      value: -0.1
+  - upgradeName: Reduced Overhead
+    description: Negotiate better utility rates.
+    cost: 3000
+    constructionTime: 2
+    effects:
+    - type: 7
+      value: 0.15
+  policeVisibility: 0.15
+  raidChance: 0.04
+  requiresCoverBusiness: 0
+  districtName: Industrial District
+  worldPosition: {x: 0, y: 0, z: -48}

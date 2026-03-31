@@ -28,7 +28,7 @@ namespace Clout.UI.Economy
         private void Start()
         {
             // Auto-subscribe to all shop keepers in scene
-            var shops = FindObjectsByType<ShopKeeper>(FindObjectsInactive.Exclude);
+            var shops = FindObjectsByType<ShopKeeper>();
             foreach (var shop in shops)
             {
                 shop.OnShopOpened += Open;
@@ -38,7 +38,7 @@ namespace Clout.UI.Economy
 
         private void OnDestroy()
         {
-            var shops = FindObjectsByType<ShopKeeper>(FindObjectsInactive.Exclude);
+            var shops = FindObjectsByType<ShopKeeper>();
             foreach (var shop in shops)
             {
                 shop.OnShopOpened -= Open;

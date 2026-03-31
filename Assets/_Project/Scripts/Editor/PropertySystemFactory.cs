@@ -120,20 +120,84 @@ namespace Clout.Editor
             var auto = LoadProp("PROP_Chop_Shop");
             var restaurant = LoadProp("PROP_Mamas_Kitchen");
 
-            // Spawn buildings in a ring around the arena (outside the combat area)
-            // Arena is ~80x80 centered at origin, buildings placed outside walls at ~42-50m
-            float r = 48f; // Radius from center
+            // ═══════════════════════════════════════════════════════
+            //  PROCEDURAL PLACEMENT MATH
+            // ═══════════════════════════════════════════════════════
+            //
+            //  Arena: 160x160m, walls at ±78m, wall thickness = 1m
+            //  Wall inner face = 77.5m from center
+            //  Buildings placed along inner perimeter, 2 per wall edge
+            //  Each building faces INWARD (toward center)
+            //
+            //  Building footprints (from ProceduralPropertyBuilder):
+            //    Safehouse:  7w × 5d     Lab:        12w × 8d
+            //    Growhouse:  9w × 7d     Storefront:  8w × 10d
+            //    Warehouse: 18w × 12d    Nightclub:  14w × 10d
+            //    AutoShop:  14w × 9d     Restaurant: 10w × 8d
+            //
+            //  Placement formula per wall:
+            //    Cardinal axis = wallInner - margin - depth/2
+            //    Lateral offset = ±(wallInner * 0.2) to spread buildings apart
+            //    Y rotation faces front door toward center
+            //
+            //  Layout (top-down, +Z = North):
+            //
+            //         Wall_North (z=+78)
+            //    ┌─────────────────────────┐
+            //    │  Restaurant    Motel     │ ← face south (Y=180)
+            //    │                          │
+            //    │ Nightclub    ┌──────┐ Lab│ ← face east/west (Y=90/270)
+            //    │              │COMBAT│    │
+            //    │ AutoShop     └──────┘Grow│ ← face east/west (Y=90/270)
+            //    │                          │
+            //    │  Warehouse   Storefront  │ ← face north (Y=0)
+            //    └─────────────────────────┘
+            //         Wall_South (z=-78)
 
-            SpawnPropertyBuilding(motel, new Vector3(-r * 0.7f, 0, r * 0.7f), container.transform, propUI);    // NW
-            SpawnPropertyBuilding(lab, new Vector3(r * 0.7f, 0, r * 0.7f), container.transform, propUI);        // NE
-            SpawnPropertyBuilding(grow, new Vector3(r, 0, 0), container.transform, propUI);                      // E
-            SpawnPropertyBuilding(store, new Vector3(r * 0.7f, 0, -r * 0.7f), container.transform, propUI);     // SE
-            SpawnPropertyBuilding(warehouse, new Vector3(0, 0, -r), container.transform, propUI);                // S
-            SpawnPropertyBuilding(club, new Vector3(-r * 0.7f, 0, -r * 0.7f), container.transform, propUI);     // SW
-            SpawnPropertyBuilding(auto, new Vector3(-r, 0, 0), container.transform, propUI);                     // W
-            SpawnPropertyBuilding(restaurant, new Vector3(0, 0, r), container.transform, propUI);                // N
+            const float WALL_INNER = 77.5f;  // 78 - 0.5 (half wall thickness)
+            const float MARGIN = 3f;          // Gap between building back and wall
+            const float LATERAL = 16f;        // Lateral offset along wall for spacing
 
-            Debug.Log("[Clout] 8 procedural property buildings spawned.");
+            // ─── NORTH WALL — buildings face south (Y=180°) ──────────
+            // Depth runs along Z; back at pos.z + depth/2 near north wall
+            // pos.z = WALL_INNER - MARGIN - depth/2
+            float northRestZ = WALL_INNER - MARGIN - 8f / 2f;   // Restaurant depth=8 → z=70.5
+            float northMotelZ = WALL_INNER - MARGIN - 5f / 2f;  // Motel depth=5    → z=72
+
+            SpawnPropertyBuilding(restaurant, new Vector3(LATERAL, 0, northRestZ), 180f, container.transform, propUI);
+            SpawnPropertyBuilding(motel, new Vector3(-LATERAL, 0, northMotelZ), 180f, container.transform, propUI);
+
+            // ─── EAST WALL — buildings face west (Y=270°) ────────────
+            // Rotated 270°: depth maps to world X, back at pos.x + depth/2 near east wall
+            // pos.x = WALL_INNER - MARGIN - depth/2
+            float eastLabX = WALL_INNER - MARGIN - 8f / 2f;     // Lab depth=8      → x=70.5
+            float eastGrowX = WALL_INNER - MARGIN - 7f / 2f;    // Growhouse depth=7→ x=71
+
+            SpawnPropertyBuilding(lab, new Vector3(eastLabX, 0, LATERAL), 270f, container.transform, propUI);
+            SpawnPropertyBuilding(grow, new Vector3(eastGrowX, 0, -LATERAL), 270f, container.transform, propUI);
+
+            // ─── SOUTH WALL — buildings face north (Y=0°) ────────────
+            // Depth runs along Z; back at pos.z - depth/2 near south wall
+            // pos.z = -(WALL_INNER - MARGIN - depth/2)
+            float southWarehZ = -(WALL_INNER - MARGIN - 12f / 2f); // Warehouse depth=12 → z=-68.5
+            float southStoreZ = -(WALL_INNER - MARGIN - 10f / 2f); // Storefront depth=10→ z=-69.5
+
+            SpawnPropertyBuilding(warehouse, new Vector3(-LATERAL, 0, southWarehZ), 0f, container.transform, propUI);
+            SpawnPropertyBuilding(store, new Vector3(LATERAL, 0, southStoreZ), 0f, container.transform, propUI);
+
+            // ─── WEST WALL — buildings face east (Y=90°) ─────────────
+            // Rotated 90°: depth maps to world X, back at pos.x - depth/2 near west wall
+            // pos.x = -(WALL_INNER - MARGIN - depth/2)
+            float westClubX = -(WALL_INNER - MARGIN - 10f / 2f);  // Nightclub depth=10 → x=-69.5
+            float westAutoX = -(WALL_INNER - MARGIN - 9f / 2f);   // AutoShop depth=9   → x=-70
+
+            SpawnPropertyBuilding(club, new Vector3(westClubX, 0, LATERAL), 90f, container.transform, propUI);
+            SpawnPropertyBuilding(auto, new Vector3(westAutoX, 0, -LATERAL), 90f, container.transform, propUI);
+
+            // ─── STREET GRID — visual connection between properties ──
+            BuildStreetRing(container.transform);
+
+            Debug.Log("[Clout] 8 procedural property buildings spawned inside arena perimeter.");
         }
 
         // ═══════════════════════════════════════════════════════
@@ -289,14 +353,17 @@ namespace Clout.Editor
         //  SPAWN INTO SCENE
         // ═══════════════════════════════════════════════════════
 
-        private static void SpawnPropertyBuilding(PropertyDefinition def, Vector3 pos,
+        private static void SpawnPropertyBuilding(PropertyDefinition def, Vector3 pos, float yRotation,
             Transform parent, PropertyUI propUI)
         {
             if (def == null) return;
 
-            // Generate procedural building
+            // Generate procedural building at position
             GameObject building = ProceduralPropertyBuilder.Build(def.propertyType, pos, def.propertyName);
             building.transform.SetParent(parent);
+
+            // Rotate to face center — all child geometry uses localPosition so this works cleanly
+            building.transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
 
             // Attach Property component (not owned yet — for-sale state)
             Property prop = building.AddComponent<Property>();
@@ -316,7 +383,111 @@ namespace Clout.Editor
             def.worldPosition = pos;
             EditorUtility.SetDirty(def);
 
-            Debug.Log($"[Clout] Property building spawned: {def.propertyName} ({def.propertyType}) at {pos}");
+            Debug.Log($"[Clout] Property: {def.propertyName} ({def.propertyType}) at {pos} facing Y={yRotation}°");
+        }
+
+        /// <summary>
+        /// Builds a procedural street ring connecting the property district.
+        /// Asphalt-colored ground strips forming a rectangular loop around the combat zone.
+        /// </summary>
+        private static void BuildStreetRing(Transform parent)
+        {
+            Color asphalt = new Color(0.22f, 0.22f, 0.25f);
+            Color lineColor = new Color(0.75f, 0.70f, 0.30f); // Yellow road marking
+
+            // Street dimensions
+            const float STREET_WIDTH = 8f;
+            const float STREET_Y = 0.02f;  // Just above ground to prevent z-fighting
+            const float RING_DIST = 48f;   // Distance of street ring from center
+
+            // North-South streets (east & west sides)
+            BuildStreetSegment(parent, "Street_East",
+                new Vector3(RING_DIST, STREET_Y, 0f),
+                new Vector3(STREET_WIDTH, 0.04f, RING_DIST * 2f + STREET_WIDTH), asphalt);
+            BuildStreetSegment(parent, "Street_West",
+                new Vector3(-RING_DIST, STREET_Y, 0f),
+                new Vector3(STREET_WIDTH, 0.04f, RING_DIST * 2f + STREET_WIDTH), asphalt);
+
+            // East-West streets (north & south sides)
+            BuildStreetSegment(parent, "Street_North",
+                new Vector3(0f, STREET_Y, RING_DIST),
+                new Vector3(RING_DIST * 2f + STREET_WIDTH, 0.04f, STREET_WIDTH), asphalt);
+            BuildStreetSegment(parent, "Street_South",
+                new Vector3(0f, STREET_Y, -RING_DIST),
+                new Vector3(RING_DIST * 2f + STREET_WIDTH, 0.04f, STREET_WIDTH), asphalt);
+
+            // Center road markings (dashed yellow lines)
+            for (int i = -5; i <= 5; i++)
+            {
+                float z = i * (RING_DIST * 2f / 10f);
+                BuildStreetSegment(parent, $"Marking_E_{i}",
+                    new Vector3(RING_DIST, STREET_Y + 0.01f, z),
+                    new Vector3(0.15f, 0.02f, 3f), lineColor);
+                BuildStreetSegment(parent, $"Marking_W_{i}",
+                    new Vector3(-RING_DIST, STREET_Y + 0.01f, z),
+                    new Vector3(0.15f, 0.02f, 3f), lineColor);
+            }
+            for (int i = -5; i <= 5; i++)
+            {
+                float x = i * (RING_DIST * 2f / 10f);
+                BuildStreetSegment(parent, $"Marking_N_{i}",
+                    new Vector3(x, STREET_Y + 0.01f, RING_DIST),
+                    new Vector3(3f, 0.02f, 0.15f), lineColor);
+                BuildStreetSegment(parent, $"Marking_S_{i}",
+                    new Vector3(x, STREET_Y + 0.01f, -RING_DIST),
+                    new Vector3(3f, 0.02f, 0.15f), lineColor);
+            }
+
+            // Sidewalks between buildings and streets (lighter concrete)
+            Color sidewalk = new Color(0.55f, 0.55f, 0.52f);
+            const float SW_WIDTH = 2.5f;
+
+            BuildStreetSegment(parent, "Sidewalk_E_Inner",
+                new Vector3(RING_DIST - STREET_WIDTH / 2f - SW_WIDTH / 2f, STREET_Y, 0f),
+                new Vector3(SW_WIDTH, 0.06f, RING_DIST * 2f), sidewalk);
+            BuildStreetSegment(parent, "Sidewalk_E_Outer",
+                new Vector3(RING_DIST + STREET_WIDTH / 2f + SW_WIDTH / 2f, STREET_Y, 0f),
+                new Vector3(SW_WIDTH, 0.06f, RING_DIST * 2f), sidewalk);
+
+            BuildStreetSegment(parent, "Sidewalk_W_Inner",
+                new Vector3(-RING_DIST + STREET_WIDTH / 2f + SW_WIDTH / 2f, STREET_Y, 0f),
+                new Vector3(SW_WIDTH, 0.06f, RING_DIST * 2f), sidewalk);
+            BuildStreetSegment(parent, "Sidewalk_W_Outer",
+                new Vector3(-RING_DIST - STREET_WIDTH / 2f - SW_WIDTH / 2f, STREET_Y, 0f),
+                new Vector3(SW_WIDTH, 0.06f, RING_DIST * 2f), sidewalk);
+
+            BuildStreetSegment(parent, "Sidewalk_N_Inner",
+                new Vector3(0f, STREET_Y, RING_DIST - STREET_WIDTH / 2f - SW_WIDTH / 2f),
+                new Vector3(RING_DIST * 2f, 0.06f, SW_WIDTH), sidewalk);
+            BuildStreetSegment(parent, "Sidewalk_N_Outer",
+                new Vector3(0f, STREET_Y, RING_DIST + STREET_WIDTH / 2f + SW_WIDTH / 2f),
+                new Vector3(RING_DIST * 2f, 0.06f, SW_WIDTH), sidewalk);
+
+            BuildStreetSegment(parent, "Sidewalk_S_Inner",
+                new Vector3(0f, STREET_Y, -RING_DIST + STREET_WIDTH / 2f + SW_WIDTH / 2f),
+                new Vector3(RING_DIST * 2f, 0.06f, SW_WIDTH), sidewalk);
+            BuildStreetSegment(parent, "Sidewalk_S_Outer",
+                new Vector3(0f, STREET_Y, -RING_DIST - STREET_WIDTH / 2f - SW_WIDTH / 2f),
+                new Vector3(RING_DIST * 2f, 0.06f, SW_WIDTH), sidewalk);
+
+            Debug.Log("[Clout] Street grid built: 4 roads + markings + sidewalks.");
+        }
+
+        private static void BuildStreetSegment(Transform parent, string name, Vector3 pos, Vector3 scale, Color color)
+        {
+            GameObject seg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            seg.name = name;
+            seg.transform.SetParent(parent);
+            seg.transform.position = pos;
+            seg.transform.localScale = scale;
+            seg.isStatic = true;
+
+            // Remove collider — streets don't block movement
+            Object.DestroyImmediate(seg.GetComponent<Collider>());
+
+            Renderer r = seg.GetComponent<Renderer>();
+            Material mat = EditorShaderHelper.CreateMaterial(color);
+            r.sharedMaterial = mat;
         }
 
         // ═══════════════════════════════════════════════════════

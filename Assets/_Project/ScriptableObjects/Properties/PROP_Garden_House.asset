@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b1468ed7b3a46428a968fba7a3d998, type: 3}
+  m_Name: PROP_Garden_House
+  m_EditorClassIdentifier: Clout::Clout.Empire.Properties.PropertyDefinition
+  propertyName: Garden House
+  description: Suburban house converted for indoor cultivation. Hydroponics and grow
+    lights ready to go.
+  icon: {fileID: 0}
+  exteriorPhoto: {fileID: 0}
+  propertyType: 2
+  purchasePrice: 8000
+  dailyUpkeep: 150
+  dailyRevenue: 0
+  maxStorage: 40
+  maxEmployeeSlots: 2
+  availableUpgrades:
+  - upgradeName: LED Grow Lights
+    description: Full spectrum. Better yield and quality.
+    cost: 2000
+    constructionTime: 4
+    effects:
+    - type: 3
+      value: 0.1
+  - upgradeName: Hydroponic System
+    description: Soil-free growing. Faster cycles.
+    cost: 3500
+    constructionTime: 6
+    effects:
+    - type: 2
+      value: 0.25
+  - upgradeName: Carbon Filters
+    description: Eliminates odor. Hard to detect from outside.
+    cost: 1500
+    constructionTime: 2
+    effects:
+    - type: 5
+      value: -0.12
+  - upgradeName: Extra Grow Room
+    description: Convert the attic. Double capacity.
+    cost: 4000
+    constructionTime: 8
+    effects:
+    - type: 0
+      value: 60
+  policeVisibility: 0.2
+  raidChance: 0.05
+  requiresCoverBusiness: 0
+  districtName: Suburbs
+  worldPosition: {x: 48, y: 0, z: 0}

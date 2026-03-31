@@ -180,11 +180,12 @@ namespace Clout.Editor
             dirLight.shadows = LightShadows.Soft;
             light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
 
-            // Ground plane — large enough for combat
+            // Ground plane — large enough for combat + property district
+            // 160x160m city block: combat zone in center, properties along perimeter
             GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
             ground.name = "Ground";
             ground.transform.position = new Vector3(0f, -0.5f, 0f);
-            ground.transform.localScale = new Vector3(80f, 1f, 80f);
+            ground.transform.localScale = new Vector3(160f, 1f, 160f);
             ground.isStatic = true;
 
             // Ground material
@@ -205,11 +206,19 @@ namespace Clout.Editor
             BuildCoverObject("Cover_Barrel_A", new Vector3(3f, 0.5f, 12f), new Vector3(0.8f, 1f, 0.8f));
             BuildCoverObject("Cover_Barrel_B", new Vector3(-8f, 0.5f, 22f), new Vector3(0.8f, 1f, 0.8f));
 
-            // Boundary walls — keep AI from wandering off
-            BuildBoundaryWall("Wall_North", new Vector3(0f, 2f, 38f), new Vector3(80f, 4f, 1f));
-            BuildBoundaryWall("Wall_South", new Vector3(0f, 2f, -38f), new Vector3(80f, 4f, 1f));
-            BuildBoundaryWall("Wall_East", new Vector3(38f, 2f, 0f), new Vector3(1f, 4f, 80f));
-            BuildBoundaryWall("Wall_West", new Vector3(-38f, 2f, 0f), new Vector3(1f, 4f, 80f));
+            // Boundary walls — perimeter of 160x160 city block
+            // Walls at ±78m from center, 6m tall for visibility
+            BuildBoundaryWall("Wall_North", new Vector3(0f, 3f, 78f), new Vector3(160f, 6f, 1f));
+            BuildBoundaryWall("Wall_South", new Vector3(0f, 3f, -78f), new Vector3(160f, 6f, 1f));
+            BuildBoundaryWall("Wall_East", new Vector3(78f, 3f, 0f), new Vector3(1f, 6f, 160f));
+            BuildBoundaryWall("Wall_West", new Vector3(-78f, 3f, 0f), new Vector3(1f, 6f, 160f));
+
+            // Inner combat zone dividers — waist-height walls at ±30m mark the combat area
+            // Players can walk over them, AI uses them as patrol boundaries
+            BuildBoundaryWall("Zone_North", new Vector3(0f, 0.6f, 30f), new Vector3(60f, 1.2f, 0.3f));
+            BuildBoundaryWall("Zone_South", new Vector3(0f, 0.6f, -30f), new Vector3(60f, 1.2f, 0.3f));
+            BuildBoundaryWall("Zone_East", new Vector3(30f, 0.6f, 0f), new Vector3(0.3f, 1.2f, 60f));
+            BuildBoundaryWall("Zone_West", new Vector3(-30f, 0.6f, 0f), new Vector3(0.3f, 1.2f, 60f));
         }
 
         private static void BuildCoverObject(string name, Vector3 pos, Vector3 scale)

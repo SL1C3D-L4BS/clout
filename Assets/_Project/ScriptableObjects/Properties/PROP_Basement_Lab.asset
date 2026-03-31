@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b1468ed7b3a46428a968fba7a3d998, type: 3}
+  m_Name: PROP_Basement_Lab
+  m_EditorClassIdentifier: Clout::Clout.Empire.Properties.PropertyDefinition
+  propertyName: Basement Lab
+  description: Converted basement with basic lab equipment. Fumes are a problem.
+    Ventilation upgrade recommended.
+  icon: {fileID: 0}
+  exteriorPhoto: {fileID: 0}
+  propertyType: 1
+  purchasePrice: 15000
+  dailyUpkeep: 200
+  dailyRevenue: 0
+  maxStorage: 50
+  maxEmployeeSlots: 3
+  availableUpgrades:
+  - upgradeName: Ventilation System
+    description: Industrial fans. Reduces fume detection.
+    cost: 3000
+    constructionTime: 4
+    effects:
+    - type: 5
+      value: -0.15
+  - upgradeName: Pro Equipment
+    description: Better burners, flasks, scales. Higher purity.
+    cost: 5000
+    constructionTime: 8
+    effects:
+    - type: 3
+      value: 0.15
+  - upgradeName: Speed Press
+    description: Automated pressing. Faster batch cycles.
+    cost: 4000
+    constructionTime: 6
+    effects:
+    - type: 2
+      value: 0.3
+  - upgradeName: Security Cameras
+    description: See who's coming before they see you.
+    cost: 2000
+    constructionTime: 2
+    effects:
+    - type: 4
+      value: 0.3
+  - upgradeName: Expanded Storage
+    description: Industrial shelving. More product capacity.
+    cost: 2500
+    constructionTime: 4
+    effects:
+    - type: 0
+      value: 80
+  policeVisibility: 0.3
+  raidChance: 0.08
+  requiresCoverBusiness: 1
+  districtName: Industrial District
+  worldPosition: {x: 33.6, y: 0, z: 33.6}

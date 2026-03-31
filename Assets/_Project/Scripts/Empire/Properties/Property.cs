@@ -84,7 +84,7 @@ namespace Clout.Empire.Properties
 
         private static Property FindExistingProperty(PropertyDefinition definition)
         {
-            var all = FindObjectsByType<Property>(FindObjectsInactive.Exclude);
+            var all = FindObjectsByType<Property>();
             foreach (var p in all)
             {
                 if (p._definition == definition) return p;
