@@ -37,7 +37,7 @@ namespace Clout.Empire.Dealing
         {
             if (_initialized) return;
 
-            PlayerStateManager player = FindAnyObjectByType<PlayerStateManager>();
+            PlayerStateManager player = FindPlayerSafe();
             if (player == null)
             {
                 // Retry — player may not be initialized yet
@@ -77,6 +77,35 @@ namespace Clout.Empire.Dealing
 
             Debug.Log($"[DealingBootstrapper] Player initialized: ${player.cash:F0} cash, " +
                       $"{inv.Products.Count} product stacks.");
+        }
+
+        /// <summary>
+        /// Robust player search — FindAnyObjectByType can fail for NetworkBehaviour types.
+        /// Falls back to searching all GameObjects for the component.
+        /// </summary>
+        private PlayerStateManager FindPlayerSafe()
+        {
+            // Try the fast path first
+            PlayerStateManager p = FindAnyObjectByType<PlayerStateManager>();
+            if (p != null) return p;
+
+            // Fallback: search by name or tag
+            GameObject playerObj = GameObject.Find("Player");
+            if (playerObj != null)
+            {
+                p = playerObj.GetComponent<PlayerStateManager>();
+                if (p != null) return p;
+            }
+
+            // Last resort: scan all PlayerInputHandler (always a MonoBehaviour, not NetworkBehaviour)
+            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude);
+            foreach (var input in inputs)
+            {
+                p = input.GetComponent<PlayerStateManager>();
+                if (p != null) return p;
+            }
+
+            return null;
         }
     }
 }

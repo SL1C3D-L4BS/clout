@@ -169,7 +169,8 @@ namespace Clout.Core
 
         protected virtual void Start()
         {
-            Init();
+            if (!IsInitialized)
+                Init();
         }
 
         // ─── Animation ────────────────────────────────────────

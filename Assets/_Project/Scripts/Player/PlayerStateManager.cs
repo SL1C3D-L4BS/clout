@@ -193,6 +193,13 @@ namespace Clout.Player
 
         protected override void Update()
         {
+            // Failsafe init — must run before isDead check
+            if (!IsInitialized)
+            {
+                Debug.LogWarning($"[Player] {gameObject.name} wasn't initialized in Start() — initializing now.");
+                Init();
+            }
+
             if (isDead) return;
             base.Update();
 

@@ -181,6 +181,9 @@ namespace Clout.AI
 
         protected override void Update()
         {
+            if (!IsInitialized)
+                Init();
+
             if (isDead) return;
             base.Update();
 

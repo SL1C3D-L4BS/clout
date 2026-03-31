@@ -34,7 +34,7 @@ namespace Clout.Empire.Crafting
         {
             if (_initialized) return;
 
-            PlayerStateManager player = FindAnyObjectByType<PlayerStateManager>();
+            PlayerStateManager player = FindPlayerSafe();
             if (player == null)
             {
                 _retryCount++;
@@ -105,13 +105,38 @@ namespace Clout.Empire.Crafting
             ProductionManager pm = ProductionManager.Instance;
             if (pm == null) return;
 
-            var stations = FindObjectsByType<CraftingStation>(FindObjectsSortMode.None);
+            var stations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude);
             foreach (var station in stations)
             {
                 pm.RegisterStation(station);
             }
 
             Debug.Log($"[CraftingBootstrapper] Registered {stations.Length} crafting stations.");
+        }
+
+        /// <summary>
+        /// Robust player search — FindAnyObjectByType can fail for NetworkBehaviour types.
+        /// </summary>
+        private PlayerStateManager FindPlayerSafe()
+        {
+            PlayerStateManager p = FindAnyObjectByType<PlayerStateManager>();
+            if (p != null) return p;
+
+            GameObject playerObj = GameObject.Find("Player");
+            if (playerObj != null)
+            {
+                p = playerObj.GetComponent<PlayerStateManager>();
+                if (p != null) return p;
+            }
+
+            var inputs = FindObjectsByType<PlayerInputHandler>(FindObjectsInactive.Exclude);
+            foreach (var input in inputs)
+            {
+                p = input.GetComponent<PlayerStateManager>();
+                if (p != null) return p;
+            }
+
+            return null;
         }
     }
 }
