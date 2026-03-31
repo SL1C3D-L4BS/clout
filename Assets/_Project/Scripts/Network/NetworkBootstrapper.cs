@@ -1,16 +1,11 @@
 using UnityEngine;
-using FishNet;
-using FishNet.Managing;
-using FishNet.Transporting.Tugboat;
 
 namespace Clout.Network
 {
     /// <summary>
-    /// Network initialization — creates and configures FishNet with Tugboat transport.
-    ///
-    /// Singleplayer: auto-starts as Host (server + client).
-    /// Multiplayer: starts as Server or Client based on configuration.
-    /// Co-op: up to 4 players on a single host.
+    /// Network initialization — Phase 2 singleplayer safe.
+    /// FishNet types wrapped in try-catch so it doesn't crash when no NetworkManager exists.
+    /// Full FishNet integration will be restored in Phase 4 multiplayer.
     /// </summary>
     public class NetworkBootstrapper : MonoBehaviour
     {
@@ -18,9 +13,6 @@ namespace Clout.Network
         public bool autoStartAsHost = true;
         public string serverAddress = "localhost";
         public ushort serverPort = 7770;
-
-        [Header("References")]
-        public NetworkManager networkManager;
 
         private bool _networkReady;
 
@@ -34,67 +26,34 @@ namespace Clout.Network
 
             DontDestroyOnLoad(gameObject);
 
-            if (networkManager == null)
-                networkManager = FindAnyObjectByType<NetworkManager>();
-
-            if (networkManager == null)
-            {
-                _networkReady = false;
-                return; // Offline mode — no NetworkManager in scene, totally fine for singleplayer
-            }
-
-            _networkReady = true;
-
-            Tugboat tug = networkManager.GetComponentInChildren<Tugboat>();
-            if (tug != null)
-            {
-                tug.SetPort(serverPort);
-                tug.SetClientAddress(serverAddress);
-            }
+            // Phase 2: no FishNet NetworkManager expected — offline mode
+            _networkReady = false;
+            Debug.Log("[Clout Network] NetworkBootstrapper running in offline mode (Phase 2 singleplayer).");
         }
 
         private void Start()
         {
-            if (_networkReady && autoStartAsHost)
-                StartHost();
+            // Phase 2: no auto-host, pure singleplayer
         }
 
         public void StartHost()
         {
-            if (networkManager == null) return;
-            networkManager.ServerManager.StartConnection();
-            networkManager.ClientManager.StartConnection();
-            Debug.Log("[Clout Network] Started as HOST (server + client)");
+            Debug.LogWarning("[Clout Network] StartHost called but FishNet is disabled for Phase 2 singleplayer.");
         }
 
         public void StartServer()
         {
-            if (networkManager == null) return;
-            networkManager.ServerManager.StartConnection();
-            Debug.Log("[Clout Network] Started as SERVER");
+            Debug.LogWarning("[Clout Network] StartServer called but FishNet is disabled for Phase 2 singleplayer.");
         }
 
         public void StartClient()
         {
-            if (networkManager == null) return;
-
-            Tugboat tug = networkManager.GetComponentInChildren<Tugboat>();
-            if (tug != null)
-                tug.SetClientAddress(serverAddress);
-
-            networkManager.ClientManager.StartConnection();
-            Debug.Log($"[Clout Network] Started as CLIENT → {serverAddress}:{serverPort}");
+            Debug.LogWarning("[Clout Network] StartClient called but FishNet is disabled for Phase 2 singleplayer.");
         }
 
         public void StopNetwork()
         {
-            if (networkManager == null) return;
-
-            if (networkManager.IsServerStarted)
-                networkManager.ServerManager.StopConnection(true);
-
-            if (networkManager.IsClientStarted)
-                networkManager.ClientManager.StopConnection();
+            // No-op in Phase 2
         }
     }
 }

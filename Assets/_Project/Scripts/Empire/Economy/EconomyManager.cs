@@ -1,22 +1,14 @@
 using UnityEngine;
-using FishNet.Object;
 using System.Collections.Generic;
 using System;
 
 namespace Clout.Empire.Economy
 {
     /// <summary>
-    /// Server-authoritative economy simulation.
-    /// Manages supply/demand, dynamic pricing, market events, and money laundering.
-    ///
-    /// The economy is a living system:
-    /// - Prices fluctuate based on supply (all players' output) vs demand (NPC consumers)
-    /// - Police crackdowns reduce demand in specific zones
-    /// - Rival cartels compete for market share
-    /// - Money laundering through legit businesses
-    /// - Cash vs digital money (laundered = safe, cash = seizeable)
+    /// Economy simulation — Phase 2 singleplayer.
+    /// FishNet server-authoritative logic will be restored in Phase 4.
     /// </summary>
-    public class EconomyManager : NetworkBehaviour
+    public class EconomyManager : MonoBehaviour
     {
         [Header("Market Config")]
         public float priceUpdateInterval = 300f;     // 5 minutes between market shifts
@@ -33,9 +25,8 @@ namespace Clout.Empire.Economy
 
         public event Action<string, float> OnPriceChanged;  // productId, newPrice
 
-        public override void OnStartServer()
+        private void Start()
         {
-            base.OnStartServer();
             _lastPriceUpdate = Time.time;
         }
 
@@ -53,8 +44,7 @@ namespace Clout.Empire.Economy
         /// <summary>
         /// Record a sale — affects supply/demand calculations.
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
-        public void RecordSaleServerRpc(string productId, string zoneId, int quantity, float quality)
+        public void RecordSale(string productId, string zoneId, int quantity, float quality)
         {
             string key = $"{productId}_{zoneId}";
             if (!_marketPrices.ContainsKey(key))
@@ -91,8 +81,6 @@ namespace Clout.Empire.Economy
 
         private void Update()
         {
-            if (!IsServerInitialized) return;
-
             if (Time.time - _lastPriceUpdate >= priceUpdateInterval)
             {
                 UpdateMarketPrices();

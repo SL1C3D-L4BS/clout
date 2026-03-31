@@ -1,24 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
-using FishNet.Object;
 
 namespace Clout.Core
 {
     /// <summary>
-    /// Abstract state machine base — extends NetworkBehaviour for multiplayer.
-    ///
-    /// NETWORK ARCHITECTURE:
-    /// - State machine ticks ONLY on the authority (owner for players, server for AI)
-    /// - State changes replicated via SyncVar for visual sync on non-owners
-    /// - FixedUpdate/Update/LateUpdate only run state actions if ShouldTick()
-    ///
-    /// OFFLINE SAFETY:
-    /// - FishNet property access (IsSpawned, IsOwner) wrapped in try-catch
-    /// - If no NetworkManager exists, defaults to offline mode (always tick)
+    /// Abstract state machine base — MonoBehaviour for Phase 2 singleplayer.
+    /// FishNet NetworkBehaviour will be restored in Phase 4 multiplayer.
     ///
     /// Ported from NullReach's StateManager, evolved for Clout's empire + combat systems.
     /// </summary>
-    public abstract class StateManager : NetworkBehaviour
+    public abstract class StateManager : MonoBehaviour
     {
         [Header("State Machine Debug")]
         [SerializeField] private string _currentStateId;
@@ -61,24 +52,12 @@ namespace Clout.Core
         protected void MarkInitialized() => _isInitialized = true;
 
         /// <summary>
-        /// Multiplayer authority gate — only tick on owner (players) or server (AI).
-        /// Safe for offline mode: if FishNet isn't initialized, always returns true.
+        /// Authority gate — Phase 2 singleplayer always ticks.
+        /// FishNet authority checks will be restored in Phase 4 multiplayer.
         /// </summary>
         protected bool ShouldTick()
         {
-            try
-            {
-                // FishNet property access can throw if NetworkManager doesn't exist
-                if (!IsSpawned) return true;    // Offline / singleplayer
-                if (IsOwner) return true;        // Player's own character
-                if (IsServerInitialized && !Owner.IsValid) return true; // Server-controlled AI
-                return false;
-            }
-            catch
-            {
-                // No NetworkManager in scene — pure offline mode
-                return true;
-            }
+            return true;
         }
 
         protected virtual void Update()

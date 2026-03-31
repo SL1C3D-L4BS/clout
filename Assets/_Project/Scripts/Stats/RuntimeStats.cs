@@ -1,26 +1,20 @@
 using UnityEngine;
-using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using System;
 
 namespace Clout.Stats
 {
     /// <summary>
     /// Per-character runtime stats — health, stamina, and combat values.
-    ///
-    /// OFFLINE/ONLINE:
-    /// - SyncVars replicate when networked
-    /// - Offline backing fields used when FishNet isn't running
-    /// - All public accessors work in both modes
+    /// Phase 2 singleplayer — FishNet SyncVars will be restored in Phase 4.
     /// </summary>
-    public class RuntimeStats : NetworkBehaviour
+    public class RuntimeStats : MonoBehaviour
     {
         [Header("Health")]
-        public readonly SyncVar<int> health = new SyncVar<int>(100);
+        // SyncVar<int> for Phase 4 multiplayer
         public int maxHealth = 100;
 
         [Header("Stamina")]
-        public readonly SyncVar<float> stamina = new SyncVar<float>(100f);
+        // SyncVar<float> for Phase 4 multiplayer
         public float maxStamina = 100f;
         public float staminaRegenRate = 15f;
         public float staminaRegenDelay = 1.5f;
@@ -44,31 +38,13 @@ namespace Clout.Stats
         public float armor = 0f;
         public float bulletResistance = 0f;
 
-        // Offline backing fields
+        // Backing fields
         private int _offlineHealth = 100;
         private float _offlineStamina = 100f;
-        private bool _isNetworked;
-        private bool _networkChecked;
 
         public event Action OnHealthChanged;
         public event Action OnStaminaChanged;
         public event Action OnDeath;
-
-        // ─── Network Check ───────────────────────────────────────
-
-        private new bool IsNetworked
-        {
-            get
-            {
-                if (!_networkChecked)
-                {
-                    _networkChecked = true;
-                    try { _isNetworked = IsSpawned; }
-                    catch { _isNetworked = false; }
-                }
-                return _isNetworked;
-            }
-        }
 
         private void Awake()
         {
@@ -76,34 +52,18 @@ namespace Clout.Stats
             _offlineStamina = maxStamina;
         }
 
-        // ─── Accessors (work both online and offline) ────────────
+        // ─── Accessors ──────────────────────────────────────────
 
         public int Health
         {
-            get
-            {
-                if (IsNetworked) { try { return health.Value; } catch { } }
-                return _offlineHealth;
-            }
-            private set
-            {
-                if (IsNetworked) { try { health.Value = value; return; } catch { } }
-                _offlineHealth = value;
-            }
+            get => _offlineHealth;
+            private set => _offlineHealth = value;
         }
 
         public float Stamina
         {
-            get
-            {
-                if (IsNetworked) { try { return stamina.Value; } catch { } }
-                return _offlineStamina;
-            }
-            private set
-            {
-                if (IsNetworked) { try { stamina.Value = value; return; } catch { } }
-                _offlineStamina = value;
-            }
+            get => _offlineStamina;
+            private set => _offlineStamina = value;
         }
 
         // ─── Core Methods ────────────────────────────────────────

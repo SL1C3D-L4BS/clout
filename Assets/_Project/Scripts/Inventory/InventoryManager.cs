@@ -1,21 +1,14 @@
 using UnityEngine;
-using FishNet.Object;
 using System;
 using System.Collections.Generic;
 
 namespace Clout.Inventory
 {
     /// <summary>
-    /// Per-player inventory — server-authoritative item management.
-    ///
-    /// Supports:
-    /// - Slot-based inventory with weight limit
-    /// - Stacking for consumables/ammo/ingredients
-    /// - Quick slots for equipped items
-    /// - Separate stash storage at properties
-    /// - Illegal item flagging (police searches)
+    /// Per-player inventory — Phase 2 singleplayer.
+    /// FishNet server-authoritative logic will be restored in Phase 4.
     /// </summary>
-    public class InventoryManager : NetworkBehaviour
+    public class InventoryManager : MonoBehaviour
     {
         [Header("Config")]
         public int maxSlots = 30;

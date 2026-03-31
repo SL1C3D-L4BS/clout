@@ -1,86 +1,60 @@
 using UnityEngine;
-using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using Clout.Core;
 
 namespace Clout.Network
 {
     /// <summary>
-    /// Supplements FishNet's NetworkAnimator with game-specific sync.
-    /// Handles CrossFade calls and state sync for non-owner HUD display.
+    /// Animator state sync — Phase 2 singleplayer (local only).
+    /// FishNet SyncVars and RPCs will be restored in Phase 4 multiplayer.
     /// </summary>
-    [RequireComponent(typeof(NetworkObject))]
-    public class NetworkAnimatorSync : NetworkBehaviour
+    public class NetworkAnimatorSync : MonoBehaviour
     {
         [Header("References")]
         public CharacterStateManager stateManager;
 
-        private readonly SyncVar<float> _syncHealth = new SyncVar<float>();
-        private readonly SyncVar<float> _syncStamina = new SyncVar<float>();
-        private readonly SyncVar<bool> _syncIsDead = new SyncVar<bool>();
-        private readonly SyncVar<bool> _syncLockOn = new SyncVar<bool>();
-        private readonly SyncVar<string> _syncCurrentState = new SyncVar<string>();
+        // Backing fields (were SyncVars in Phase 1)
+        private float _syncHealth;
+        private float _syncStamina;
+        private bool _syncIsDead;
+        private bool _syncLockOn;
+        private string _syncCurrentState;
 
         private void Awake()
         {
             if (stateManager == null)
                 stateManager = GetComponentInParent<CharacterStateManager>();
-
-            _syncHealth.OnChange += OnHealthChanged;
-            _syncIsDead.OnChange += OnDeadChanged;
         }
 
-        public override void OnStartServer()
+        private void Start()
         {
-            base.OnStartServer();
-
             if (stateManager != null && stateManager.runtimeStats != null)
             {
-                _syncHealth.Value = stateManager.runtimeStats.health.Value;
-                _syncStamina.Value = stateManager.runtimeStats.stamina.Value;
+                _syncHealth = stateManager.runtimeStats.Health;
+                _syncStamina = stateManager.runtimeStats.Stamina;
             }
         }
 
         private void Update()
         {
-            if (!IsServerInitialized) return;
             if (stateManager == null) return;
 
             if (stateManager.runtimeStats != null)
             {
-                _syncHealth.Value = stateManager.runtimeStats.health.Value;
-                _syncStamina.Value = stateManager.runtimeStats.stamina.Value;
+                _syncHealth = stateManager.runtimeStats.Health;
+                _syncStamina = stateManager.runtimeStats.Stamina;
             }
 
-            _syncIsDead.Value = stateManager.isDead;
-            _syncLockOn.Value = stateManager.lockOn;
+            _syncIsDead = stateManager.isDead;
+            _syncLockOn = stateManager.lockOn;
 
             if (stateManager.currentState != null)
-                _syncCurrentState.Value = stateManager.currentState.id;
+                _syncCurrentState = stateManager.currentState.id;
         }
 
+        /// <summary>
+        /// In Phase 2, CrossFade is applied locally. Phase 4 will replicate via RPCs.
+        /// </summary>
         public void ReplicateCrossFade(string animName, bool isInteracting, bool isMirrored)
-        {
-            if (!IsSpawned) return;
-
-            if (IsServerInitialized)
-            {
-                ObserversCrossFade(animName, isInteracting, isMirrored);
-            }
-            else if (IsOwner)
-            {
-                ServerRequestCrossFade(animName, isInteracting, isMirrored);
-            }
-        }
-
-        [ServerRpc]
-        private void ServerRequestCrossFade(string animName, bool isInteracting, bool isMirrored)
-        {
-            ObserversCrossFade(animName, isInteracting, isMirrored);
-        }
-
-        [ObserversRpc(ExcludeOwner = true)]
-        private void ObserversCrossFade(string animName, bool isInteracting, bool isMirrored)
         {
             if (stateManager == null || stateManager.anim == null) return;
 
@@ -89,22 +63,8 @@ namespace Clout.Network
             stateManager.anim.CrossFade(animName, 0.2f);
         }
 
-        private void OnHealthChanged(float prev, float next, bool asServer)
-        {
-            if (asServer) return;
-            if (stateManager != null && stateManager.runtimeStats != null)
-                stateManager.runtimeStats.health.Value = (int)next;
-        }
-
-        private void OnDeadChanged(bool prev, bool next, bool asServer)
-        {
-            if (asServer) return;
-            if (stateManager != null)
-                stateManager.isDead = next;
-        }
-
-        public float GetSyncedHealth() => _syncHealth.Value;
-        public float GetSyncedStamina() => _syncStamina.Value;
-        public bool GetSyncedIsDead() => _syncIsDead.Value;
+        public float GetSyncedHealth() => _syncHealth;
+        public float GetSyncedStamina() => _syncStamina;
+        public bool GetSyncedIsDead() => _syncIsDead;
     }
 }

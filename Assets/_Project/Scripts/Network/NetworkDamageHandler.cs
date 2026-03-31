@@ -1,22 +1,20 @@
 using UnityEngine;
-using FishNet.Object;
-using FishNet.Connection;
 using Clout.Core;
 
 namespace Clout.Network
 {
     /// <summary>
-    /// Server-authoritative damage validation layer.
+    /// Damage validation layer — Phase 2 singleplayer (direct apply).
+    /// FishNet ServerRpc/ObserversRpc will be restored in Phase 4 multiplayer.
     ///
-    /// ARCHITECTURE:
+    /// ARCHITECTURE (Phase 4):
     /// - DamageCollider detects hits locally (client-side)
     /// - Instead of applying directly, calls RequestDamage()
     /// - This component forwards to server via ServerRpc
     /// - Server validates (distance, cooldown) and applies
     /// - Server broadcasts hit effect to all clients
     /// </summary>
-    [RequireComponent(typeof(NetworkObject))]
-    public class NetworkDamageHandler : NetworkBehaviour
+    public class NetworkDamageHandler : MonoBehaviour
     {
         [Header("Validation")]
         public float maxHitDistance = 5f;
@@ -25,52 +23,30 @@ namespace Clout.Network
 
         /// <summary>
         /// Called by DamageCollider when a hit is detected locally.
+        /// In Phase 2, applies damage directly. Phase 4 will route through ServerRpc.
         /// </summary>
         public void RequestDamage(CharacterStateManager target, DamageEvent damageEvent)
         {
             if (target == null) return;
-
-            // Offline mode
-            if (!IsSpawned)
-            {
-                target.OnDamage(damageEvent);
-                return;
-            }
-
-            NetworkObject targetNob = target.GetComponent<NetworkObject>();
-            if (targetNob == null)
-            {
-                target.OnDamage(damageEvent);
-                return;
-            }
-
-            ServerValidateDamage(
-                targetNob,
-                damageEvent.damageType,
-                damageEvent.baseDamage,
-                damageEvent.motionValue,
-                damageEvent.hitPoint,
-                damageEvent.hitDirection,
-                damageEvent.isCritical,
-                damageEvent.isHeadshot
-            );
+            target.OnDamage(damageEvent);
         }
 
-        [ServerRpc(RequireOwnership = false)]
+        /// <summary>
+        /// Server-side damage validation — kept as regular method for Phase 4.
+        /// </summary>
         private void ServerValidateDamage(
-            NetworkObject targetNob,
+            GameObject targetObj,
             DamageType damageType,
             float baseDamage,
             float motionValue,
             Vector3 hitPoint,
             Vector3 hitDirection,
             bool isCritical,
-            bool isHeadshot,
-            NetworkConnection sender = null)
+            bool isHeadshot)
         {
-            if (targetNob == null) return;
+            if (targetObj == null) return;
 
-            CharacterStateManager target = targetNob.GetComponent<CharacterStateManager>();
+            CharacterStateManager target = targetObj.GetComponent<CharacterStateManager>();
             if (target == null || target.isDead) return;
 
             // Validation: distance
@@ -100,12 +76,14 @@ namespace Clout.Network
             };
 
             target.OnDamage(serverEvent);
-            ObserversBroadcastHit(targetNob, hitPoint, hitDirection, damageType);
+            BroadcastHit(targetObj, hitPoint, hitDirection, damageType);
         }
 
-        [ObserversRpc]
-        private void ObserversBroadcastHit(
-            NetworkObject targetNob,
+        /// <summary>
+        /// Hit broadcast — kept as regular method for Phase 4 ObserversRpc.
+        /// </summary>
+        private void BroadcastHit(
+            GameObject targetObj,
             Vector3 hitPoint,
             Vector3 hitDirection,
             DamageType damageType)

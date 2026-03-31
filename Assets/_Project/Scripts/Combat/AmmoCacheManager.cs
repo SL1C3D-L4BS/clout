@@ -1,18 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
-using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using Clout.Core;
 
 namespace Clout.Combat
 {
     /// <summary>
     /// Per-character ammo inventory — tracks ammo reserves by type.
-    /// Server-authoritative via SyncVar.
-    ///
-    /// Clout ammo types: Pistol, SMG, Rifle, Shotgun, Sniper, Explosive.
+    /// Phase 2 singleplayer — FishNet SyncVars will be restored in Phase 4.
     /// </summary>
-    public class AmmoCacheManager : NetworkBehaviour
+    public class AmmoCacheManager : MonoBehaviour
     {
         [Header("Starting Ammo")]
         public int startingPistol = 24;
@@ -33,7 +29,7 @@ namespace Clout.Combat
         private Dictionary<AmmoType, int> _ammoReserves = new Dictionary<AmmoType, int>();
         private Dictionary<AmmoType, int> _ammoCaps = new Dictionary<AmmoType, int>();
 
-        private readonly SyncVar<string> _syncAmmoState = new SyncVar<string>();
+        // SyncVar<string> for Phase 4 multiplayer
 
         public System.Action<AmmoType, int> OnAmmoChanged;
 

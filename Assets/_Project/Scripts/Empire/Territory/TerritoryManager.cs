@@ -1,19 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
-using FishNet.Object;
-using FishNet.Object.Synchronizing;
 
 namespace Clout.Empire.Territory
 {
     /// <summary>
     /// Manages territory control zones across the city.
-    /// Territories have owners (players/AI cartels), influence levels,
-    /// and economic properties (customer density, police presence, rival threat).
-    ///
-    /// Multiplayer: server-authoritative territory ownership with SyncVars.
-    /// This is the PvPvE competitive layer — fight for corners, blocks, districts.
+    /// Phase 2 singleplayer — FishNet server-authoritative logic restored in Phase 4.
     /// </summary>
-    public class TerritoryManager : NetworkBehaviour
+    public class TerritoryManager : MonoBehaviour
     {
         [Header("Config")]
         public TerritoryZone[] zones;
@@ -21,9 +15,8 @@ namespace Clout.Empire.Territory
         // Runtime — server manages all territory state
         private Dictionary<string, TerritoryState> _territoryStates = new Dictionary<string, TerritoryState>();
 
-        public override void OnStartServer()
+        private void Start()
         {
-            base.OnStartServer();
             InitializeZones();
         }
 
@@ -46,8 +39,7 @@ namespace Clout.Empire.Territory
         /// Claim or contest a territory zone. Influence builds over time
         /// through dealing, property ownership, and defeating rivals.
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
-        public void AddInfluenceServerRpc(string zoneId, int playerId, float amount)
+        public void AddInfluence(string zoneId, int playerId, float amount)
         {
             if (!_territoryStates.TryGetValue(zoneId, out var state)) return;
 

@@ -1,6 +1,4 @@
 using UnityEngine;
-using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using System;
 using System.Collections.Generic;
 using Clout.Core;
@@ -9,38 +7,24 @@ namespace Clout.Empire.Reputation
 {
     /// <summary>
     /// Per-player reputation system — "Clout" is literally the core metric.
-    ///
-    /// Your CLOUT score is your street reputation — it determines:
-    /// - What properties you can buy
-    /// - What employees you can hire
-    /// - What suppliers will deal with you
-    /// - Whether rivals respect or target you
-    /// - Customer willingness to buy from you
-    ///
-    /// CLOUT is the title of the game. It's the meta-currency of power.
-    ///
-    /// OFFLINE/ONLINE:
-    /// - SyncVars replicate when networked
-    /// - Plain backing fields used when FishNet isn't running
-    /// - [Server] removed for offline compatibility — authority check done manually
+    /// Phase 2 singleplayer — FishNet SyncVars will be restored in Phase 4.
     /// </summary>
-    public class ReputationManager : NetworkBehaviour
+    public class ReputationManager : MonoBehaviour
     {
         [Header("Clout Score")]
-        public readonly SyncVar<int> cloutScore = new SyncVar<int>(0);
-        public readonly SyncVar<int> cloutRank = new SyncVar<int>(0);
+        // SyncVar<int> fields for Phase 4 multiplayer
 
         [Header("Reputation Tracks")]
-        public readonly SyncVar<float> streetRep = new SyncVar<float>(0f);
-        public readonly SyncVar<float> civilianRep = new SyncVar<float>(50f);
-        public readonly SyncVar<float> rivalRep = new SyncVar<float>(0f);
-        public readonly SyncVar<float> supplierRep = new SyncVar<float>(0f);
+        public float streetRep = 0f;
+        public float civilianRep = 50f;
+        public float rivalRep = 0f;
+        public float supplierRep = 0f;
 
         [Header("Clout Rank Thresholds")]
         public int[] rankThresholds = { 0, 100, 500, 2000, 10000, 50000 };
         public string[] rankNames = { "Nobody", "Corner Boy", "Hustler", "Shot Caller", "Kingpin", "Legend" };
 
-        // Offline backing fields — used when FishNet isn't active
+        // Backing fields
         private int _offlineClout;
         private int _offlineRank;
 
@@ -48,83 +32,29 @@ namespace Clout.Empire.Reputation
         public event Action<int, string> OnRankUp;
 
         /// <summary>
-        /// Whether FishNet is active and this object is network-spawned.
+        /// Get current clout score.
         /// </summary>
-        private new bool IsNetworked
-        {
-            get
-            {
-                try { return IsSpawned; }
-                catch { return false; }
-            }
-        }
+        public int CurrentClout => _offlineClout;
 
         /// <summary>
-        /// Get current clout score (works both online and offline).
+        /// Get current clout rank.
         /// </summary>
-        public int CurrentClout
-        {
-            get
-            {
-                try { return IsNetworked ? cloutScore.Value : _offlineClout; }
-                catch { return _offlineClout; }
-            }
-        }
-
-        /// <summary>
-        /// Get current clout rank (works both online and offline).
-        /// </summary>
-        public int CurrentRank
-        {
-            get
-            {
-                try { return IsNetworked ? cloutRank.Value : _offlineRank; }
-                catch { return _offlineRank; }
-            }
-        }
+        public int CurrentRank => _offlineRank;
 
         public string CurrentRankName => rankNames[Mathf.Clamp(CurrentRank, 0, rankNames.Length - 1)];
 
         /// <summary>
-        /// Add clout from an action. Works both online (server-authoritative) and offline.
+        /// Add clout from an action.
         /// </summary>
         public void AddClout(int amount, string reason)
         {
-            int oldClout;
-
-            if (IsNetworked)
-            {
-                try
-                {
-                    oldClout = cloutScore.Value;
-                    cloutScore.Value += amount;
-
-                    int newRank = CalculateRank(cloutScore.Value);
-                    if (newRank > cloutRank.Value)
-                    {
-                        cloutRank.Value = newRank;
-                        OnRankUp?.Invoke(cloutRank.Value, rankNames[cloutRank.Value]);
-                        Debug.Log($"[Clout] RANK UP: {rankNames[cloutRank.Value]}! (Clout: {cloutScore.Value})");
-                    }
-
-                    OnCloutChanged?.Invoke(oldClout, cloutScore.Value);
-                    Debug.Log($"[Clout] +{amount} ({reason}) -> Total: {cloutScore.Value} [{rankNames[cloutRank.Value]}]");
-                    return;
-                }
-                catch
-                {
-                    // Fall through to offline path
-                }
-            }
-
-            // Offline path
-            oldClout = _offlineClout;
+            int oldClout = _offlineClout;
             _offlineClout += amount;
 
-            int newOfflineRank = CalculateRank(_offlineClout);
-            if (newOfflineRank > _offlineRank)
+            int newRank = CalculateRank(_offlineClout);
+            if (newRank > _offlineRank)
             {
-                _offlineRank = newOfflineRank;
+                _offlineRank = newRank;
                 OnRankUp?.Invoke(_offlineRank, rankNames[_offlineRank]);
                 Debug.Log($"[Clout] RANK UP: {rankNames[_offlineRank]}! (Clout: {_offlineClout})");
             }
@@ -135,27 +65,6 @@ namespace Clout.Empire.Reputation
 
         public void RemoveClout(int amount, string reason)
         {
-            if (IsNetworked)
-            {
-                try
-                {
-                    int oldClout = cloutScore.Value;
-                    cloutScore.Value = Mathf.Max(0, cloutScore.Value - amount);
-
-                    int newRank = CalculateRank(cloutScore.Value);
-                    if (newRank < cloutRank.Value)
-                    {
-                        cloutRank.Value = newRank;
-                        Debug.Log($"[Clout] Rank dropped to: {rankNames[cloutRank.Value]}");
-                    }
-
-                    OnCloutChanged?.Invoke(oldClout, cloutScore.Value);
-                    return;
-                }
-                catch { }
-            }
-
-            // Offline path
             int old = _offlineClout;
             _offlineClout = Mathf.Max(0, _offlineClout - amount);
 

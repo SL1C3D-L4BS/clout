@@ -1,6 +1,4 @@
 using UnityEngine;
-using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using System;
 using Clout.Core;
 
@@ -8,20 +6,12 @@ namespace Clout.World.Police
 {
     /// <summary>
     /// Per-player wanted level system.
-    ///
-    /// Heat accumulates from criminal actions (dealing, violence, trespassing).
-    /// Heat decays naturally over time, faster when hiding/laying low.
-    /// At higher wanted levels, police AI becomes more aggressive.
-    ///
-    /// OFFLINE/ONLINE:
-    /// - SyncVars replicate when networked, backing fields used offline
-    /// - [Server] removed for offline compatibility — works both modes
+    /// Phase 2 singleplayer — FishNet SyncVars will be restored in Phase 4.
     /// </summary>
-    public class WantedSystem : NetworkBehaviour
+    public class WantedSystem : MonoBehaviour
     {
         [Header("Heat Config")]
-        public readonly SyncVar<float> currentHeat = new SyncVar<float>(0f);
-        public readonly SyncVar<WantedLevel> currentLevel = new SyncVar<WantedLevel>(WantedLevel.Clean);
+        // SyncVar fields for Phase 4 multiplayer
         public float maxHeat = 500f;
 
         [Header("Decay")]
@@ -40,7 +30,7 @@ namespace Clout.World.Police
         private bool _isHiding;
         private float _lastSeenByPolice;
 
-        // Offline backing fields
+        // Backing fields
         private float _offlineHeat;
         private WantedLevel _offlineLevel = WantedLevel.Clean;
 
@@ -48,62 +38,22 @@ namespace Clout.World.Police
         public event Action<float> OnHeatChanged;
 
         /// <summary>
-        /// Whether FishNet is active.
+        /// Current heat.
         /// </summary>
-        private new bool IsNetworked
-        {
-            get
-            {
-                try { return IsSpawned; }
-                catch { return false; }
-            }
-        }
+        public float CurrentHeat => _offlineHeat;
 
         /// <summary>
-        /// Current heat (works both online and offline).
+        /// Current wanted level.
         /// </summary>
-        public float CurrentHeat
-        {
-            get
-            {
-                try { return IsNetworked ? currentHeat.Value : _offlineHeat; }
-                catch { return _offlineHeat; }
-            }
-        }
+        public WantedLevel CurrentLevel => _offlineLevel;
 
         /// <summary>
-        /// Current wanted level (works both online and offline).
-        /// </summary>
-        public WantedLevel CurrentLevel
-        {
-            get
-            {
-                try { return IsNetworked ? currentLevel.Value : _offlineLevel; }
-                catch { return _offlineLevel; }
-            }
-        }
-
-        /// <summary>
-        /// Add heat from a criminal action. Works online and offline.
+        /// Add heat from a criminal action.
         /// </summary>
         public void AddHeat(float amount, string reason)
         {
-            if (IsNetworked)
-            {
-                try
-                {
-                    currentHeat.Value = Mathf.Min(currentHeat.Value + amount, maxHeat);
-                    UpdateWantedLevel();
-                    OnHeatChanged?.Invoke(currentHeat.Value);
-                    Debug.Log($"[Wanted] +{amount:F0} heat ({reason}) -> Total: {currentHeat.Value:F0} [{currentLevel.Value}]");
-                    return;
-                }
-                catch { }
-            }
-
-            // Offline path
             _offlineHeat = Mathf.Min(_offlineHeat + amount, maxHeat);
-            UpdateWantedLevelOffline();
+            UpdateWantedLevel();
             OnHeatChanged?.Invoke(_offlineHeat);
             Debug.Log($"[Wanted] +{amount:F0} heat ({reason}) -> Total: {_offlineHeat:F0} [{_offlineLevel}]");
         }
@@ -113,21 +63,8 @@ namespace Clout.World.Police
         /// </summary>
         public void ReduceHeat(float amount)
         {
-            if (IsNetworked)
-            {
-                try
-                {
-                    currentHeat.Value = Mathf.Max(0, currentHeat.Value - amount);
-                    UpdateWantedLevel();
-                    OnHeatChanged?.Invoke(currentHeat.Value);
-                    return;
-                }
-                catch { }
-            }
-
-            // Offline
             _offlineHeat = Mathf.Max(0, _offlineHeat - amount);
-            UpdateWantedLevelOffline();
+            UpdateWantedLevel();
             OnHeatChanged?.Invoke(_offlineHeat);
         }
 
@@ -137,8 +74,7 @@ namespace Clout.World.Police
 
         private void Update()
         {
-            float heat = CurrentHeat;
-            if (heat <= 0) return;
+            if (_offlineHeat <= 0) return;
 
             // Decay heat
             float decay = naturalDecayRate;
@@ -149,43 +85,11 @@ namespace Clout.World.Police
             if (_isHiding) decay *= hidingDecayMultiplier;
             if (_isInSafeZone) decay *= safeZoneDecayMultiplier;
 
-            float newHeat = Mathf.Max(0, heat - decay * Time.deltaTime);
-
-            if (IsNetworked)
-            {
-                try
-                {
-                    currentHeat.Value = newHeat;
-                    UpdateWantedLevel();
-                    return;
-                }
-                catch { }
-            }
-
-            _offlineHeat = newHeat;
-            UpdateWantedLevelOffline();
+            _offlineHeat = Mathf.Max(0, _offlineHeat - decay * Time.deltaTime);
+            UpdateWantedLevel();
         }
 
         private void UpdateWantedLevel()
-        {
-            try
-            {
-                float heat = currentHeat.Value;
-                WantedLevel newLevel = CalculateLevel(heat);
-
-                if (newLevel != currentLevel.Value)
-                {
-                    currentLevel.Value = newLevel;
-                    OnWantedLevelChanged?.Invoke(currentLevel.Value);
-                }
-            }
-            catch
-            {
-                UpdateWantedLevelOffline();
-            }
-        }
-
-        private void UpdateWantedLevelOffline()
         {
             WantedLevel newLevel = CalculateLevel(_offlineHeat);
             if (newLevel != _offlineLevel)
