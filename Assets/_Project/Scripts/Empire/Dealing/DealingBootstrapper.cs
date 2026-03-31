@@ -30,7 +30,7 @@ namespace Clout.Empire.Dealing
             if (!giveProductOnStart) return;
 
             // Delay to ensure player Start()/Init() has run
-            Invoke(nameof(Initialize), 0.5f);
+            Invoke(nameof(Initialize), 1.5f);
         }
 
         private void Initialize()
@@ -40,14 +40,14 @@ namespace Clout.Empire.Dealing
             PlayerStateManager player = FindAnyObjectByType<PlayerStateManager>();
             if (player == null)
             {
-                // Retry a few times — player may not be initialized yet
+                // Retry — player may not be initialized yet
                 _retryCount++;
-                if (_retryCount < 5)
+                if (_retryCount < 10)
                 {
-                    Invoke(nameof(Initialize), 0.5f);
+                    Invoke(nameof(Initialize), 1f);
                     return;
                 }
-                Debug.LogWarning("[DealingBootstrapper] No player found after retries.");
+                Debug.LogWarning("[DealingBootstrapper] No player found after retries. Is the scene built with a Player object?");
                 return;
             }
             _initialized = true;

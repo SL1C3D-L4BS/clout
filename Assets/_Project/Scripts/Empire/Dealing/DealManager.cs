@@ -185,7 +185,7 @@ namespace Clout.Empire.Dealing
                     : ReputationManager.CloutValues.CompleteDeal;
                 rep.AddClout((int)clout, "drug deal");
 
-                if (rep.cloutRank.Value == 0) // First deal ever
+                if (rep.CurrentRank == 0) // First deal ever
                     rep.AddClout((int)ReputationManager.CloutValues.FirstSale, "first sale");
             }
 

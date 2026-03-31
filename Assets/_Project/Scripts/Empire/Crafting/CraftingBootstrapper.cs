@@ -27,7 +27,7 @@ namespace Clout.Empire.Crafting
         private void Start()
         {
             if (!giveIngredientsOnStart) return;
-            Invoke(nameof(Initialize), 1f); // Delay to ensure player is ready
+            Invoke(nameof(Initialize), 1.5f); // Delay to ensure player is ready
         }
 
         private void Initialize()
@@ -38,12 +38,12 @@ namespace Clout.Empire.Crafting
             if (player == null)
             {
                 _retryCount++;
-                if (_retryCount < 5)
+                if (_retryCount < 10)
                 {
-                    Invoke(nameof(Initialize), 0.5f);
+                    Invoke(nameof(Initialize), 1f);
                     return;
                 }
-                Debug.LogWarning("[CraftingBootstrapper] No player found after retries.");
+                Debug.LogWarning("[CraftingBootstrapper] No player found after retries. Is the scene built with a Player object?");
                 return;
             }
             _initialized = true;

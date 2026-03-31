@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bf29233f47a74b71a832a225cebcf4a, type: 3}
+  m_Name: ING_Baking Soda
+  m_EditorClassIdentifier: Clout::Clout.Empire.Crafting.IngredientDefinition
+  ingredientName: Baking Soda
+  description: Common cutting agent. Stretches product, kills quality.
+  icon: {fileID: 0}
+  category: 3
+  potency: 0.3
+  toxicity: 0
+  shelf_life: 8760
+  basePurchasePrice: 2
+  baseStreetPrice: 3
+  isLegal: 1
+  requiresGrowth: 0
+  tintColor: {r: 1, g: 1, b: 1, a: 1}
+  worldModelPrefab: {fileID: 0}
+  effects:
+  - effectName: Cut Product
+    effectDescription: 
+    qualityModifier: -0.2
+    valueModifier: -0.3
+    addictionModifier: 0
+    toxicityModifier: 0

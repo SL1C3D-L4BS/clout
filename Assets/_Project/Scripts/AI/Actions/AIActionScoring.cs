@@ -35,7 +35,7 @@ namespace Clout.AI.Actions
             float angleToTarget = Vector3.Angle(ai.transform.forward, dirToTarget);
 
             float healthRatio = ai.runtimeStats != null
-                ? ai.runtimeStats.health.Value / Mathf.Max(1f, ai.runtimeStats.maxHealth)
+                ? ai.runtimeStats.Health / Mathf.Max(1f, ai.runtimeStats.maxHealth)
                 : 1f;
 
             ScoredAction bestAction = ScoredAction.None;

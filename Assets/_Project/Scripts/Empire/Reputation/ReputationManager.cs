@@ -18,69 +18,162 @@ namespace Clout.Empire.Reputation
     /// - Customer willingness to buy from you
     ///
     /// CLOUT is the title of the game. It's the meta-currency of power.
+    ///
+    /// OFFLINE/ONLINE:
+    /// - SyncVars replicate when networked
+    /// - Plain backing fields used when FishNet isn't running
+    /// - [Server] removed for offline compatibility — authority check done manually
     /// </summary>
     public class ReputationManager : NetworkBehaviour
     {
         [Header("Clout Score")]
         public readonly SyncVar<int> cloutScore = new SyncVar<int>(0);
-        public readonly SyncVar<int> cloutRank = new SyncVar<int>(0);          // Tier: 0=Nobody, 1=Corner Boy, 2=Hustler, 3=Boss, 4=Kingpin, 5=Legend
+        public readonly SyncVar<int> cloutRank = new SyncVar<int>(0);
 
         [Header("Reputation Tracks")]
-        public readonly SyncVar<float> streetRep = new SyncVar<float>(0f);        // Criminal underworld
-        public readonly SyncVar<float> civilianRep = new SyncVar<float>(50f);     // Public perception (starts neutral)
-        public readonly SyncVar<float> rivalRep = new SyncVar<float>(0f);         // Other empire fear/respect
-        public readonly SyncVar<float> supplierRep = new SyncVar<float>(0f);      // Wholesale connections
+        public readonly SyncVar<float> streetRep = new SyncVar<float>(0f);
+        public readonly SyncVar<float> civilianRep = new SyncVar<float>(50f);
+        public readonly SyncVar<float> rivalRep = new SyncVar<float>(0f);
+        public readonly SyncVar<float> supplierRep = new SyncVar<float>(0f);
 
         [Header("Clout Rank Thresholds")]
         public int[] rankThresholds = { 0, 100, 500, 2000, 10000, 50000 };
         public string[] rankNames = { "Nobody", "Corner Boy", "Hustler", "Shot Caller", "Kingpin", "Legend" };
 
-        public event Action<int, int> OnCloutChanged;     // oldClout, newClout
-        public event Action<int, string> OnRankUp;        // newRank, rankName
+        // Offline backing fields — used when FishNet isn't active
+        private int _offlineClout;
+        private int _offlineRank;
+
+        public event Action<int, int> OnCloutChanged;
+        public event Action<int, string> OnRankUp;
 
         /// <summary>
-        /// Add clout from an action. Server-authoritative.
+        /// Whether FishNet is active and this object is network-spawned.
         /// </summary>
-        [Server]
+        private bool IsNetworked
+        {
+            get
+            {
+                try { return IsSpawned; }
+                catch { return false; }
+            }
+        }
+
+        /// <summary>
+        /// Get current clout score (works both online and offline).
+        /// </summary>
+        public int CurrentClout
+        {
+            get
+            {
+                try { return IsNetworked ? cloutScore.Value : _offlineClout; }
+                catch { return _offlineClout; }
+            }
+        }
+
+        /// <summary>
+        /// Get current clout rank (works both online and offline).
+        /// </summary>
+        public int CurrentRank
+        {
+            get
+            {
+                try { return IsNetworked ? cloutRank.Value : _offlineRank; }
+                catch { return _offlineRank; }
+            }
+        }
+
+        public string CurrentRankName => rankNames[Mathf.Clamp(CurrentRank, 0, rankNames.Length - 1)];
+
+        /// <summary>
+        /// Add clout from an action. Works both online (server-authoritative) and offline.
+        /// </summary>
         public void AddClout(int amount, string reason)
         {
-            int oldClout = cloutScore.Value;
-            cloutScore.Value += amount;
+            int oldClout;
 
-            // Check for rank up
-            int newRank = CalculateRank();
-            if (newRank > cloutRank.Value)
+            if (IsNetworked)
             {
-                cloutRank.Value = newRank;
-                OnRankUp?.Invoke(cloutRank.Value, rankNames[cloutRank.Value]);
-                Debug.Log($"[Clout] RANK UP: {rankNames[cloutRank.Value]}! (Clout: {cloutScore.Value})");
+                try
+                {
+                    oldClout = cloutScore.Value;
+                    cloutScore.Value += amount;
+
+                    int newRank = CalculateRank(cloutScore.Value);
+                    if (newRank > cloutRank.Value)
+                    {
+                        cloutRank.Value = newRank;
+                        OnRankUp?.Invoke(cloutRank.Value, rankNames[cloutRank.Value]);
+                        Debug.Log($"[Clout] RANK UP: {rankNames[cloutRank.Value]}! (Clout: {cloutScore.Value})");
+                    }
+
+                    OnCloutChanged?.Invoke(oldClout, cloutScore.Value);
+                    Debug.Log($"[Clout] +{amount} ({reason}) -> Total: {cloutScore.Value} [{rankNames[cloutRank.Value]}]");
+                    return;
+                }
+                catch
+                {
+                    // Fall through to offline path
+                }
             }
 
-            OnCloutChanged?.Invoke(oldClout, cloutScore.Value);
-            Debug.Log($"[Clout] +{amount} ({reason}) -> Total: {cloutScore.Value} [{rankNames[cloutRank.Value]}]");
+            // Offline path
+            oldClout = _offlineClout;
+            _offlineClout += amount;
+
+            int newOfflineRank = CalculateRank(_offlineClout);
+            if (newOfflineRank > _offlineRank)
+            {
+                _offlineRank = newOfflineRank;
+                OnRankUp?.Invoke(_offlineRank, rankNames[_offlineRank]);
+                Debug.Log($"[Clout] RANK UP: {rankNames[_offlineRank]}! (Clout: {_offlineClout})");
+            }
+
+            OnCloutChanged?.Invoke(oldClout, _offlineClout);
+            Debug.Log($"[Clout] +{amount} ({reason}) -> Total: {_offlineClout} [{rankNames[_offlineRank]}]");
         }
 
-        [Server]
         public void RemoveClout(int amount, string reason)
         {
-            int oldClout = cloutScore.Value;
-            cloutScore.Value = Mathf.Max(0, cloutScore.Value - amount);
-
-            int newRank = CalculateRank();
-            if (newRank < cloutRank.Value)
+            if (IsNetworked)
             {
-                cloutRank.Value = newRank;
-                Debug.Log($"[Clout] Rank dropped to: {rankNames[cloutRank.Value]}");
+                try
+                {
+                    int oldClout = cloutScore.Value;
+                    cloutScore.Value = Mathf.Max(0, cloutScore.Value - amount);
+
+                    int newRank = CalculateRank(cloutScore.Value);
+                    if (newRank < cloutRank.Value)
+                    {
+                        cloutRank.Value = newRank;
+                        Debug.Log($"[Clout] Rank dropped to: {rankNames[cloutRank.Value]}");
+                    }
+
+                    OnCloutChanged?.Invoke(oldClout, cloutScore.Value);
+                    return;
+                }
+                catch { }
             }
 
-            OnCloutChanged?.Invoke(oldClout, cloutScore.Value);
+            // Offline path
+            int old = _offlineClout;
+            _offlineClout = Mathf.Max(0, _offlineClout - amount);
+
+            int rank = CalculateRank(_offlineClout);
+            if (rank < _offlineRank)
+            {
+                _offlineRank = rank;
+                Debug.Log($"[Clout] Rank dropped to: {rankNames[_offlineRank]}");
+            }
+
+            OnCloutChanged?.Invoke(old, _offlineClout);
         }
 
-        private int CalculateRank()
+        private int CalculateRank(int score)
         {
             for (int i = rankThresholds.Length - 1; i >= 0; i--)
             {
-                if (cloutScore.Value >= rankThresholds[i])
+                if (score >= rankThresholds[i])
                     return i;
             }
             return 0;
@@ -89,7 +182,7 @@ namespace Clout.Empire.Reputation
         /// <summary>
         /// Check if player has enough clout for an action.
         /// </summary>
-        public bool HasCloutRank(int minimumRank) => cloutRank.Value >= minimumRank;
+        public bool HasCloutRank(int minimumRank) => CurrentRank >= minimumRank;
 
         // ─── Clout Sources ────────────────────────────────────────
 

@@ -310,26 +310,26 @@ namespace Clout.UI
         {
             if (runtimeStats == null || _healthBar == null) return;
 
-            float ratio = runtimeStats.health.Value / (float)runtimeStats.maxHealth;
+            float ratio = runtimeStats.Health / (float)runtimeStats.maxHealth;
             _healthBar.rectTransform.anchorMax = new Vector2(
                 Mathf.Lerp(_healthBar.rectTransform.anchorMin.x, _healthBarBG.rectTransform.anchorMax.x, ratio),
                 _healthBar.rectTransform.anchorMax.y);
 
             _healthBar.color = ratio < 0.3f ? COLOR_HEALTH_LOW : COLOR_HEALTH;
-            _healthText.text = $"HP: {runtimeStats.health.Value}/{runtimeStats.maxHealth}";
+            _healthText.text = $"HP: {runtimeStats.Health}/{runtimeStats.maxHealth}";
         }
 
         private void RefreshStamina()
         {
             if (runtimeStats == null || _staminaBar == null) return;
 
-            float ratio = runtimeStats.stamina.Value / runtimeStats.maxStamina;
+            float ratio = runtimeStats.Stamina / runtimeStats.maxStamina;
             _staminaBar.rectTransform.anchorMax = new Vector2(
                 Mathf.Lerp(_staminaBar.rectTransform.anchorMin.x, _staminaBarBG.rectTransform.anchorMax.x, ratio),
                 _staminaBar.rectTransform.anchorMax.y);
 
             _staminaBar.color = ratio < 0.25f ? COLOR_STAMINA_LOW : COLOR_STAMINA;
-            _staminaText.text = $"ST: {Mathf.CeilToInt(runtimeStats.stamina.Value)}/{Mathf.CeilToInt(runtimeStats.maxStamina)}";
+            _staminaText.text = $"ST: {Mathf.CeilToInt(runtimeStats.Stamina)}/{Mathf.CeilToInt(runtimeStats.maxStamina)}";
         }
 
         private void RefreshAmmo()

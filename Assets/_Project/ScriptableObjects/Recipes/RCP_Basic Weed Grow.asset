@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5592be142e464b9a9a9ab7a1b136c7e, type: 3}
+  m_Name: RCP_Basic Weed Grow
+  m_EditorClassIdentifier: Clout::Clout.Empire.Crafting.RecipeDefinition
+  recipeName: Basic Weed Grow
+  description: Grow cannabis from seeds. Low risk, low skill, moderate time.
+  icon: {fileID: 0}
+  productType: 0
+  ingredients:
+  - ingredient: {fileID: 11400000, guid: 66d798b914683487388dc69a4d475883, type: 2}
+    quantity: 2
+  optionalAdditives:
+  - ingredient: {fileID: 11400000, guid: 638285bacb1de47dd82678a6cefefc1d, type: 2}
+    quantity: 1
+  outputProduct: {fileID: 11400000, guid: 7515f331a49914998bd259ba685f9fbf, type: 2}
+  outputQuantity: 8
+  baseQuality: 0.35
+  craftingTime: 30
+  requiredSkillLevel: 0
+  requiredFacility: 1
+  requiredEquipment: []
+  marketValueMultiplier: 1
+  addedEffects: []
+  explosionRisk: 0
+  fumeDetectionRisk: 0.05

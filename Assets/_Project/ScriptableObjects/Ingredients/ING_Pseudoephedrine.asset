@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bf29233f47a74b71a832a225cebcf4a, type: 3}
+  m_Name: ING_Pseudoephedrine
+  m_EditorClassIdentifier: Clout::Clout.Empire.Crafting.IngredientDefinition
+  ingredientName: Pseudoephedrine
+  description: Cold medicine extract. Core meth precursor.
+  icon: {fileID: 0}
+  category: 0
+  potency: 1.2
+  toxicity: 0.3
+  shelf_life: 720
+  basePurchasePrice: 15
+  baseStreetPrice: 25
+  isLegal: 0
+  requiresGrowth: 0
+  tintColor: {r: 0.9, g: 0.9, b: 0.95, a: 1}
+  worldModelPrefab: {fileID: 0}
+  effects:
+  - effectName: Purity Boost
+    effectDescription: 
+    qualityModifier: 0.1
+    valueModifier: 0.15
+    addictionModifier: 0
+    toxicityModifier: 0

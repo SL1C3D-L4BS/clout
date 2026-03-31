@@ -7,7 +7,11 @@ namespace Clout.Stats
 {
     /// <summary>
     /// Per-character runtime stats — health, stamina, and combat values.
-    /// Server-authoritative via FishNet SyncVars.
+    ///
+    /// OFFLINE/ONLINE:
+    /// - SyncVars replicate when networked
+    /// - Offline backing fields used when FishNet isn't running
+    /// - All public accessors work in both modes
     /// </summary>
     public class RuntimeStats : NetworkBehaviour
     {
@@ -40,25 +44,84 @@ namespace Clout.Stats
         public float armor = 0f;
         public float bulletResistance = 0f;
 
+        // Offline backing fields
+        private int _offlineHealth = 100;
+        private float _offlineStamina = 100f;
+        private bool _isNetworked;
+        private bool _networkChecked;
+
         public event Action OnHealthChanged;
         public event Action OnStaminaChanged;
         public event Action OnDeath;
 
+        // ─── Network Check ───────────────────────────────────────
+
+        private bool IsNetworked
+        {
+            get
+            {
+                if (!_networkChecked)
+                {
+                    _networkChecked = true;
+                    try { _isNetworked = IsSpawned; }
+                    catch { _isNetworked = false; }
+                }
+                return _isNetworked;
+            }
+        }
+
+        private void Awake()
+        {
+            _offlineHealth = maxHealth;
+            _offlineStamina = maxStamina;
+        }
+
+        // ─── Accessors (work both online and offline) ────────────
+
+        public int Health
+        {
+            get
+            {
+                if (IsNetworked) { try { return health.Value; } catch { } }
+                return _offlineHealth;
+            }
+            private set
+            {
+                if (IsNetworked) { try { health.Value = value; return; } catch { } }
+                _offlineHealth = value;
+            }
+        }
+
+        public float Stamina
+        {
+            get
+            {
+                if (IsNetworked) { try { return stamina.Value; } catch { } }
+                return _offlineStamina;
+            }
+            private set
+            {
+                if (IsNetworked) { try { stamina.Value = value; return; } catch { } }
+                _offlineStamina = value;
+            }
+        }
+
+        // ─── Core Methods ────────────────────────────────────────
+
         public void TakeDamage(float damage)
         {
             float mitigated = damage * (1f - Mathf.Clamp01(armor / 100f));
-            health.Value -= Mathf.CeilToInt(mitigated);
-            health.Value = Mathf.Max(0, health.Value);
+            Health = Mathf.Max(0, Health - Mathf.CeilToInt(mitigated));
             OnHealthChanged?.Invoke();
 
-            if (health.Value <= 0)
+            if (Health <= 0)
                 OnDeath?.Invoke();
         }
 
         public bool ConsumeStamina(float amount)
         {
-            if (stamina.Value < amount) return false;
-            stamina.Value -= amount;
+            if (Stamina < amount) return false;
+            Stamina -= amount;
             _staminaRegenTimer = staminaRegenDelay;
             OnStaminaChanged?.Invoke();
             return true;
@@ -66,13 +129,13 @@ namespace Clout.Stats
 
         public void Heal(int amount)
         {
-            health.Value = Mathf.Min(health.Value + amount, maxHealth);
+            Health = Mathf.Min(Health + amount, maxHealth);
             OnHealthChanged?.Invoke();
         }
 
         public void RestoreStamina(float amount)
         {
-            stamina.Value = Mathf.Min(stamina.Value + amount, maxStamina);
+            Stamina = Mathf.Min(Stamina + amount, maxStamina);
             OnStaminaChanged?.Invoke();
         }
 
@@ -83,19 +146,18 @@ namespace Clout.Stats
         {
             if (isSprinting)
             {
-                stamina.Value -= sprintCostPerSec * delta;
-                stamina.Value = Mathf.Max(0, stamina.Value);
+                Stamina = Mathf.Max(0, Stamina - sprintCostPerSec * delta);
                 _staminaRegenTimer = staminaRegenDelay;
                 OnStaminaChanged?.Invoke();
                 return;
             }
 
-            if (stamina.Value < maxStamina)
+            if (Stamina < maxStamina)
             {
                 _staminaRegenTimer -= delta;
                 if (_staminaRegenTimer <= 0)
                 {
-                    stamina.Value = Mathf.Min(stamina.Value + staminaRegenRate * delta, maxStamina);
+                    Stamina = Mathf.Min(Stamina + staminaRegenRate * delta, maxStamina);
                     OnStaminaChanged?.Invoke();
                 }
             }
@@ -136,12 +198,12 @@ namespace Clout.Stats
         private void Update()
         {
             // Passive stamina regen (fallback when HandleStats isn't running)
-            if (stamina.Value < maxStamina)
+            if (Stamina < maxStamina)
             {
                 _staminaRegenTimer -= Time.deltaTime;
                 if (_staminaRegenTimer <= 0)
                 {
-                    stamina.Value = Mathf.Min(stamina.Value + staminaRegenRate * Time.deltaTime, maxStamina);
+                    Stamina = Mathf.Min(Stamina + staminaRegenRate * Time.deltaTime, maxStamina);
                     OnStaminaChanged?.Invoke();
                 }
             }

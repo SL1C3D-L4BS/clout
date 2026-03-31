@@ -13,7 +13,7 @@ namespace Clout.Core
     public class GameBootstrapper : MonoBehaviour
     {
         [Header("Bootstrap Config")]
-        [SerializeField] private bool ensureNetwork = true;
+        [SerializeField] private bool ensureNetwork = false;    // Disabled for offline/testing — enable for multiplayer
         [SerializeField] private bool autoStartAsHost = true;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

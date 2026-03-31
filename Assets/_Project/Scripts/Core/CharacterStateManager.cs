@@ -118,41 +118,51 @@ namespace Clout.Core
 
         public override void Init()
         {
-            // Cache components
-            if (rigid == null) rigid = GetComponent<Rigidbody>();
-            if (agent == null) agent = GetComponent<NavMeshAgent>();
-            if (anim == null) anim = GetComponentInChildren<Animator>();
-            if (animHook == null) animHook = GetComponentInChildren<AnimatorHook>();
-            if (runtimeStats == null) runtimeStats = GetComponent<RuntimeStats>();
-            if (weaponHolderManager == null) weaponHolderManager = GetComponent<WeaponHolderManager>();
-            if (ammoCacheManager == null) ammoCacheManager = GetComponent<AmmoCacheManager>();
-            if (networkDamageHandler == null) networkDamageHandler = GetComponent<Network.NetworkDamageHandler>();
-
-            // NavMeshAgent passive mode
-            if (agent != null)
+            try
             {
-                agent.updatePosition = false;
-                agent.updateRotation = false;
+                // Cache components
+                if (rigid == null) rigid = GetComponent<Rigidbody>();
+                if (agent == null) agent = GetComponent<NavMeshAgent>();
+                if (anim == null) anim = GetComponentInChildren<Animator>();
+                if (animHook == null) animHook = GetComponentInChildren<AnimatorHook>();
+                if (runtimeStats == null) runtimeStats = GetComponent<RuntimeStats>();
+                if (weaponHolderManager == null) weaponHolderManager = GetComponent<WeaponHolderManager>();
+                if (ammoCacheManager == null) ammoCacheManager = GetComponent<AmmoCacheManager>();
+                if (networkDamageHandler == null) networkDamageHandler = GetComponent<Network.NetworkDamageHandler>();
+
+                // NavMeshAgent passive mode — only if enabled
+                if (agent != null && agent.enabled && agent.isOnNavMesh)
+                {
+                    agent.updatePosition = false;
+                    agent.updateRotation = false;
+                }
+
+                // Cache animation hashes
+                hashVertical = Animator.StringToHash("vertical");
+                hashHorizontal = Animator.StringToHash("horizontal");
+                hashIsInteracting = Animator.StringToHash("isInteracting");
+                hashLockOn = Animator.StringToHash("lockOn");
+                hashStance = Animator.StringToHash("stance");
+                hashIsAiming = Animator.StringToHash("isAiming");
+                hashIsShooting = Animator.StringToHash("isShooting");
+                hashWeaponType = Animator.StringToHash("weaponType");
+                hashCanDoCombo = Animator.StringToHash("canDoCombo");
+                hashMirror = Animator.StringToHash("mirror");
+                hashIsOnAir = Animator.StringToHash("isOnAir");
+
+                // Initialize animator hook
+                if (animHook != null)
+                    animHook.Init(this);
+
+                InitStates();
+                MarkInitialized();
+
+                Debug.Log($"[CharacterStateManager] {gameObject.name} initialized. State: {CurrentStateId}");
             }
-
-            // Cache animation hashes
-            hashVertical = Animator.StringToHash("vertical");
-            hashHorizontal = Animator.StringToHash("horizontal");
-            hashIsInteracting = Animator.StringToHash("isInteracting");
-            hashLockOn = Animator.StringToHash("lockOn");
-            hashStance = Animator.StringToHash("stance");
-            hashIsAiming = Animator.StringToHash("isAiming");
-            hashIsShooting = Animator.StringToHash("isShooting");
-            hashWeaponType = Animator.StringToHash("weaponType");
-            hashCanDoCombo = Animator.StringToHash("canDoCombo");
-            hashMirror = Animator.StringToHash("mirror");
-            hashIsOnAir = Animator.StringToHash("isOnAir");
-
-            // Initialize animator hook
-            if (animHook != null)
-                animHook.Init(this);
-
-            InitStates();
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[CharacterStateManager] Init FAILED on {gameObject.name}: {e}");
+            }
         }
 
         protected abstract void InitStates();
@@ -312,7 +322,7 @@ namespace Clout.Core
             {
                 runtimeStats.TakeDamage(damageEvent.FinalDamage);
 
-                if (runtimeStats.health.Value <= 0)
+                if (runtimeStats.Health <= 0)
                 {
                     isDead = true;
                     OnDeath();

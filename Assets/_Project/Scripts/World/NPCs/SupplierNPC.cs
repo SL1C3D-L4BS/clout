@@ -67,7 +67,7 @@ namespace Clout.World.NPCs
             if (player == null) return false;
 
             ReputationManager rep = player.reputationManager;
-            if (rep != null && rep.cloutRank.Value < supplierData.requiredCloutRank)
+            if (rep != null && rep.CurrentRank < supplierData.requiredCloutRank)
                 return false;
 
             return true;

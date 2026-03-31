@@ -71,9 +71,14 @@ namespace Clout.Player
             if (inventoryManager == null)
                 inventoryManager = GetComponent<InventoryManager>();
 
-            // Lock cursor for third person
+            // Lock cursor for third person — ESC to unlock (handled in PlayerInputHandler)
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+
+            Debug.Log($"[Player] Init complete. Input: {(inputHandler != null ? "OK" : "MISSING")} " +
+                      $"Camera: {(cameraTransform != null ? "OK" : "MISSING")} " +
+                      $"Rigidbody: {(rigid != null ? "OK" : "MISSING")} " +
+                      $"Animator: {(anim != null ? "OK" : "MISSING")}");
         }
 
         protected override void InitStates()

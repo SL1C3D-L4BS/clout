@@ -105,6 +105,129 @@ namespace Clout.Player
         }
 
         /// <summary>
+        /// Keyboard/mouse fallback polling using the new Input System device APIs.
+        /// Runs every frame alongside (or instead of) PlayerInput action bindings.
+        ///
+        /// Default bindings:
+        ///   Move       — WASD
+        ///   Look       — Mouse Delta
+        ///   Light Atk  — Left Mouse / Mouse 0
+        ///   Heavy Atk  — Right Mouse / Mouse 1
+        ///   Block       — Q
+        ///   Lock-On    — Tab
+        ///   Fire (hold)— Left Mouse (hold)
+        ///   Aim (hold) — Right Mouse (hold)
+        ///   Reload     — R
+        ///   Crouch     — C
+        ///   Roll/Dodge — Space
+        ///   Sprint     — Left Shift (hold)
+        ///   Interact   — E
+        ///   Inventory  — I
+        ///   Phone      — P
+        ///   Vehicle    — F
+        /// </summary>
+        private void Update()
+        {
+            PollKeyboardMouse();
+            CalculateMoveAmount();
+        }
+
+        private void PollKeyboardMouse()
+        {
+            var kb    = UnityEngine.InputSystem.Keyboard.current;
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+
+            if (kb == null && mouse == null) return;
+
+            // ── Vector2 axes — ALWAYS poll directly from hardware ──
+            // PlayerInput actions may not have proper bindings configured,
+            // so raw keyboard/mouse polling is the primary input source.
+
+            if (kb != null)
+            {
+                moveInput = new Vector2(
+                    (kb.dKey.isPressed ? 1f : 0f) - (kb.aKey.isPressed ? 1f : 0f),
+                    (kb.wKey.isPressed ? 1f : 0f) - (kb.sKey.isPressed ? 1f : 0f)
+                );
+            }
+
+            if (mouse != null)
+            {
+                lookInput = mouse.delta.ReadValue() * 0.05f;
+            }
+
+            // ── Gamepad axes — supplement if gamepad connected ──
+            var gamepad = UnityEngine.InputSystem.Gamepad.current;
+            if (gamepad != null)
+            {
+                Vector2 leftStick = gamepad.leftStick.ReadValue();
+                Vector2 rightStick = gamepad.rightStick.ReadValue();
+
+                // Use gamepad if sticks have meaningful input (overrides keyboard if present)
+                if (leftStick.sqrMagnitude > 0.04f)
+                    moveInput = leftStick;
+                if (rightStick.sqrMagnitude > 0.04f)
+                    lookInput = rightStick * 2f;
+            }
+
+            // ── Boolean inputs — keyboard ──
+            if (kb != null)
+            {
+                if (kb.leftShiftKey.isPressed)      sprintHeld    = true;
+                if (kb.spaceKey.wasPressedThisFrame) rollPressed   = true;
+                if (kb.eKey.wasPressedThisFrame)     interactPressed = true;
+                if (kb.rKey.wasPressedThisFrame)     reloadPressed = true;
+                if (kb.cKey.wasPressedThisFrame)     stancePressed = true;
+                if (kb.iKey.wasPressedThisFrame)     inventoryPressed = true;
+                if (kb.pKey.wasPressedThisFrame)     phonePressed  = true;
+                if (kb.fKey.wasPressedThisFrame)     enterVehiclePressed = true;
+                if (kb.qKey.wasPressedThisFrame)     lbPressed     = true;
+                if (kb.tabKey.wasPressedThisFrame)   ltPressed     = true;
+
+                // ESC to toggle cursor (debug/testing)
+                if (kb.escapeKey.wasPressedThisFrame)
+                {
+                    if (Cursor.lockState == CursorLockMode.Locked)
+                    {
+                        Cursor.lockState = CursorLockMode.None;
+                        Cursor.visible = true;
+                    }
+                    else
+                    {
+                        Cursor.lockState = CursorLockMode.Locked;
+                        Cursor.visible = false;
+                    }
+                }
+            }
+
+            // ── Boolean inputs — mouse ──
+            if (mouse != null)
+            {
+                if (mouse.leftButton.isPressed)          fireHeld  = true;
+                if (mouse.rightButton.isPressed)         aimHeld   = true;
+                if (mouse.leftButton.wasPressedThisFrame)  rbPressed = true;
+                if (mouse.rightButton.wasPressedThisFrame) rtPressed = true;
+            }
+
+            // ── Boolean inputs — gamepad ──
+            if (gamepad != null)
+            {
+                if (gamepad.rightShoulder.wasPressedThisFrame) rbPressed = true;
+                if (gamepad.rightTrigger.wasPressedThisFrame)  rtPressed = true;
+                if (gamepad.leftShoulder.wasPressedThisFrame)  lbPressed = true;
+                if (gamepad.leftTrigger.wasPressedThisFrame)   ltPressed = true;
+                if (gamepad.buttonSouth.wasPressedThisFrame)   rollPressed = true;   // A / Cross
+                if (gamepad.buttonWest.wasPressedThisFrame)    reloadPressed = true;  // X / Square
+                if (gamepad.buttonNorth.wasPressedThisFrame)   interactPressed = true;// Y / Triangle
+                if (gamepad.buttonEast.wasPressedThisFrame)    stancePressed = true;  // B / Circle
+                if (gamepad.dpad.up.wasPressedThisFrame)       inventoryPressed = true;
+                if (gamepad.dpad.down.wasPressedThisFrame)     phonePressed = true;
+                if (gamepad.dpad.right.wasPressedThisFrame)    enterVehiclePressed = true;
+                if (gamepad.leftStickButton.isPressed)         sprintHeld = true;     // L3
+            }
+        }
+
+        /// <summary>
         /// Safe input action binding — handles missing actions gracefully.
         /// </summary>
         private void TryBindAction(string actionName,

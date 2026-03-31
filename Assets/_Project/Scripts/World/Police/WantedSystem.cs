@@ -7,17 +7,15 @@ using Clout.Core;
 namespace Clout.World.Police
 {
     /// <summary>
-    /// Per-player wanted level system — server-authoritative.
+    /// Per-player wanted level system.
     ///
     /// Heat accumulates from criminal actions (dealing, violence, trespassing).
     /// Heat decays naturally over time, faster when hiding/laying low.
     /// At higher wanted levels, police AI becomes more aggressive.
     ///
-    /// Inspired by GTA + Schedule 1's wanted mechanics, but deeper:
-    /// - Evidence system (witnesses, cameras, phone records)
-    /// - Bribery and corruption
-    /// - Disguises and identity management
-    /// - Safe zones (your properties)
+    /// OFFLINE/ONLINE:
+    /// - SyncVars replicate when networked, backing fields used offline
+    /// - [Server] removed for offline compatibility — works both modes
     /// </summary>
     public class WantedSystem : NetworkBehaviour
     {
@@ -27,9 +25,9 @@ namespace Clout.World.Police
         public float maxHeat = 500f;
 
         [Header("Decay")]
-        public float naturalDecayRate = 1f;         // Heat per second when not seen
-        public float hidingDecayMultiplier = 3f;     // 3x faster when hiding
-        public float safeZoneDecayMultiplier = 5f;   // 5x faster in your properties
+        public float naturalDecayRate = 1f;
+        public float hidingDecayMultiplier = 3f;
+        public float safeZoneDecayMultiplier = 5f;
 
         [Header("Thresholds")]
         public float suspiciousThreshold = 50f;
@@ -42,31 +40,95 @@ namespace Clout.World.Police
         private bool _isHiding;
         private float _lastSeenByPolice;
 
+        // Offline backing fields
+        private float _offlineHeat;
+        private WantedLevel _offlineLevel = WantedLevel.Clean;
+
         public event Action<WantedLevel> OnWantedLevelChanged;
         public event Action<float> OnHeatChanged;
 
         /// <summary>
-        /// Add heat from a criminal action. Server-only.
+        /// Whether FishNet is active.
         /// </summary>
-        [Server]
+        private bool IsNetworked
+        {
+            get
+            {
+                try { return IsSpawned; }
+                catch { return false; }
+            }
+        }
+
+        /// <summary>
+        /// Current heat (works both online and offline).
+        /// </summary>
+        public float CurrentHeat
+        {
+            get
+            {
+                try { return IsNetworked ? currentHeat.Value : _offlineHeat; }
+                catch { return _offlineHeat; }
+            }
+        }
+
+        /// <summary>
+        /// Current wanted level (works both online and offline).
+        /// </summary>
+        public WantedLevel CurrentLevel
+        {
+            get
+            {
+                try { return IsNetworked ? currentLevel.Value : _offlineLevel; }
+                catch { return _offlineLevel; }
+            }
+        }
+
+        /// <summary>
+        /// Add heat from a criminal action. Works online and offline.
+        /// </summary>
         public void AddHeat(float amount, string reason)
         {
-            currentHeat.Value = Mathf.Min(currentHeat.Value + amount, maxHeat);
-            UpdateWantedLevel();
-            OnHeatChanged?.Invoke(currentHeat.Value);
+            if (IsNetworked)
+            {
+                try
+                {
+                    currentHeat.Value = Mathf.Min(currentHeat.Value + amount, maxHeat);
+                    UpdateWantedLevel();
+                    OnHeatChanged?.Invoke(currentHeat.Value);
+                    Debug.Log($"[Wanted] +{amount:F0} heat ({reason}) -> Total: {currentHeat.Value:F0} [{currentLevel.Value}]");
+                    return;
+                }
+                catch { }
+            }
 
-            Debug.Log($"[Wanted] +{amount:F0} heat ({reason}) -> Total: {currentHeat.Value:F0} [{currentLevel.Value}]");
+            // Offline path
+            _offlineHeat = Mathf.Min(_offlineHeat + amount, maxHeat);
+            UpdateWantedLevelOffline();
+            OnHeatChanged?.Invoke(_offlineHeat);
+            Debug.Log($"[Wanted] +{amount:F0} heat ({reason}) -> Total: {_offlineHeat:F0} [{_offlineLevel}]");
         }
 
         /// <summary>
         /// Reduce heat (bribery, time passing, completing missions).
         /// </summary>
-        [Server]
         public void ReduceHeat(float amount)
         {
-            currentHeat.Value = Mathf.Max(0, currentHeat.Value - amount);
-            UpdateWantedLevel();
-            OnHeatChanged?.Invoke(currentHeat.Value);
+            if (IsNetworked)
+            {
+                try
+                {
+                    currentHeat.Value = Mathf.Max(0, currentHeat.Value - amount);
+                    UpdateWantedLevel();
+                    OnHeatChanged?.Invoke(currentHeat.Value);
+                    return;
+                }
+                catch { }
+            }
+
+            // Offline
+            _offlineHeat = Mathf.Max(0, _offlineHeat - amount);
+            UpdateWantedLevelOffline();
+            OnHeatChanged?.Invoke(_offlineHeat);
         }
 
         public void SetSafeZone(bool inSafeZone) => _isInSafeZone = inSafeZone;
@@ -75,42 +137,74 @@ namespace Clout.World.Police
 
         private void Update()
         {
-            if (!IsServerInitialized) return;
-            if (currentHeat.Value <= 0) return;
+            float heat = CurrentHeat;
+            if (heat <= 0) return;
 
             // Decay heat
             float decay = naturalDecayRate;
 
-            // Not seen for 30+ seconds = faster decay
             if (Time.time - _lastSeenByPolice > 30f)
                 decay *= 2f;
 
             if (_isHiding) decay *= hidingDecayMultiplier;
             if (_isInSafeZone) decay *= safeZoneDecayMultiplier;
 
-            currentHeat.Value = Mathf.Max(0, currentHeat.Value - decay * Time.deltaTime);
-            UpdateWantedLevel();
+            float newHeat = Mathf.Max(0, heat - decay * Time.deltaTime);
+
+            if (IsNetworked)
+            {
+                try
+                {
+                    currentHeat.Value = newHeat;
+                    UpdateWantedLevel();
+                    return;
+                }
+                catch { }
+            }
+
+            _offlineHeat = newHeat;
+            UpdateWantedLevelOffline();
         }
 
         private void UpdateWantedLevel()
         {
-            WantedLevel newLevel;
-
-            if (currentHeat.Value >= mostWantedThreshold) newLevel = WantedLevel.MostWanted;
-            else if (currentHeat.Value >= huntedThreshold) newLevel = WantedLevel.Hunted;
-            else if (currentHeat.Value >= wantedThreshold) newLevel = WantedLevel.Wanted;
-            else if (currentHeat.Value >= suspiciousThreshold) newLevel = WantedLevel.Suspicious;
-            else newLevel = WantedLevel.Clean;
-
-            if (newLevel != currentLevel.Value)
+            try
             {
-                currentLevel.Value = newLevel;
-                OnWantedLevelChanged?.Invoke(currentLevel.Value);
+                float heat = currentHeat.Value;
+                WantedLevel newLevel = CalculateLevel(heat);
+
+                if (newLevel != currentLevel.Value)
+                {
+                    currentLevel.Value = newLevel;
+                    OnWantedLevelChanged?.Invoke(currentLevel.Value);
+                }
+            }
+            catch
+            {
+                UpdateWantedLevelOffline();
             }
         }
 
+        private void UpdateWantedLevelOffline()
+        {
+            WantedLevel newLevel = CalculateLevel(_offlineHeat);
+            if (newLevel != _offlineLevel)
+            {
+                _offlineLevel = newLevel;
+                OnWantedLevelChanged?.Invoke(_offlineLevel);
+            }
+        }
+
+        private WantedLevel CalculateLevel(float heat)
+        {
+            if (heat >= mostWantedThreshold) return WantedLevel.MostWanted;
+            if (heat >= huntedThreshold) return WantedLevel.Hunted;
+            if (heat >= wantedThreshold) return WantedLevel.Wanted;
+            if (heat >= suspiciousThreshold) return WantedLevel.Suspicious;
+            return WantedLevel.Clean;
+        }
+
         // ─── Heat Sources ─────────────────────────────────────────
-        // Called by various game systems
 
         public static class HeatValues
         {

@@ -64,12 +64,21 @@ namespace Clout.Camera
             playerTransform = player;
             cameraFollowTarget = followTarget;
 
-            NetworkObject nob = player.GetComponent<NetworkObject>();
-            if (nob != null && nob.IsSpawned && !nob.IsOwner)
+            // Network ownership check — safe for offline (no NetworkManager)
+            try
             {
-                isLocalPlayer = false;
-                gameObject.SetActive(false);
-                return;
+                NetworkObject nob = player.GetComponent<NetworkObject>();
+                if (nob != null && nob.IsSpawned && !nob.IsOwner)
+                {
+                    isLocalPlayer = false;
+                    gameObject.SetActive(false);
+                    return;
+                }
+            }
+            catch
+            {
+                // No NetworkManager — offline mode, this is the local player
+                isLocalPlayer = true;
             }
 
             if (freeLookCam == null) BuildFreeLookCamera();
