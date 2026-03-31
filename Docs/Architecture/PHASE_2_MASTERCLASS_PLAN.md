@@ -11,10 +11,10 @@
 | Spec Phase | Status | Coverage |
 |-----------|--------|----------|
 | Phase 0: Foundation | ✅ DONE | Codebase merged, SO architecture, asmdef, URP configured, player controller, camera, test scene |
-| Phase 1: Core Loop | 🟡 75% | Combat ✅, Inventory skeleton ✅, Dealing ✅, Production ❌, Economy basics ✅, Playable district ❌ |
-| Phase 2: Empire Systems | 🟡 35% | Heat ✅, Reputation ✅, Dealing pipeline ✅, Properties ❌, Workers ❌, Laundering ❌ |
-| Phase 3: World & AI | 🔴 15% | Combat AI ✅, Customer AI ✅, everything else ❌ |
-| Phase 4: Multiplayer | 🟡 30% | FishNet foundation ✅, SyncVars ✅, spawning ✅, actual MP gameplay ❌ |
+| Phase 1: Core Loop | ✅ 95% | Combat ✅, Inventory ✅, Dealing ✅, Production ✅, Economy ✅, Procedural city block ✅ |
+| Phase 2: Empire Systems | 🟡 70% | Heat ✅, Reputation ✅, Dealing pipeline ✅, Properties ✅, Economy ✅, Workers 🔴, Police AI 🔴 |
+| Phase 3: World & AI | 🟡 25% | Combat AI ✅, Customer AI ✅, Procedural buildings ✅, everything else ❌ |
+| Phase 4: Multiplayer | 🟡 10% | FishNet disabled (singleplayer focus), will re-enable Phase 4 |
 | Phase 5: Polish & Content | 🔴 0% | Not started |
 | Phase 6: Ship | 🔴 0% | Not started |
 
@@ -57,7 +57,7 @@ Phase 1's code compiles. The architecture is solid. But there's no **gameplay lo
 
 ---
 
-## Step 1: ScriptableObject Data Foundation ✅ COMPLETE (Week 1, Days 1–2)
+## Step 1: ScriptableObject Data Foundation ✅ COMPLETE
 
 Before any gameplay works, we need the actual data assets that drive every system.
 
@@ -142,7 +142,7 @@ Animations/
 
 ---
 
-## Step 2: The Dealing System ✅ COMPLETE (Week 1, Days 3–5)
+## Step 2: The Dealing System ✅ COMPLETE
 
 The core money-making mechanic. This is Schedule 1's bread and butter.
 
@@ -253,7 +253,7 @@ public class CustomerProfile : ScriptableObject
 
 ---
 
-## Step 3: Basic Production (Week 2, Days 1–3)
+## Step 3: Basic Production ✅ COMPLETE
 
 One mixing station. Put ingredients in, wait, get product out.
 
@@ -314,7 +314,9 @@ public class IngredientDefinition : ScriptableObject
 
 ---
 
-## Step 4: Money & Basic Economy (Week 2, Days 4–5)
+## Step 4: Money & Economy ✅ COMPLETE
+
+> **✅ IMPLEMENTED:** CashManager (dirty/clean wallet singleton with spend/earn/launder/confiscate), TransactionLedger (rolling financial records with daily/weekly metrics, category normalization), ShopKeeper (NPC shop with stock management, restock timers, buy/sell), ShopUI (OnGUI shop interface with quantity slider, affordability checks), EconomyManager (market simulation with supply/demand). All wired through EventBus with MoneyChangedEvent. 3 shops in test arena: ingredient supplier, fence, weapon dealer.
 
 ### 4A: Cash System
 
@@ -363,7 +365,9 @@ public static float GetPrice(ProductDefinition product, string districtId)
 
 ---
 
-## Step 5: Property System — First Property (Week 3, Days 1–3)
+## Step 5: Property System ✅ COMPLETE
+
+> **✅ IMPLEMENTED:** PropertyManager (singleton portfolio manager with buy/sell/upgrade, daily revenue/upkeep processing, raid mechanics), PropertyDefinition (SO template with 8 types: Safehouse, Lab, Growhouse, Storefront, Warehouse, Nightclub, AutoShop, Restaurant), Property (runtime instance with stash management, condition system, upgrade bonuses), ProceduralPropertyBuilder (procedural generation of all 8 building types with distinct geometry, colors, and interaction triggers), PropertyUI (OnGUI panel for browsing/purchasing/managing properties), PropertySystemFactory (editor tool). Procedural city block with 160×160m arena, street grid, roads, sidewalks, lane markings, 8 buildings placed inside walls.
 
 ### 5A: Property Purchase
 
@@ -418,7 +422,7 @@ public class PropertyDefinition : ScriptableObject
 
 ---
 
-## Step 6: Worker Hiring (Week 3, Days 4–5)
+## Step 6: Worker Hiring — 🔴 NEXT UP
 
 ### 6A: Hire First Dealer
 
@@ -455,7 +459,7 @@ public class PropertyDefinition : ScriptableObject
 
 ---
 
-## Step 7: Police AI — Chase & Investigate (Week 4, Days 1–3)
+## Step 7: Police AI — Chase & Investigate 🔴 PENDING
 
 ### 7A: Police Patrol AI
 
@@ -500,7 +504,7 @@ public class PropertyDefinition : ScriptableObject
 
 ---
 
-## Step 8: First District — The Slums (Week 4, Days 4–5 + Week 5)
+## Step 8: First District — The Slums 🔴 PENDING
 
 ### 8A: District Layout
 
@@ -569,7 +573,7 @@ Scenes/
 
 ---
 
-## Step 9: The Phone — Empire Management UI (Week 5, Days 3–5)
+## Step 9: The Phone — Empire Management UI 🔴 PENDING
 
 ### 9A: Phone System
 
@@ -602,7 +606,7 @@ Scenes/
 
 ---
 
-## Step 10: Integration & Polish Pass (Week 6)
+## Step 10: Integration & Polish Pass 🔴 PENDING
 
 ### 10A: Wire Everything Together
 
@@ -827,9 +831,12 @@ These were ported in the initial Phase 1 sprint and form the combat backbone:
 | Phase 1.5 (Sharp Accent ports + fixes) | 11 |
 | Phase 2 Step 1 (SO data, weapons, animator, editor tools) | 5 |
 | Phase 2 Step 2 (dealing system) | 10 |
-| Phase 2 infrastructure (URP setup, shader helper) | 2 |
-| **Current Total** | **~90** |
-| Phase 2 remaining (Steps 3–10) | ~43 |
-| **Projected After Phase 2** | **~133** |
+| Phase 2 Step 3 (production/crafting) | 8 |
+| Phase 2 Step 4 (economy — CashManager, TransactionLedger, ShopKeeper, ShopUI) | 4 |
+| Phase 2 Step 5 (properties — PropertyManager, Property, ProceduralPropertyBuilder, PropertyUI, PropertySystemFactory) | 5 |
+| Phase 2 infrastructure (URP setup, shader helper, procedural city) | 4 |
+| **Current Total** | **101** |
+| Phase 2 remaining (Steps 6–10) | ~35 |
+| **Projected After Phase 2** | **~136** |
 
 *CLOUT Phase 2 Masterclass Plan v1.1 — SlicedLabs — March 2026*

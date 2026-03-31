@@ -63,4 +63,4 @@ MonoBehaviour:
   raidChance: 0.08
   requiresCoverBusiness: 1
   districtName: Industrial District
-  worldPosition: {x: 33.6, y: 0, z: 33.6}
+  worldPosition: {x: 70.5, y: 0, z: 16}

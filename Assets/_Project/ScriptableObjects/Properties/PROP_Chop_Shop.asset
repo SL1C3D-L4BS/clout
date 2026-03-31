@@ -56,4 +56,4 @@ MonoBehaviour:
   raidChance: 0.04
   requiresCoverBusiness: 0
   districtName: Southside
-  worldPosition: {x: -48, y: 0, z: 0}
+  worldPosition: {x: -70, y: 0, z: -16}

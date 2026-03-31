@@ -49,4 +49,4 @@ MonoBehaviour:
   raidChance: 0.01
   requiresCoverBusiness: 0
   districtName: Northside
-  worldPosition: {x: -33.6, y: 0, z: 33.6}
+  worldPosition: {x: -16, y: 0, z: 72}

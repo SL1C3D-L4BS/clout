@@ -56,4 +56,4 @@ MonoBehaviour:
   raidChance: 0.05
   requiresCoverBusiness: 0
   districtName: Suburbs
-  worldPosition: {x: 48, y: 0, z: 0}
+  worldPosition: {x: 71, y: 0, z: -16}

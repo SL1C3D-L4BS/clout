@@ -63,4 +63,4 @@ MonoBehaviour:
   raidChance: 0.02
   requiresCoverBusiness: 0
   districtName: Little Italy
-  worldPosition: {x: 0, y: 0, z: 48}
+  worldPosition: {x: 16, y: 0, z: 70.5}
