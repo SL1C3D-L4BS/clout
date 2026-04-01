@@ -762,21 +762,88 @@ namespace Clout.Editor
 
         private static void BuildPoliceSystem()
         {
+            // ═══════════════════════════════════════════════════════
+            //  POLICE STATION PLACEMENT MATH
+            // ═══════════════════════════════════════════════════════
+            //
+            //  Arena: 160×160m, walls at ±78m (inner face ±77.5m)
+            //  Street ring: centered at ±48m, 8m wide (edges ±44 to ±52)
+            //  Outer sidewalks: ±52 to ±54.5
+            //  Clear perimeter zone: ±54.5 to ±77.5 (23m per side)
+            //
+            //  Corner zones (no properties) are 23×23m squares.
+            //  Properties use lateral offset ±16m, leaving corners free.
+            //
+            //  Station footprints (from ProceduralPropertyBuilder):
+            //    Central Precinct:     16w × 10d (simple, fits any corner)
+            //    South Precinct+Jail:  extends ~24w × 24.5d total
+            //      Main: 16w × 10d
+            //      Jail wing: 12w × 14d behind main (-Z local)
+            //      Exercise yard: 10×10 at local (+11, -12)
+            //      Watchtower at local (+16, -7)
+            //      Sally port at local (-8.5, -9.2)
+            //
+            //  All geometry uses localPosition so rotating root
+            //  rotates everything. PoliceStation.spawnOffset/arrestPoint
+            //  use TransformDirection — rotation-safe.
+            //
+            //  Layout (top-down):
+            //
+            //         Wall_North (z=+78)
+            //    ┌─────────────────────────────────┐
+            //    │  Rest   Motel     [Precinct]    │ ← NE corner
+            //    │                                  │
+            //    │ Club    ┌──────────┐         Lab │
+            //    │         │  COMBAT  │             │
+            //    │ Auto    └──────────┘        Grow │
+            //    │                                  │
+            //    │ [Jail+Precinct]  Wareh  Store    │ ← SW corner
+            //    └─────────────────────────────────┘
+            //         Wall_South (z=-78)
+
             // Police system root
             GameObject policeObj = new GameObject("PoliceSystem");
             policeObj.AddComponent<HeatResponseManager>();
             policeObj.AddComponent<WitnessSystem>();
             policeObj.AddComponent<PropertyRaidSystem>();
 
-            // Station 1: NE corner — standard precinct (procedurally generated)
-            Clout.World.ProceduralPropertyBuilder.BuildPoliceStation(
-                new Vector3(55f, 0f, 55f), "Central Precinct");
+            // ─── Station 1: CENTRAL PRECINCT (NE corner) ─────────
+            //
+            //  16w × 10d, facing south (Y=180°), back against north wall.
+            //  Root at (66, 0, 70.5):
+            //    Main X: 58 to 74    (clear of east sidewalk at 54.5)
+            //    Main Z: 65.5 to 75.5 (2m margin from north wall at 77.5)
+            //    Front faces south toward center.
+            //    Clear of Restaurant (X=16), Motel (X=-16), Lab (Z=16).
+            //
+            GameObject station1 = Clout.World.ProceduralPropertyBuilder.BuildPoliceStation(
+                new Vector3(66f, 0f, 70.5f), "Central Precinct");
+            station1.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
 
-            // Station 2: SW corner — precinct with jail wing & exercise yard
-            Clout.World.ProceduralPropertyBuilder.BuildPoliceStationWithJail(
-                new Vector3(-55f, 0f, -55f), "South Precinct & Detention");
+            // ─── Station 2: SOUTH PRECINCT & DETENTION (SW corner) ─
+            //
+            //  ~24×24.5 total footprint, facing east (Y=90°).
+            //  Root at (-58.5, 0, -61.5):
+            //
+            //  After Y=90° rotation (local Z→world X, local X→world -Z):
+            //    Main:   X -63.5 to -53.5,  Z -69.5 to -53.5
+            //    Jail:   X -77.5 to -53.5,  Z -67.5 to -55.5
+            //    Yard:   X -75.5 to -65.5,  Z -72.5 to -62.5
+            //    Tower:  X -65.5,            Z -77.5
+            //    Sally:  X -67.7,            Z -53
+            //
+            //  West edge at X=-77.5 (flush with west wall inner face).
+            //  South edge at Z=-77.5 (tower flush with south wall).
+            //  East edge at X=-53.5 (1m inside outer sidewalk — police driveway).
+            //  Clear of AutoShop (Z=-20 to -11) and Warehouse (X=-25 to -7).
+            //
+            GameObject station2 = Clout.World.ProceduralPropertyBuilder.BuildPoliceStationWithJail(
+                new Vector3(-58.5f, 0f, -61.5f), "South Precinct & Detention");
+            station2.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
 
-            Debug.Log("[Clout] Police system created: HeatResponseManager + WitnessSystem + PropertyRaidSystem + 2 Procedural Police Stations (1 with jail).");
+            Debug.Log("[Clout] Police system: 2 stations placed." +
+                " Central Precinct at NE (66, 70.5) facing south." +
+                " South Precinct+Jail at SW (-58.5, -61.5) facing east.");
         }
 
         // ─────────────────────────────────────────────────────────
