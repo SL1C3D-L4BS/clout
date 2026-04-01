@@ -185,7 +185,7 @@ namespace Clout.Empire.Employees
 
             GUILayout.BeginHorizontal();
 
-            var properties = FindObjectsByType<Property>(FindObjectsInactive.Exclude);
+            var properties = FindObjectsByType<Property>();
 
             foreach (var prop in properties)
             {

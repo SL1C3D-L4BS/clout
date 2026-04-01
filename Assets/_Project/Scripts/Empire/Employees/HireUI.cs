@@ -171,7 +171,7 @@ namespace Clout.Empire.Employees
             GUILayout.Label("Assign to: ", GUILayout.Width(70));
 
             // Find all owned properties
-            var properties = FindObjectsByType<Property>(FindObjectsInactive.Exclude);
+            var properties = FindObjectsByType<Property>();
             bool found = false;
 
             foreach (var prop in properties)

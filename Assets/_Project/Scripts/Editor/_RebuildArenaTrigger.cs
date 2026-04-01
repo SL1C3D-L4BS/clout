@@ -6,8 +6,8 @@ namespace Clout.Editor
 {
     /// <summary>
     /// Self-deleting trigger — rebuilds the test arena with all Phase 2 systems
-    /// including Step 5.5 spec v2.0 catch-up (4D reputation, full price formula,
-    /// NPC profiles, worker events, street grid, 160x160 city block).
+    /// including Step 6 Worker System (WorkerManager, RecruitmentManager, HireUI,
+    /// WorkerManagementUI, DealerAI, CookAI, GuardAI).
     /// </summary>
     [InitializeOnLoad]
     public static class _RebuildArenaTrigger
@@ -21,7 +21,7 @@ namespace Clout.Editor
         {
             EditorApplication.delayCall -= RunOnce;
 
-            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding test arena (Step 5.5 spec v2.0)...");
+            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding test arena (Step 6 Worker System)...");
 
             try
             {
