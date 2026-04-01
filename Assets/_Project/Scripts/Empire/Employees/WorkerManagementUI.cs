@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Clout.Core;
 using Clout.Empire.Economy;
 using Clout.Empire.Properties;
@@ -19,9 +20,6 @@ namespace Clout.Empire.Employees
     /// </summary>
     public class WorkerManagementUI : MonoBehaviour
     {
-        [Header("Toggle")]
-        public KeyCode toggleKey = KeyCode.Y;
-
         [Header("Layout")]
         public float panelWidth = 550f;
         public float panelHeight = 500f;
@@ -43,7 +41,7 @@ namespace Clout.Empire.Employees
 
         private void Update()
         {
-            if (Input.GetKeyDown(toggleKey))
+            if (Keyboard.current != null && Keyboard.current.yKey.wasPressedThisFrame)
             {
                 _isOpen = !_isOpen;
                 _reassignMode = false;

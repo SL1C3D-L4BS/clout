@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Clout.Empire.Economy;
 using Clout.Empire.Properties;
 
@@ -18,9 +19,6 @@ namespace Clout.Empire.Employees
     /// </summary>
     public class HireUI : MonoBehaviour
     {
-        [Header("Toggle")]
-        public KeyCode toggleKey = KeyCode.Tab;
-
         [Header("Layout")]
         public float panelWidth = 500f;
         public float panelHeight = 600f;
@@ -40,7 +38,7 @@ namespace Clout.Empire.Employees
 
         private void Update()
         {
-            if (Input.GetKeyDown(toggleKey))
+            if (Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame)
                 _isOpen = !_isOpen;
         }
 
