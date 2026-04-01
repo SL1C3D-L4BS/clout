@@ -25,7 +25,6 @@ using Clout.World.Districts;
 using Clout.UI;
 using Clout.UI.Phone;
 using UnityEditor.Animations;
-using UnityEditorInternal;
 
 namespace Clout.Editor
 {
@@ -984,11 +983,11 @@ namespace Clout.Editor
 
         private static void EnsureTag(string tagName)
         {
-            foreach (string tag in InternalEditorUtility.tags)
+            foreach (string tag in UnityEditorInternal.InternalEditorUtility.tags)
             {
                 if (tag == tagName) return;
             }
-            InternalEditorUtility.AddTag(tagName);
+            UnityEditorInternal.InternalEditorUtility.AddTag(tagName);
             Debug.Log($"[Clout] Tag '{tagName}' added to TagManager.");
         }
     }
