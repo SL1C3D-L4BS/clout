@@ -2,7 +2,9 @@
 # From Vertical Slice to Criminal Universe Operating System
 
 > Last Updated: March 31, 2026
-> Reference: `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md` for full vision spec
+> Canonical Spec: `Docs/Architecture/BUILD_SPECIFICATION.md` (v2.0 — 70 sections)
+> Vision Doc: `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md`
+> Gap Analysis: `Docs/Architecture/GAP_ANALYSIS.md`
 
 ---
 
@@ -57,8 +59,50 @@ Player spawns in procedural city block (160×160m) →
 
 ## Phase 2 Remaining Steps (Current Sprint)
 
+### Step 5.5: Spec v2.0 Catch-Up — Align Existing Systems Before New Features
+**Priority: IMMEDIATE (before Step 6)**
+**Estimated changes: 4 files modified, 0 new files**
+
+The Build Specification v2.0 (70 sections) revealed 4 systems that need enhancement before the Worker system can be built correctly. See `GAP_ANALYSIS.md` for full breakdown.
+
+#### 5.5A: ReputationManager → 4D Reputation Vector
+
+**Current:** Single CLOUT score (integer rank 0–6)
+**Spec v2.0 Section 36:** `[Fear, Respect, Reliability, Ruthlessness]` as 4D float vector
+
+**Why before Step 6:** The betrayal formula (`P(betray) = (Greed + Fear - Loyalty + ExternalOffer) / Compartmentalization`) references the Fear dimension. Worker hiring quality should be gated by Respect, not just CLOUT rank. Guard effectiveness depends on Fear generation.
+
+**Action:** Add 4 float fields to ReputationManager. Keep existing CLOUT rank as a composite derived score. Update EventBus with `ReputationChangedEvent`.
+
+#### 5.5B: EmployeeDefinition → Full NPC Profile
+
+**Current:** skill, loyalty, discretion, ambition, dailyWage, hiringCost, betrayalChance, arrestChance, hasRecord, role
+**Spec v2.0 Section 13:** Add greed, courage, intelligence, corruptibility, knownInformation[], directHandler
+
+**Why before Step 6:** The betrayal probability formula requires `Greed` as a field. `Courage` determines if workers flee or fight during raids. `Intelligence` affects CookAI quality bonus. These are the core stats the Worker AI decision-making reads.
+
+**Action:** Add missing fields to EmployeeDefinition.cs SO.
+
+#### 5.5C: EconomyManager → Full Price Formula
+
+**Current:** Basic `GetStreetPrice()` with supply/demand and random swing
+**Spec v2.0 Section 23:** `P = P_base × (D/S) × (1 + E_r) × (1 + R_m) × M_s`
+
+**Why before Step 6:** DealerAI auto-pricing must use the real formula. Otherwise dealer earnings won't reflect market conditions, heat risk premiums, or seasonal modifiers.
+
+**Action:** Implement full formula in EconomyManager with elasticity per region, risk modifier from WantedSystem heat, and seasonal multiplier stub.
+
+#### 5.5D: EventBus → Worker Event Types
+
+**Current:** 11 event types defined
+**Needed for Step 6:** WorkerFiredEvent, WorkerArrestedEvent, WorkerBetrayedEvent, WorkerShiftEndEvent, WorkerDealCompleteEvent, ReputationChangedEvent
+
+**Action:** Add 6 new event structs to EventBus.cs.
+
+---
+
 ### Step 6: Worker Hiring — Autonomous Dealer AI, Recruitment, Wage System
-**Priority: NEXT**
+**Priority: NEXT (after 5.5 catch-up)**
 **Estimated new scripts: 8–10**
 
 This is the automation layer — the step where the game transforms from "you do everything yourself" to "you run an organization." Workers are the bridge between the dealing/production loop and the empire management vision.

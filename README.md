@@ -232,11 +232,12 @@ The editor tool (`Clout > Build Test Arena`) programmatically creates:
 
 | Document | Description |
 |----------|-------------|
-| `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md` | Full vision spec — criminal universe operating system |
+| `Docs/Architecture/BUILD_SPECIFICATION.md` | **Canonical spec v2.0** — 70-section full-stack masterclass specification |
+| `Docs/Architecture/GAP_ANALYSIS.md` | Spec v2.0 vs codebase — every section mapped to implementation status |
+| `Docs/Architecture/NEXT_STEPS_ROADMAP.md` | Complete development roadmap (Phase 2–6) with catch-up tasks |
+| `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md` | Vision doc — criminal universe operating system |
 | `Docs/Design/GAME_DESIGN_DOCUMENT.md` | Core game design document |
 | `Docs/Design/VIRAL_MECHANICS_2026.md` | Viral mechanics and retention analysis |
-| `Docs/Architecture/BUILD_SPECIFICATION.md` | Full 30-section technical build specification |
-| `Docs/Architecture/NEXT_STEPS_ROADMAP.md` | Complete development roadmap (Phase 2–6) |
 | `Docs/Architecture/PHASE_2_MASTERCLASS_PLAN.md` | Phase 2 vertical slice — 10 steps to playable |
 | `Docs/Architecture/PHASE_1_EXECUTION_PLAN.md` | Phase 1 completion log |
 | `Docs/Architecture/SYNTY_ASSET_LIST.md` | Synty POLYGON asset requirements & integration |

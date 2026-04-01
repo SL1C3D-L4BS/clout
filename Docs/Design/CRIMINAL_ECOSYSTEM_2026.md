@@ -2,8 +2,10 @@
 # Full-Stack Masterclass Specification
 
 > **Version 2.0** | March 2026
-> Target Release: Q4 2027 (Early Access Q3 2026)
+> Target Release: Q4 2027 (Early Access Q3 2027)
 > Engineering Team: 8–14 devs (small AAA indie)
+> Canonical Spec: `Docs/Architecture/BUILD_SPECIFICATION.md` (v2.0 — 70 sections)
+> Gap Analysis: `Docs/Architecture/GAP_ANALYSIS.md`
 
 ---
 
