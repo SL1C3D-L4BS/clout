@@ -20,6 +20,7 @@ using Clout.World.Police;
 using Clout.Inventory;
 using Clout.Empire.Economy;
 using Clout.Empire.Properties;
+using Clout.Empire.Employees;
 using Clout.UI;
 using UnityEditor.Animations;
 
@@ -109,6 +110,9 @@ namespace Clout.Editor
             PropertySystemFactory.CreatePropertySystemHeadless();
             PropertySystemFactory.SpawnPropertiesHeadless();
 
+            // === WORKERS ===
+            BuildWorkerSystem();
+
             // === NAVMESH ===
             BakeNavMesh();
 
@@ -124,7 +128,8 @@ namespace Clout.Editor
                 "• Combat HUD active\n" +
                 "• Economy system (CashManager, Ledger, Market)\n" +
                 "• 3 Shop NPCs (Chemo's Supply, Pawn It, Big Tony's)\n" +
-                "• 8 Property buildings (surrounding arena)\n\n" +
+                "• 8 Property buildings (surrounding arena)\n" +
+                "• Worker system (Hire: Tab, Manage: Y)\n\n" +
                 "Hit Play to test.", "Let's Go");
         }
 
@@ -158,6 +163,7 @@ namespace Clout.Editor
             EconomySystemFactory.CreateEconomySystemHeadless();
             PropertySystemFactory.CreatePropertySystemHeadless();
             PropertySystemFactory.SpawnPropertiesHeadless();
+            BuildWorkerSystem();
             BakeNavMesh();
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
@@ -720,6 +726,29 @@ namespace Clout.Editor
             econObj.AddComponent<PropertyManager>();
 
             Debug.Log("[Clout] Economy system created: CashManager + TransactionLedger + EconomyManager + PropertyManager.");
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  WORKER SYSTEM
+        // ─────────────────────────────────────────────────────────
+
+        private static void BuildWorkerSystem()
+        {
+            GameObject workerObj = new GameObject("WorkerSystem");
+
+            // WorkerManager — singleton workforce orchestrator
+            WorkerManager wm = workerObj.AddComponent<WorkerManager>();
+
+            // RecruitmentManager — hire pool generation
+            RecruitmentManager rm = workerObj.AddComponent<RecruitmentManager>();
+
+            // HireUI — Tab to toggle recruitment panel
+            HireUI hireUI = workerObj.AddComponent<HireUI>();
+
+            // WorkerManagementUI — Y to toggle worker overview
+            WorkerManagementUI mgmtUI = workerObj.AddComponent<WorkerManagementUI>();
+
+            Debug.Log("[Clout] Worker system created: WorkerManager + RecruitmentManager + HireUI + WorkerManagementUI.");
         }
 
         // ─────────────────────────────────────────────────────────
