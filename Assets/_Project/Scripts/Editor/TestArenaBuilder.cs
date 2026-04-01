@@ -21,7 +21,6 @@ using Clout.Inventory;
 using Clout.Empire.Economy;
 using Clout.Empire.Properties;
 using Clout.Empire.Employees;
-using Clout.World.Police;
 using Clout.UI;
 using UnityEditor.Animations;
 
