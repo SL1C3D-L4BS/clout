@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7ae1b2e022184c7c83e9b767a550baa, type: 3}
+  m_Name: GameBalanceConfig
+  m_EditorClassIdentifier: Clout::Clout.Core.GameBalanceConfig
+  globalPriceMultiplier: 1
+  maxDemandSupplyRatio: 3
+  minDemandSupplyRatio: 0.2
+  defaultElasticity: 0.3
+  maxRiskPremium: 0.5
+  qualityExponent: 1.5
+  priceUpdateInterval: 300
+  startingDirtyCash: 500
+  startingCleanCash: 0
+  maxCash: 10000000
+  propertySellbackRate: 0.6
+  launderingFeeRate: 0.1
+  maxDailyLaunderPerBusiness: 5000
+  maxWorkersByRank: 010000000200000004000000070000000b0000000f000000
+  workerShiftDuration: 300
+  workerRestDuration: 60
+  wageMultiplier: 1
+  loyaltyGainPerShift: 0.005
+  loyaltyLossPerMissedWage: 0.15
+  skillGrowthRate: 0.01
+  betrayalCheckIntervalDays: 3
+  betrayalSafeLoyalty: 0.85
+  externalOfferMin: 100
+  externalOfferMax: 5000
+  maxHeat: 500
+  heatPerDeal: 20
+  heatPerWitnessedCrime: 15
+  heatPerAssaultPolice: 100
+  heatPerWorkerArrest: 30
+  heatDecayPerSecond: 0.15
+  heatDecaySafeZone: 0.5
+  heatDecayHiding: 0.8
+  wantedThresholds:
+  - 50
+  - 150
+  - 300
+  - 450
+  maxPoliceOfficers: 12
+  policeSpawnCooldown: 15
+  policeResponseTime: 25
+  raidHeatThreshold: 60
+  baseRaidChancePerDay: 0.05
+  evidenceDegradationTime: 120
+  rankThresholds: 0000000064000000f4010000d00700001027000050c30000
+  reputationDecayRate: 0.02
+  cloutPerDeal: 2
+  cloutFirstSale: 5
+  cloutPerProperty: 10
+  cloutPerRivalDefeated: 25
+  maxOwnedProperties: 10
+  conditionDegradationRate: 0.05
+  repairCostPerPoint: 50
+  cookingTimeMultiplier: 1
+  baseExplosionChance: 0.03
+  explosionSkillThreshold: 0.3
+  customerSpawnInterval: 12
+  civilianSpawnInterval: 8
+  npcDespawnDistance: 80
+  gameDayDuration: 600
+  autoSaveIntervalDays: 1
