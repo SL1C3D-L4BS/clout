@@ -125,7 +125,7 @@ namespace Clout.World.Police
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
-            gameObject.tag = "Police";
+            try { gameObject.tag = "Police"; } catch { /* Tag not defined in TagManager */ }
         }
 
         private void Start()

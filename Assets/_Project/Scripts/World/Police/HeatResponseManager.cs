@@ -162,7 +162,7 @@ namespace Clout.World.Police
             Vector3 spawnPos = GetSpawnPosition();
 
             GameObject officerObj = new GameObject($"Police_Officer_{_activeOfficers.Count}");
-            officerObj.tag = "Police";
+            try { officerObj.tag = "Police"; } catch { /* Tag not defined in TagManager */ }
             officerObj.transform.position = spawnPos;
 
             // NavMeshAgent

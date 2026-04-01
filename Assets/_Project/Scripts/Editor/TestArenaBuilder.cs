@@ -23,7 +23,9 @@ using Clout.Empire.Properties;
 using Clout.Empire.Employees;
 using Clout.World.Districts;
 using Clout.UI;
+using Clout.UI.Phone;
 using UnityEditor.Animations;
+using UnityEditorInternal;
 
 namespace Clout.Editor
 {
@@ -120,6 +122,9 @@ namespace Clout.Editor
             // === DISTRICTS ===
             BuildDistrictSystem();
 
+            // === PHONE UI ===
+            BuildPhoneUI();
+
             // === NAVMESH ===
             BakeNavMesh();
 
@@ -142,7 +147,8 @@ namespace Clout.Editor
                 "  - Residential, commercial, industrial zones\n" +
                 "  - Player properties, ambient buildings, parks\n" +
                 "  - Street lights, hydrants, parked cars\n" +
-                "  - Customer & civilian NPC spawning\n\n" +
+                "  - Customer & civilian NPC spawning\n" +
+                "• Phone UI (M key) — Map, Contacts, Products, Finances, Messages\n\n" +
                 "Hit Play to test.", "Let's Go");
         }
 
@@ -179,6 +185,7 @@ namespace Clout.Editor
             BuildWorkerSystem();
             BuildPoliceSystem();
             BuildDistrictSystem();
+            BuildPhoneUI();
             BakeNavMesh();
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
@@ -785,6 +792,9 @@ namespace Clout.Editor
             //    └─────────────────────────────────┘
             //         Wall_South (z=-78)
 
+            // Ensure "Police" tag exists in TagManager
+            EnsureTag("Police");
+
             // Police system root
             GameObject policeObj = new GameObject("PoliceSystem");
             policeObj.AddComponent<HeatResponseManager>();
@@ -932,6 +942,25 @@ namespace Clout.Editor
         }
 
         // ─────────────────────────────────────────────────────────
+        //  PHONE UI (Step 9)
+        // ─────────────────────────────────────────────────────────
+
+        private static void BuildPhoneUI()
+        {
+            // Phone controller — single GameObject with all tab components
+            GameObject phoneObj = new GameObject("PhoneUI");
+
+            phoneObj.AddComponent<PhoneController>();
+            phoneObj.AddComponent<PhoneMapTab>();
+            phoneObj.AddComponent<PhoneContactsTab>();
+            phoneObj.AddComponent<PhoneProductsTab>();
+            phoneObj.AddComponent<PhoneFinanceTab>();
+            phoneObj.AddComponent<PhoneMessagesTab>();
+
+            Debug.Log("[Clout] Phone UI created: PhoneController + 5 tabs (M to open).");
+        }
+
+        // ─────────────────────────────────────────────────────────
         //  NAVMESH
         // ─────────────────────────────────────────────────────────
 
@@ -947,6 +976,20 @@ namespace Clout.Editor
             {
                 Debug.LogWarning("[Clout] NavMeshSurface not found — NavMesh not baked.");
             }
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  TAG MANAGER
+        // ─────────────────────────────────────────────────────────
+
+        private static void EnsureTag(string tagName)
+        {
+            foreach (string tag in InternalEditorUtility.tags)
+            {
+                if (tag == tagName) return;
+            }
+            InternalEditorUtility.AddTag(tagName);
+            Debug.Log($"[Clout] Tag '{tagName}' added to TagManager.");
         }
     }
 }
