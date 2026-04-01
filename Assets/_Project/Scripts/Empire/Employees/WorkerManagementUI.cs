@@ -1,4 +1,5 @@
 using UnityEngine;
+using Clout.Core;
 using Clout.Empire.Economy;
 using Clout.Empire.Properties;
 
@@ -184,7 +185,7 @@ namespace Clout.Empire.Employees
 
             GUILayout.BeginHorizontal();
 
-            var properties = FindObjectsByType<Property>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var properties = FindObjectsByType<Property>(FindObjectsInactive.Exclude);
 
             foreach (var prop in properties)
             {

@@ -45,7 +45,7 @@ namespace Clout.Empire.Employees
         // ─── State ──────────────────────────────────────────────────
 
         private List<RecruitCandidate> _hirePool = new List<RecruitCandidate>();
-        private int _lastRefreshDay = -1;
+        // Pool tracks candidates only; day tracking deferred to Phase 3 calendar system.
 
         // ─── Events ─────────────────────────────────────────────────
 

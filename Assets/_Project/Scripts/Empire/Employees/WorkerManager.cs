@@ -197,7 +197,7 @@ namespace Clout.Empire.Employees
 
         // ─── Daily Processing ────────────────────────────────────────
 
-        private void OnDayEnd(int dayNumber)
+        private void OnDayEnd()
         {
             ProcessDailyWages();
             ProcessDailyChecks();

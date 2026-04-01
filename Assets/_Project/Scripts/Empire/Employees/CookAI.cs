@@ -277,7 +277,7 @@ namespace Clout.Empire.Employees
             }
 
             // Global fallback — find any available station in the scene
-            var allStations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var allStations = FindObjectsByType<CraftingStation>(FindObjectsInactive.Exclude);
             foreach (var station in allStations)
             {
                 if (!station.IsFull) return station;
