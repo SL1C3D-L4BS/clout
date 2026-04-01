@@ -15,9 +15,15 @@ namespace Clout.Editor
         private static void RunOnce()
         {
             EditorApplication.delayCall -= RunOnce;
-            Debug.Log("[Clout] _RebuildArenaTrigger: full Step 10 rebuild...");
+            Debug.Log("[Clout] _RebuildArenaTrigger: reimport + rebuild...");
             try
             {
+                // Force reimport of Step 10 scripts to clear stale compile cache
+                AssetDatabase.ImportAsset("Assets/_Project/Scripts/Core/GameFlowManager.cs", ImportAssetOptions.ForceUpdate);
+                AssetDatabase.ImportAsset("Assets/_Project/Scripts/Core/GameBalanceConfig.cs", ImportAssetOptions.ForceUpdate);
+                AssetDatabase.ImportAsset("Assets/_Project/Scripts/Core/PerformanceMonitor.cs", ImportAssetOptions.ForceUpdate);
+                AssetDatabase.Refresh();
+
                 TestArenaBuilder.BuildTestArenaHeadless();
                 Debug.Log("[Clout] _RebuildArenaTrigger: arena rebuild complete.");
             }
