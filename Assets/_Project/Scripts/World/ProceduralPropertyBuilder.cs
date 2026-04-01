@@ -1431,9 +1431,7 @@ namespace Clout.World
             // Build the main station first
             GameObject root = BuildPoliceStation(position, stationName);
 
-            float mainWidth = 16f;
             float mainDepth = 10f;
-            float mainHeight = 2 * FLOOR_HEIGHT;
 
             Color cellColor = new Color(0.48f, 0.48f, 0.52f);    // Colder grey
             Color fenceColor = new Color(0.4f, 0.4f, 0.4f);      // Chain-link grey
