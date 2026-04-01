@@ -24,6 +24,7 @@ using Clout.Empire.Employees;
 using Clout.World.Districts;
 using Clout.UI;
 using Clout.UI.Phone;
+using Clout.Save;
 using UnityEditor.Animations;
 
 namespace Clout.Editor
@@ -124,6 +125,9 @@ namespace Clout.Editor
             // === PHONE UI ===
             BuildPhoneUI();
 
+            // === GAME FLOW (Step 10) ===
+            BuildGameFlow();
+
             // === NAVMESH ===
             BakeNavMesh();
 
@@ -147,7 +151,11 @@ namespace Clout.Editor
                 "  - Player properties, ambient buildings, parks\n" +
                 "  - Street lights, hydrants, parked cars\n" +
                 "  - Customer & civilian NPC spawning\n" +
-                "• Phone UI (M key) — Map, Contacts, Products, Finances, Messages\n\n" +
+                "• Phone UI (M key) — Map, Contacts, Products, Finances, Messages\n" +
+                "• Game Flow Manager — milestones, tutorials, auto-save\n" +
+                "• Performance Monitor (F3) — FPS, memory, budgets\n" +
+                "• Save/Load: F5 = Quick Save, F9 = Quick Load\n" +
+                "• Pause: ESC when phone is closed\n\n" +
                 "Hit Play to test.", "Let's Go");
         }
 
@@ -185,6 +193,7 @@ namespace Clout.Editor
             BuildPoliceSystem();
             BuildDistrictSystem();
             BuildPhoneUI();
+            BuildGameFlow();
             BakeNavMesh();
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
@@ -957,6 +966,45 @@ namespace Clout.Editor
             phoneObj.AddComponent<PhoneMessagesTab>();
 
             Debug.Log("[Clout] Phone UI created: PhoneController + 5 tabs (M to open).");
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  GAME FLOW (Step 10: Integration & Polish)
+        // ─────────────────────────────────────────────────────────
+
+        private static void BuildGameFlow()
+        {
+            // ── GameBalanceConfig SO ─────────────────────────────
+            // Create default balance config if it doesn't exist
+            string balancePath = "Assets/_Project/Resources";
+            if (!AssetDatabase.IsValidFolder(balancePath))
+            {
+                if (!AssetDatabase.IsValidFolder("Assets/_Project"))
+                    AssetDatabase.CreateFolder("Assets", "_Project");
+                AssetDatabase.CreateFolder("Assets/_Project", "Resources");
+            }
+
+            string configAssetPath = $"{balancePath}/GameBalanceConfig.asset";
+            GameBalanceConfig config = AssetDatabase.LoadAssetAtPath<GameBalanceConfig>(configAssetPath);
+            if (config == null)
+            {
+                config = ScriptableObject.CreateInstance<GameBalanceConfig>();
+                config.ApplyNormalPreset();
+                AssetDatabase.CreateAsset(config, configAssetPath);
+                EditorUtility.SetDirty(config);
+                Debug.Log("[Clout] Created GameBalanceConfig (Normal difficulty).");
+            }
+            GameBalanceConfig.Active = config;
+
+            // ── GameFlowManager ──────────────────────────────────
+            GameObject flowObj = new GameObject("GameFlowManager");
+            GameFlowManager gfm = flowObj.AddComponent<GameFlowManager>();
+            gfm.autoSaveSlot = 0;
+
+            // ── PerformanceMonitor ───────────────────────────────
+            flowObj.AddComponent<PerformanceMonitor>();
+
+            Debug.Log("[Clout] Game flow system created: GameFlowManager + PerformanceMonitor + GameBalanceConfig.");
         }
 
         // ─────────────────────────────────────────────────────────

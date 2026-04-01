@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.AI.Navigation;
 using System.Collections.Generic;
 using Clout.Core;
+using Clout.World;
 using Clout.Empire.Properties;
 
 namespace Clout.World.Districts

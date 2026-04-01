@@ -1,32 +1,41 @@
 # CLOUT — Full Development Roadmap
 # From Vertical Slice to Criminal Universe Operating System
 
-> Last Updated: March 31, 2026
+> Last Updated: April 1, 2026
 > Canonical Spec: `Docs/Architecture/BUILD_SPECIFICATION.md` (v2.0 — 70 sections)
 > Vision Doc: `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md`
 > Gap Analysis: `Docs/Architecture/GAP_ANALYSIS.md`
 
 ---
 
-## Current State: 101 Scripts, Phase 2 Step 5 Complete
+## Current State: ~139 Scripts, Phase 2 COMPLETE (All 10 Steps)
 
 ### What's Playable Right Now
 
 ```
-Player spawns in procedural city block (160×160m) →
-  8 buildings (safehouses, labs, growhouses, shops, warehouse, nightclub, auto shop, restaurant) →
-  3 shop NPCs (ingredient supplier, fence, weapon dealer) →
-  3 customer NPCs (seeking product) →
-  3 enemy NPCs (melee/ranged/hybrid) →
+Player spawns in procedurally generated Bay Area district →
+  Full 7-phase district generation (ground → roads → blocks → buildings → properties → furniture → parks) →
+  Victorian houses, Painted Ladies row houses, fire-escape apartments, glass office towers →
+  Road networks with major/minor streets, alleys, sidewalks, crosswalks, lane markings →
+  8+ purchasable property types (safehouses, labs, growhouses, shops, warehouse, nightclub, auto shop, restaurant) →
+  Shop NPCs (ingredient supplier, fence, weapon dealer) →
+  Customer NPCs (seeking product, loyalty tracking, addiction modeling) →
+  Enemy NPCs (melee/ranged/hybrid) →
   Full melee + ranged Souls-like combat →
   Buy ingredients → Cook at crafting station → Deal to customers →
   Earn dirty cash → Buy/sell at shops → Purchase properties →
   Manage stash → Upgrade properties → Track finances →
-  Heat system (6-tier wanted level) →
-  Street grid with roads, sidewalks, lane markings
+  Hire workers (Dealers, Cooks, Guards, Growers) → Autonomous operations →
+  Recruitment system with CLOUT-gated tiers →
+  6-tier wanted level + dynamic police response (patrols, investigation, pursuit, raids) →
+  Witness system + evidence degradation →
+  Property raids with confiscation + defense →
+  Phone UI empire hub (M key): Map, Contacts, Products, Finances, Messages →
+  Real-time notifications for 15+ event types →
+  District territory control + heat radar
 ```
 
-### System Inventory (101 scripts)
+### System Inventory (~136 scripts)
 
 | System | Scripts | Status |
 |--------|---------|--------|
@@ -42,26 +51,27 @@ Player spawns in procedural city block (160×160m) →
 | Empire — Dealing | 10 | ✅ Complete |
 | Empire — Economy | 4 | ✅ Complete |
 | Empire — Properties | 5 | ✅ Complete |
-| Empire — Employees | 1 | 🟡 Template only |
+| Empire — Employees | 10 | ✅ Complete (Step 6) |
 | Empire — Reputation | 1 | ✅ Complete |
 | Empire — Territory | 1 | ✅ Complete |
-| World — Police | 1 | ✅ Basic |
+| World — Police | 5 | ✅ Complete (Step 7) |
+| World — Districts | 4 | ✅ Complete (Step 8) |
 | World — NPCs | 3 | ✅ Complete |
 | World — Procedural | 2 | ✅ Complete |
 | Stats | 1 | ✅ Complete |
 | Inventory | 2 | ✅ Complete |
 | UI / HUD | 6 | ✅ Complete |
-| Editor Tools | 9 | ✅ Complete |
+| UI / Phone | 6 | ✅ Complete (Step 9) |
+| Editor Tools | 10 | ✅ Complete |
 | Utils | 4 | ✅ Complete |
 | Save System | 1 | ✅ Complete |
 
 ---
 
-## Phase 2 Remaining Steps (Current Sprint)
+## Phase 2 Completion Log
 
-### Step 5.5: Spec v2.0 Catch-Up — Align Existing Systems Before New Features
-**Priority: IMMEDIATE (before Step 6)**
-**Estimated changes: 4 files modified, 0 new files**
+### Step 5.5: Spec v2.0 Catch-Up ✅ COMPLETE
+**4 files modified, 0 new files**
 
 The Build Specification v2.0 (70 sections) revealed 4 systems that need enhancement before the Worker system can be built correctly. See `GAP_ANALYSIS.md` for full breakdown.
 
@@ -101,9 +111,8 @@ The Build Specification v2.0 (70 sections) revealed 4 systems that need enhancem
 
 ---
 
-### Step 6: Worker Hiring — Autonomous Dealer AI, Recruitment, Wage System
-**Priority: NEXT (after 5.5 catch-up)**
-**Estimated new scripts: 8–10**
+### Step 6: Worker Hiring — Autonomous Dealer AI, Recruitment, Wage System ✅ COMPLETE
+**10 scripts created**
 
 This is the automation layer — the step where the game transforms from "you do everything yourself" to "you run an organization." Workers are the bridge between the dealing/production loop and the empire management vision.
 
@@ -260,8 +269,8 @@ Update TestArenaBuilder to spawn:
 
 ---
 
-### Step 7: Police AI Enhancement — Patrol, Investigate, Pursue, Arrest
-**Estimated new scripts: 5–7**
+### Step 7: Police AI Enhancement — Patrol, Investigate, Pursue, Arrest ✅ COMPLETE
+**5 scripts created**
 
 #### Current State
 - WantedSystem exists with 6-tier heat
@@ -306,8 +315,8 @@ PropertyRaidSystem
 
 ---
 
-### Step 8: District System — From Test Arena to Playable City
-**Estimated new scripts: 6–8**
+### Step 8: District System — From Test Arena to Playable City ✅ COMPLETE
+**4 scripts (ProceduralDistrictGenerator 959 lines, DistrictManager 518 lines, DistrictDefinition, DistrictTriggerZone) + ProceduralPropertyBuilder updated (+732 lines, 13 ambient building types)**
 
 ```
 DistrictManager
@@ -335,8 +344,8 @@ SceneTransitionManager
 
 ---
 
-### Step 9: Phone UI — Empire Management Device
-**Estimated new scripts: 5–7**
+### Step 9: Phone UI — Empire Management Device ✅ COMPLETE
+**6 scripts created (1,905 total lines): PhoneController (365), PhoneMapTab (337), PhoneContactsTab (300), PhoneFinanceTab (289), PhoneProductsTab (246), PhoneMessagesTab (368)**
 
 ```
 PhoneController
@@ -357,14 +366,14 @@ Minimap (HUD)
 
 ---
 
-### Step 10: Integration & Polish Pass
-**Estimated new scripts: 3–5**
+### Step 10: Integration & Polish Pass ✅ COMPLETE
+**3 new scripts + 1 enhanced + TestArenaBuilder updated (1,931 total lines)**
 
-- Wire all systems end-to-end
-- Game flow tutorial prompts
-- Balance pass (prices, wages, heat rates)
-- Save system enhancement (serialize workers, properties, ledger)
-- Performance profiling
+Scripts created/enhanced:
+- `Core/GameFlowManager.cs` (586 lines) — Session lifecycle, milestone tracking (17 milestones), tutorial prompt queue, auto-save on day-end, pause/resume, game-over conditions (bankrupt), quick save F5/load F9, daily tick orchestration
+- `Core/GameBalanceConfig.cs` (291 lines) — ScriptableObject centralizing 50+ tuning values across 12 categories (pricing, cash, laundering, workers, betrayal, heat, police, reputation, properties, production, district, game day), 3 difficulty presets (Easy/Normal/Hardcore)
+- `Core/PerformanceMonitor.cs` (367 lines) — F3 toggle, FPS/avg/1% low tracking, memory monitoring, NavMesh agent budget, per-system object counts, frame time analysis, budget warnings
+- `Save/SaveManager.cs` enhanced to V2 — New fields: 4D reputation vector, session stats (days/deals/revenue/kills), completed milestones list, district runtime state, full worker stats (discretion, greed, courage, intelligence, totalDeals, shiftsCompleted, etc.)
 
 ---
 
@@ -579,34 +588,36 @@ InvestigationGraph
 
 ## Script Count Projections
 
-| Phase | New Scripts | Running Total |
-|-------|-------------|---------------|
-| Phase 1 (complete) | 62 | 62 |
-| Phase 2 Steps 1-5 (complete) | 39 | 101 |
-| Phase 2 Steps 6-10 (next) | ~35 | ~136 |
-| Phase 3 (advanced empire) | ~25 | ~161 |
-| Phase 4 (world + multiplayer) | ~30 | ~191 |
-| Phase 5 (content + polish) | ~20 | ~211 |
-| Phase 6 (ship) | ~15 | ~226 |
+| Phase | New Scripts | Running Total | Status |
+|-------|-------------|---------------|--------|
+| Phase 1 (complete) | 62 | 62 | ✅ Done |
+| Phase 2 Steps 1-5 (complete) | 39 | 101 | ✅ Done |
+| Phase 2 Steps 6-9 (complete) | ~31 | ~132 | ✅ Done |
+| Phase 2 Step 10 (complete) | 3 | ~135 | ✅ Done |
+| Phase 3 (advanced empire) | ~25 | ~160 | 🔜 Next |
+| Phase 4 (world + multiplayer) | ~30 | ~191 | ⬜ Planned |
+| Phase 5 (content + polish) | ~20 | ~211 | ⬜ Planned |
+| Phase 6 (ship) | ~15 | ~226 | ⬜ Planned |
 
 ---
 
 ## Immediate Next Action
 
-**Build Phase 2 Step 6: Worker Hiring System**
+**Phase 2 is COMPLETE. Begin Phase 3: Advanced Empire.**
+
+**Build Phase 3 Step 11: Money Laundering Pipeline**
 
 Files to create:
-1. `Empire/Employees/WorkerManager.cs` — singleton workforce orchestrator
-2. `Empire/Employees/WorkerInstance.cs` — runtime worker data
-3. `Empire/Employees/DealerAI.cs` — autonomous street dealing behavior
-4. `Empire/Employees/CookAI.cs` — autonomous production behavior
-5. `Empire/Employees/GuardAI.cs` — property security behavior
-6. `Empire/Employees/RecruitmentManager.cs` — hire pool generation + CLOUT gating
-7. `UI/Employees/HireUI.cs` — recruitment interface
-8. `UI/Employees/WorkerManagementUI.cs` — worker overview + assignment
-9. `Editor/WorkerSystemFactory.cs` — editor tool for test scene integration
-10. Update `TestArenaBuilder.cs` — spawn WorkerManager + recruitment point
+1. `Empire/Laundering/LaunderingManager.cs` — Full 5-step laundering system replacing basic `Launder()` method
+2. `Empire/Laundering/FrontBusiness.cs` — Restaurant, AutoShop, Nightclub front business simulation (actual customers, revenue, expenses)
+3. `Empire/Laundering/LaunderingMethod.cs` — Structuring, smurfing, real estate, cash-intensive business methods
+4. `Empire/Laundering/IRSInvestigation.cs` — Audit triggers, velocity anomaly detection, deposit threshold flagging
+5. `UI/Laundering/LaunderingUI.cs` — OnGUI interface for managing front businesses and laundering operations
+6. Update `TestArenaBuilder.cs` — Wire laundering system
+
+The laundering pipeline transforms the current simple `CashManager.Launder()` into a full simulation
+with front business management, detection avoidance, and IRS audit risk.
 
 ---
 
-*CLOUT Development Roadmap v2.0 — SlicedLabs — March 31, 2026*
+*CLOUT Development Roadmap v2.1 — SlicedLabs — April 1, 2026*

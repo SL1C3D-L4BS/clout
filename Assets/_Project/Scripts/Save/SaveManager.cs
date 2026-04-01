@@ -22,7 +22,7 @@ namespace Clout.Save
     public static class SaveManager
     {
         public const int MAX_SAVE_SLOTS = 3;
-        public const int SAVE_VERSION = 1;
+        public const int SAVE_VERSION = 2;
 
         private static string SaveDirectory =>
             Path.Combine(Application.persistentDataPath, "Saves");
@@ -172,6 +172,28 @@ namespace Clout.Save
 
         // Empire - Workers
         public List<SavedWorker> hiredWorkers = new List<SavedWorker>();
+
+        // ─── V2 Fields (Step 10: Integration & Polish) ─────────
+
+        // Reputation 4D vector
+        public float reputationFear;
+        public float reputationRespect;
+        public float reputationReliability;
+        public float reputationRuthlessness;
+
+        // Session stats
+        public int daysSurvived;
+        public int totalDeals;
+        public float totalRevenue;
+        public int totalKills;
+
+        // Milestones
+        public List<string> completedMilestones = new List<string>();
+
+        // District runtime state
+        public float districtControlLevel;
+        public int districtTotalDeals;
+        public float districtTotalRevenue;
     }
 
     [Serializable]
@@ -207,9 +229,19 @@ namespace Clout.Save
         public string workerId;
         public string workerName;
         public string assignedPropertyId;
-        public string workerType; // Dealer, Cook, Guard
+        public string workerType; // Dealer, Cook, Guard, Grower
         public float loyalty;
         public float skill;
+
+        // V2 — full worker stats
+        public float discretion;
+        public float greed;
+        public float courage;
+        public float intelligence;
+        public int totalDeals;
+        public int totalUnitsProduced;
+        public float totalCashEarned;
+        public int shiftsCompleted;
     }
 
     [Serializable]
