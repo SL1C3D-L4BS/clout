@@ -4,11 +4,6 @@ using UnityEngine;
 
 namespace Clout.Editor
 {
-    /// <summary>
-    /// Self-deleting trigger — rebuilds the test arena with all Phase 2 systems
-    /// including Step 6 Worker System (WorkerManager, RecruitmentManager, HireUI,
-    /// WorkerManagementUI, DealerAI, CookAI, GuardAI).
-    /// </summary>
     [InitializeOnLoad]
     public static class _RebuildArenaTrigger
     {
@@ -20,9 +15,7 @@ namespace Clout.Editor
         private static void RunOnce()
         {
             EditorApplication.delayCall -= RunOnce;
-
-            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding test arena (Step 6 Worker System)...");
-
+            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding test arena (Step 7 Police AI)...");
             try
             {
                 TestArenaBuilder.BuildTestArenaHeadless();
@@ -39,7 +32,6 @@ namespace Clout.Editor
                 {
                     AssetDatabase.DeleteAsset(path);
                     AssetDatabase.Refresh();
-                    Debug.Log("[Clout] _RebuildArenaTrigger: trigger script removed.");
                 }
             }
         }

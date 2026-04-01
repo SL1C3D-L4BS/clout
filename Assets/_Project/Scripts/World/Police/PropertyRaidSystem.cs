@@ -121,7 +121,7 @@ namespace Clout.World.Police
             if (_wantedSystem == null) return;
             if (_wantedSystem.CurrentHeat < minimumRaidHeat) return;
 
-            var properties = FindObjectsByType<Property>(FindObjectsInactive.Exclude);
+            var properties = FindObjectsByType<Property>();
 
             foreach (var prop in properties)
             {

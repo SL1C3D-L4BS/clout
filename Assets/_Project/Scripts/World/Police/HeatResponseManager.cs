@@ -73,7 +73,7 @@ namespace Clout.World.Police
             _wantedSystem = FindAnyObjectByType<WantedSystem>();
 
             // Find all police stations in scene
-            var stations = FindObjectsByType<PoliceStation>(FindObjectsInactive.Exclude);
+            var stations = FindObjectsByType<PoliceStation>();
             _stations.AddRange(stations);
 
             // Subscribe to backup requests
