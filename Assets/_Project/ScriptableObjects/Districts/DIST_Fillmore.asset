@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf0776c2ee6a848938b8a065437fb2b7, type: 3}
+  m_Name: DIST_Fillmore
+  m_EditorClassIdentifier: Clout::Clout.World.Districts.DistrictDefinition
+  districtId: fillmore
+  districtName: The Fillmore
+  description: "Western Addition \u2014 historic jazz district turned hustle ground.
+    Mixed residential and commercial. Moderate police. Where you start."
+  worldCenter: {x: 0, y: 0, z: 0}
+  halfExtents: {x: 80, y: 50, z: 80}
+  layoutRotation: 0
+  residentialRatio: 0.4
+  commercialRatio: 0.35
+  industrialRatio: 0.15
+  waterfrontRatio: 0.1
+  wealthLevel: 0.35
+  density: 0.55
+  grimeLevel: 0.4
+  maxCustomers: 8
+  maxCivilians: 15
+  npcSpawnInterval: 12
+  basePolicePatrols: 2
+  policePresenceMultiplier: 0.8
+  policeResponseTime: 25
+  productDemands:
+  - product: 0
+    baseDemand: 30
+    basePrice: 40
+    elasticity: 0.2
+  - product: 1
+    baseDemand: 15
+    basePrice: 120
+    elasticity: 0.5
+  - product: 5
+    baseDemand: 20
+    basePrice: 30
+    elasticity: 0.3
+  priceMultiplier: 1
+  availablePropertyTypes: 0000000001000000020000000300000007000000
+  maxPropertySlots: 6
+  rivalThreat: 0.3
+  rivalCrewName: Divisadero Boys
+  majorStreetsNS: 3
+  majorStreetsEW: 3
+  streetWidth: 8
+  sidewalkWidth: 2.5

@@ -541,6 +541,738 @@ namespace Clout.World
         }
 
         // ═══════════════════════════════════════════════════════
+        //  AMBIENT CITY BUILDINGS (Step 8 — District Generation)
+        //  Non-purchasable background structures that fill districts
+        //  with visual variety and urban atmosphere.
+        // ═══════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Residential house — small 1-2 story home with yard. Bay Area Victorian/Edwardian style.
+        /// </summary>
+        public static GameObject BuildResidentialHouse(Vector3 pos, float wealthLevel = 0.5f)
+        {
+            float width = Random.Range(6f, 8f);
+            float depth = Random.Range(5f, 7f);
+            int floors = Random.value > 0.4f ? 2 : 1;
+            float height = floors * FLOOR_HEIGHT;
+
+            // Wealth-modulated colors — wealthier = cleaner, brighter
+            float wb = 0.4f + wealthLevel * 0.35f;
+            Color wallColor = Color.HSVToRGB(
+                Random.Range(0.02f, 0.12f), // Warm hues
+                Random.Range(0.15f, 0.35f) * (1f - wealthLevel * 0.3f),
+                wb);
+            Color roofColor = new Color(wb * 0.55f, wb * 0.45f, wb * 0.4f);
+            Color trimColor = Color.HSVToRGB(Random.Range(0f, 0.15f), 0.1f, wb + 0.1f);
+
+            GameObject root = new GameObject($"House_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            // Main structure
+            BuildBox(root.transform, "Walls", Vector3.up * (height / 2),
+                new Vector3(width, height, depth), wallColor);
+
+            // Pitched roof — Victorian signature
+            BuildPitchedRoof(root.transform, height, width, depth,
+                Random.Range(1.4f, 2.2f), roofColor);
+
+            // Front door
+            BuildDoor(root.transform, new Vector3(Random.Range(-width * 0.15f, width * 0.15f),
+                DOOR_HEIGHT / 2, depth / 2 + 0.01f), trimColor * 0.6f);
+
+            // Windows per floor
+            for (int f = 0; f < floors; f++)
+            {
+                float y = f * FLOOR_HEIGHT + FLOOR_HEIGHT * 0.6f;
+                int winCount = Random.Range(1, 3);
+                for (int w = 0; w < winCount; w++)
+                {
+                    float x = -width * 0.3f + w * (width * 0.35f);
+                    BuildWindow(root.transform, new Vector3(x, y, depth / 2 + 0.02f), trimColor);
+                }
+            }
+
+            // Front steps
+            BuildBox(root.transform, "Steps", new Vector3(0, 0.2f, depth / 2 + 0.6f),
+                new Vector3(1.8f, 0.4f, 1.2f), new Color(0.55f, 0.55f, 0.55f));
+
+            // Fence for wealthier homes
+            if (wealthLevel > 0.4f)
+            {
+                float fenceY = 0.5f;
+                float fenceDepth = depth + 4f;
+                Color fenceColor = wealthLevel > 0.7f
+                    ? new Color(0.9f, 0.9f, 0.85f) // White picket
+                    : new Color(0.35f, 0.3f, 0.25f); // Wood
+                BuildBox(root.transform, "Fence_L", new Vector3(-width / 2 - 1f, fenceY, 0),
+                    new Vector3(0.08f, 1f, fenceDepth), fenceColor);
+                BuildBox(root.transform, "Fence_R", new Vector3(width / 2 + 1f, fenceY, 0),
+                    new Vector3(0.08f, 1f, fenceDepth), fenceColor);
+                BuildBox(root.transform, "Fence_F", new Vector3(0, fenceY, depth / 2 + 2f),
+                    new Vector3(width + 2f, 1f, 0.08f), fenceColor);
+            }
+
+            AddBuildingCollider(root, width, height + 2.2f, depth);
+            return root;
+        }
+
+        /// <summary>
+        /// Apartment building — 3-5 story multi-unit. Bay Area style with fire escapes.
+        /// </summary>
+        public static GameObject BuildApartmentBuilding(Vector3 pos, float wealthLevel = 0.5f)
+        {
+            float width = Random.Range(12f, 18f);
+            float depth = Random.Range(10f, 14f);
+            int floors = Random.Range(3, 6);
+            float height = floors * FLOOR_HEIGHT;
+
+            float wb = 0.35f + wealthLevel * 0.3f;
+            Color wallColor = Color.HSVToRGB(
+                Random.Range(0.0f, 0.08f),
+                Random.Range(0.1f, 0.25f),
+                wb);
+            Color trimColor = new Color(wb * 0.7f, wb * 0.7f, wb * 0.75f);
+            Color fireEscapeColor = new Color(0.2f, 0.2f, 0.22f);
+
+            GameObject root = new GameObject($"Apartment_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            // Main structure
+            BuildBox(root.transform, "Walls", Vector3.up * (height / 2),
+                new Vector3(width, height, depth), wallColor);
+
+            // Flat roof with parapet
+            BuildBox(root.transform, "Roof", new Vector3(0, height + 0.1f, 0),
+                new Vector3(width + 0.3f, 0.2f, depth + 0.3f), wallColor * 0.6f);
+            BuildBox(root.transform, "Parapet_F", new Vector3(0, height + 0.5f, depth / 2),
+                new Vector3(width + 0.3f, 0.8f, WALL_THICKNESS), wallColor * 0.65f);
+
+            // Front entrance
+            BuildDoor(root.transform, new Vector3(0, DOOR_HEIGHT / 2, depth / 2 + 0.01f),
+                trimColor * 0.5f);
+            // Awning over entrance
+            BuildBox(root.transform, "Awning", new Vector3(0, DOOR_HEIGHT + 0.3f, depth / 2 + 0.8f),
+                new Vector3(3f, 0.08f, 1.6f), trimColor);
+
+            // Windows — grid pattern
+            for (int f = 0; f < floors; f++)
+            {
+                float y = f * FLOOR_HEIGHT + FLOOR_HEIGHT * 0.6f;
+                int winCount = Mathf.FloorToInt(width / 3f);
+                for (int w = 0; w < winCount; w++)
+                {
+                    float x = -width * 0.4f + w * (width * 0.8f / Mathf.Max(1, winCount - 1));
+                    BuildWindow(root.transform, new Vector3(x, y, depth / 2 + 0.02f), trimColor);
+                }
+            }
+
+            // Fire escape — Bay Area signature
+            if (floors >= 3)
+            {
+                float feX = -width * 0.35f;
+                for (int f = 1; f < floors; f++)
+                {
+                    float y = f * FLOOR_HEIGHT;
+                    // Platform
+                    BuildBox(root.transform, $"FireEscape_Plat_{f}",
+                        new Vector3(feX, y, depth / 2 + 1f),
+                        new Vector3(2.5f, 0.08f, 1.2f), fireEscapeColor);
+                    // Railing
+                    BuildBox(root.transform, $"FireEscape_Rail_{f}",
+                        new Vector3(feX, y + 0.5f, depth / 2 + 1.55f),
+                        new Vector3(2.5f, 0.05f, 0.05f), fireEscapeColor);
+                    // Ladder
+                    BuildBox(root.transform, $"FireEscape_Ladder_{f}",
+                        new Vector3(feX + 1f, y - FLOOR_HEIGHT * 0.5f, depth / 2 + 1f),
+                        new Vector3(0.05f, FLOOR_HEIGHT, 0.05f), fireEscapeColor);
+                }
+            }
+
+            // Roof elements — water tower or AC units
+            if (Random.value > 0.5f)
+            {
+                BuildCylinder(root.transform, "WaterTower",
+                    new Vector3(width * 0.25f, height + 2f, -depth * 0.2f),
+                    1.2f, 2.5f, new Color(0.45f, 0.35f, 0.3f));
+                // Tower legs
+                for (int i = 0; i < 4; i++)
+                {
+                    float lx = width * 0.25f + Mathf.Cos(i * 90f * Mathf.Deg2Rad) * 0.8f;
+                    float lz = -depth * 0.2f + Mathf.Sin(i * 90f * Mathf.Deg2Rad) * 0.8f;
+                    BuildCylinder(root.transform, $"TowerLeg_{i}",
+                        new Vector3(lx, height + 0.5f, lz), 0.08f, 1f, fireEscapeColor);
+                }
+            }
+            else
+            {
+                BuildBox(root.transform, "AC_Unit_1",
+                    new Vector3(-width * 0.2f, height + 0.6f, 0),
+                    new Vector3(1.5f, 1f, 1.5f), new Color(0.5f, 0.5f, 0.52f));
+                BuildBox(root.transform, "AC_Unit_2",
+                    new Vector3(width * 0.15f, height + 0.6f, depth * 0.2f),
+                    new Vector3(1.2f, 0.8f, 1.2f), new Color(0.48f, 0.48f, 0.5f));
+            }
+
+            AddBuildingCollider(root, width, height + 1f, depth);
+            return root;
+        }
+
+        /// <summary>
+        /// Convenience store / bodega — small commercial with signage and ice cooler.
+        /// </summary>
+        public static GameObject BuildConvenienceStore(Vector3 pos, float wealthLevel = 0.5f)
+        {
+            float width = Random.Range(6f, 9f);
+            float depth = Random.Range(6f, 8f);
+            float height = FLOOR_HEIGHT;
+
+            Color wallColor = new Color(0.7f, 0.65f, 0.55f);
+            Color signColor = Color.HSVToRGB(Random.Range(0f, 1f), 0.7f, 0.8f);
+            Color awningColor = Color.HSVToRGB(Random.Range(0f, 1f), 0.5f, 0.5f);
+
+            GameObject root = new GameObject($"Store_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            BuildBox(root.transform, "Walls", Vector3.up * (height / 2),
+                new Vector3(width, height, depth), wallColor);
+
+            // Flat roof
+            BuildBox(root.transform, "Roof", new Vector3(0, height + 0.08f, 0),
+                new Vector3(width + 0.2f, 0.15f, depth + 0.2f), wallColor * 0.7f);
+
+            // Large store window
+            BuildBox(root.transform, "StoreWindow",
+                new Vector3(-width * 0.2f, height * 0.45f, depth / 2 + 0.02f),
+                new Vector3(width * 0.5f, height * 0.55f, 0.08f),
+                new Color(0.6f, 0.7f, 0.8f, 0.5f));
+
+            // Door
+            BuildDoor(root.transform, new Vector3(width * 0.25f, DOOR_HEIGHT / 2, depth / 2 + 0.01f),
+                new Color(0.35f, 0.35f, 0.4f));
+
+            // Awning
+            BuildBox(root.transform, "Awning",
+                new Vector3(0, height * 0.88f, depth / 2 + 1.2f),
+                new Vector3(width + 0.4f, 0.06f, 2.4f), awningColor);
+
+            // Sign
+            BuildBox(root.transform, "Sign",
+                new Vector3(0, height + 0.5f, depth / 2 + 0.1f),
+                new Vector3(width * 0.7f, 0.8f, 0.12f), signColor);
+
+            // Ice cooler outside
+            BuildBox(root.transform, "IceCooler",
+                new Vector3(width * 0.4f, 0.5f, depth / 2 + 1f),
+                new Vector3(0.8f, 1f, 0.6f), new Color(0.8f, 0.85f, 0.9f));
+
+            // Newspaper stand
+            BuildBox(root.transform, "NewspaperStand",
+                new Vector3(-width * 0.4f, 0.5f, depth / 2 + 1.2f),
+                new Vector3(0.5f, 1f, 0.4f), new Color(0.6f, 0.2f, 0.15f));
+
+            AddBuildingCollider(root, width, height, depth);
+            return root;
+        }
+
+        /// <summary>
+        /// Gas station — canopy structure with pumps and mini-mart.
+        /// </summary>
+        public static GameObject BuildGasStation(Vector3 pos)
+        {
+            float width = 20f;
+            float depth = 16f;
+
+            Color canopyColor = new Color(0.85f, 0.85f, 0.88f);
+            Color pumpColor = new Color(0.75f, 0.15f, 0.15f);
+            Color miniMartColor = new Color(0.65f, 0.62f, 0.58f);
+
+            GameObject root = new GameObject($"GasStation_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            // Canopy structure
+            BuildBox(root.transform, "Canopy",
+                new Vector3(0, 4.5f, 0),
+                new Vector3(12f, 0.25f, 8f), canopyColor);
+
+            // Canopy pillars (4 corners)
+            float px = 5f, pz = 3.2f;
+            BuildCylinder(root.transform, "Pillar_FL", new Vector3(-px, 2.25f, pz), 0.25f, 4.5f, canopyColor * 0.9f);
+            BuildCylinder(root.transform, "Pillar_FR", new Vector3(px, 2.25f, pz), 0.25f, 4.5f, canopyColor * 0.9f);
+            BuildCylinder(root.transform, "Pillar_BL", new Vector3(-px, 2.25f, -pz), 0.25f, 4.5f, canopyColor * 0.9f);
+            BuildCylinder(root.transform, "Pillar_BR", new Vector3(px, 2.25f, -pz), 0.25f, 4.5f, canopyColor * 0.9f);
+
+            // Gas pumps (3 islands)
+            for (int i = 0; i < 3; i++)
+            {
+                float x = -3.5f + i * 3.5f;
+                BuildBox(root.transform, $"Pump_{i}",
+                    new Vector3(x, 0.8f, 0),
+                    new Vector3(0.5f, 1.6f, 0.4f), pumpColor);
+                // Pump screen
+                BuildBox(root.transform, $"PumpScreen_{i}",
+                    new Vector3(x, 1.3f, 0.22f),
+                    new Vector3(0.35f, 0.3f, 0.05f), new Color(0.1f, 0.15f, 0.1f));
+            }
+
+            // Mini-mart building
+            float mmW = 7f, mmD = 5f;
+            BuildBox(root.transform, "MiniMart_Walls",
+                new Vector3(width * 0.3f, FLOOR_HEIGHT / 2, -depth * 0.2f),
+                new Vector3(mmW, FLOOR_HEIGHT, mmD), miniMartColor);
+            BuildBox(root.transform, "MiniMart_Roof",
+                new Vector3(width * 0.3f, FLOOR_HEIGHT + 0.08f, -depth * 0.2f),
+                new Vector3(mmW + 0.2f, 0.15f, mmD + 0.2f), miniMartColor * 0.7f);
+            // Big glass window
+            BuildBox(root.transform, "MiniMart_Window",
+                new Vector3(width * 0.3f, FLOOR_HEIGHT * 0.45f, -depth * 0.2f + mmD / 2 + 0.02f),
+                new Vector3(mmW * 0.6f, FLOOR_HEIGHT * 0.5f, 0.08f),
+                new Color(0.6f, 0.7f, 0.8f, 0.5f));
+            BuildDoor(root.transform,
+                new Vector3(width * 0.3f - mmW * 0.25f, DOOR_HEIGHT / 2, -depth * 0.2f + mmD / 2 + 0.01f),
+                new Color(0.35f, 0.35f, 0.4f));
+
+            // Price sign (tall pole)
+            BuildBox(root.transform, "PriceSign_Pole",
+                new Vector3(-width * 0.35f, 4f, depth * 0.35f),
+                new Vector3(0.3f, 8f, 0.3f), new Color(0.5f, 0.5f, 0.55f));
+            BuildBox(root.transform, "PriceSign_Board",
+                new Vector3(-width * 0.35f, 7f, depth * 0.35f),
+                new Vector3(2.5f, 3f, 0.2f), canopyColor);
+
+            // Ground markings (pump lanes)
+            BuildBox(root.transform, "GroundPad",
+                new Vector3(0, 0.02f, 0),
+                new Vector3(13f, 0.04f, 9f), new Color(0.3f, 0.3f, 0.32f));
+
+            AddBuildingCollider(root, width, 5f, depth);
+            return root;
+        }
+
+        /// <summary>
+        /// City park — open green space with benches, trees (cylinders + spheres), and paths.
+        /// </summary>
+        public static GameObject BuildPark(Vector3 pos, float size = 25f)
+        {
+            Color grassColor = new Color(0.25f, 0.45f, 0.2f);
+            Color pathColor = new Color(0.6f, 0.55f, 0.45f);
+            Color benchColor = new Color(0.45f, 0.3f, 0.2f);
+            Color trunkColor = new Color(0.35f, 0.25f, 0.15f);
+            Color foliageColor = new Color(0.2f, 0.5f, 0.2f);
+
+            GameObject root = new GameObject($"Park_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+
+            // Grass ground
+            BuildBox(root.transform, "Grass",
+                new Vector3(0, 0.02f, 0),
+                new Vector3(size, 0.04f, size), grassColor);
+
+            // Walking paths (cross pattern)
+            BuildBox(root.transform, "Path_NS", new Vector3(0, 0.04f, 0),
+                new Vector3(2f, 0.03f, size * 0.9f), pathColor);
+            BuildBox(root.transform, "Path_EW", new Vector3(0, 0.04f, 0),
+                new Vector3(size * 0.9f, 0.03f, 2f), pathColor);
+
+            // Trees — trunks (cylinders) + foliage (spheres)
+            int treeCount = Mathf.FloorToInt(size / 5f);
+            for (int i = 0; i < treeCount; i++)
+            {
+                float tx = Random.Range(-size * 0.4f, size * 0.4f);
+                float tz = Random.Range(-size * 0.4f, size * 0.4f);
+
+                // Skip if too close to paths
+                if (Mathf.Abs(tx) < 2f || Mathf.Abs(tz) < 2f) continue;
+
+                float trunkHeight = Random.Range(3f, 5f);
+                float canopyRadius = Random.Range(1.5f, 3f);
+                Color leafColor = Color.HSVToRGB(
+                    Random.Range(0.22f, 0.38f), // Green hue range
+                    Random.Range(0.4f, 0.7f),
+                    Random.Range(0.3f, 0.55f));
+
+                BuildCylinder(root.transform, $"Trunk_{i}",
+                    new Vector3(tx, trunkHeight / 2, tz),
+                    0.15f, trunkHeight, trunkColor);
+
+                // Foliage — sphere approximated by scaled cylinder + box
+                GameObject foliage = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                foliage.name = $"Foliage_{i}";
+                foliage.transform.SetParent(root.transform);
+                foliage.transform.localPosition = new Vector3(tx, trunkHeight + canopyRadius * 0.5f, tz);
+                foliage.transform.localScale = Vector3.one * canopyRadius * 2f;
+                foliage.isStatic = true;
+                Object.DestroyImmediate(foliage.GetComponent<Collider>());
+                SetColor(foliage, leafColor);
+            }
+
+            // Benches (4 around the center)
+            Vector3[] benchPositions = {
+                new Vector3(3f, 0, 3f), new Vector3(-3f, 0, 3f),
+                new Vector3(3f, 0, -3f), new Vector3(-3f, 0, -3f)
+            };
+            for (int i = 0; i < benchPositions.Length; i++)
+            {
+                Vector3 bp = benchPositions[i];
+                // Seat
+                BuildBox(root.transform, $"Bench_Seat_{i}",
+                    bp + new Vector3(0, 0.45f, 0),
+                    new Vector3(1.5f, 0.08f, 0.45f), benchColor);
+                // Back
+                BuildBox(root.transform, $"Bench_Back_{i}",
+                    bp + new Vector3(0, 0.7f, -0.2f),
+                    new Vector3(1.5f, 0.5f, 0.06f), benchColor);
+                // Legs
+                BuildBox(root.transform, $"Bench_Leg_L_{i}",
+                    bp + new Vector3(-0.6f, 0.22f, 0),
+                    new Vector3(0.06f, 0.45f, 0.45f), new Color(0.3f, 0.3f, 0.3f));
+                BuildBox(root.transform, $"Bench_Leg_R_{i}",
+                    bp + new Vector3(0.6f, 0.22f, 0),
+                    new Vector3(0.06f, 0.45f, 0.45f), new Color(0.3f, 0.3f, 0.3f));
+            }
+
+            // Fountain in center (if park is large enough)
+            if (size >= 20f)
+            {
+                BuildCylinder(root.transform, "Fountain_Base",
+                    new Vector3(0, 0.3f, 0), 2f, 0.6f, new Color(0.55f, 0.55f, 0.58f));
+                BuildCylinder(root.transform, "Fountain_Column",
+                    new Vector3(0, 1.2f, 0), 0.3f, 1.8f, new Color(0.55f, 0.55f, 0.58f));
+                BuildCylinder(root.transform, "Fountain_Bowl",
+                    new Vector3(0, 1.8f, 0), 1f, 0.3f, new Color(0.55f, 0.55f, 0.58f));
+                // Water (semi-transparent blue)
+                BuildCylinder(root.transform, "Fountain_Water",
+                    new Vector3(0, 0.35f, 0), 1.8f, 0.1f, new Color(0.2f, 0.35f, 0.6f, 0.6f));
+            }
+
+            return root;
+        }
+
+        /// <summary>
+        /// Industrial building — large corrugated warehouse/factory with pipes and smokestacks.
+        /// </summary>
+        public static GameObject BuildIndustrialBuilding(Vector3 pos)
+        {
+            float width = Random.Range(16f, 24f);
+            float depth = Random.Range(12f, 18f);
+            float height = FLOOR_HEIGHT * Random.Range(1.5f, 2.5f);
+
+            Color wallColor = new Color(
+                Random.Range(0.4f, 0.55f),
+                Random.Range(0.38f, 0.5f),
+                Random.Range(0.36f, 0.48f));
+            Color roofColor = wallColor * 0.75f;
+            Color pipeColor = new Color(0.55f, 0.5f, 0.45f);
+
+            GameObject root = new GameObject($"Industrial_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            // Main structure
+            BuildBox(root.transform, "Walls", Vector3.up * (height / 2),
+                new Vector3(width, height, depth), wallColor);
+
+            // Metal roof (slightly raised arch)
+            BuildBox(root.transform, "Roof", new Vector3(0, height + 0.4f, 0),
+                new Vector3(width * 0.95f, 0.8f, depth + 0.3f), roofColor);
+
+            // Loading bay
+            BuildBox(root.transform, "LoadingDoor",
+                new Vector3(-width * 0.3f, 2f, depth / 2 + 0.01f),
+                new Vector3(4.5f, 4f, 0.12f), new Color(0.5f, 0.45f, 0.3f));
+
+            // Smokestacks
+            int stacks = Random.Range(1, 4);
+            for (int i = 0; i < stacks; i++)
+            {
+                float sx = Random.Range(-width * 0.3f, width * 0.3f);
+                float sz = Random.Range(-depth * 0.3f, depth * 0.3f);
+                float stackH = Random.Range(3f, 6f);
+                BuildCylinder(root.transform, $"Smokestack_{i}",
+                    new Vector3(sx, height + stackH / 2, sz),
+                    Random.Range(0.3f, 0.6f), stackH, pipeColor);
+            }
+
+            // External pipes along side wall
+            float pipeY = height * 0.6f;
+            BuildCylinder(root.transform, "Pipe_Side",
+                new Vector3(width / 2 + 0.3f, pipeY, 0), 0.12f, depth * 0.7f, pipeColor);
+            // Rotate pipe horizontal
+            root.transform.Find("Pipe_Side").localEulerAngles = new Vector3(0, 0, 90);
+
+            // Corrugated texture (horizontal stripes)
+            for (int s = 0; s < 3; s++)
+            {
+                float sy = height * (0.2f + s * 0.3f);
+                BuildBox(root.transform, $"CorrugationStripe_{s}",
+                    new Vector3(0, sy, depth / 2 + 0.02f),
+                    new Vector3(width, 0.05f, 0.03f), wallColor * 0.85f);
+            }
+
+            AddBuildingCollider(root, width, height + 1f, depth);
+            return root;
+        }
+
+        /// <summary>
+        /// Row houses / townhomes — connected units, very Bay Area. Painted Ladies style.
+        /// </summary>
+        public static GameObject BuildRowHouses(Vector3 pos, int unitCount = 4, float wealthLevel = 0.5f)
+        {
+            float unitWidth = Random.Range(4.5f, 6f);
+            float totalWidth = unitWidth * unitCount;
+            float depth = Random.Range(8f, 11f);
+            float height = FLOOR_HEIGHT * Random.Range(2, 4);
+
+            GameObject root = new GameObject($"RowHouses_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            for (int u = 0; u < unitCount; u++)
+            {
+                float x = -totalWidth / 2 + unitWidth * (u + 0.5f);
+
+                // Each unit gets a unique color — Painted Ladies!
+                Color unitColor = Color.HSVToRGB(
+                    Random.Range(0f, 1f),
+                    0.15f + wealthLevel * 0.25f,
+                    0.5f + wealthLevel * 0.3f);
+                Color trimC = unitColor * 1.15f;
+
+                // Slight height variation per unit
+                float unitH = height + Random.Range(-0.5f, 0.8f);
+
+                // Walls
+                BuildBox(root.transform, $"Unit_{u}_Walls",
+                    new Vector3(x, unitH / 2, 0),
+                    new Vector3(unitWidth - 0.15f, unitH, depth), unitColor);
+
+                // Cornice/crown molding at top
+                BuildBox(root.transform, $"Unit_{u}_Cornice",
+                    new Vector3(x, unitH + 0.15f, depth / 2),
+                    new Vector3(unitWidth, 0.3f, 0.3f), trimC);
+
+                // Bay window (projecting) — classic SF
+                if (wealthLevel > 0.3f && Random.value > 0.3f)
+                {
+                    float bayY = FLOOR_HEIGHT * 1.5f;
+                    BuildBox(root.transform, $"Unit_{u}_BayWindow",
+                        new Vector3(x, bayY, depth / 2 + 0.6f),
+                        new Vector3(unitWidth * 0.6f, FLOOR_HEIGHT * 0.7f, 1.2f),
+                        new Color(unitColor.r * 0.95f, unitColor.g * 0.95f, unitColor.b * 0.95f));
+                    // Bay window glass
+                    BuildBox(root.transform, $"Unit_{u}_BayGlass",
+                        new Vector3(x, bayY, depth / 2 + 1.22f),
+                        new Vector3(unitWidth * 0.55f, FLOOR_HEIGHT * 0.55f, 0.06f),
+                        new Color(0.6f, 0.7f, 0.8f, 0.5f));
+                }
+
+                // Door
+                BuildDoor(root.transform,
+                    new Vector3(x, DOOR_HEIGHT / 2, depth / 2 + 0.01f), trimC * 0.5f);
+
+                // Steps
+                BuildBox(root.transform, $"Unit_{u}_Steps",
+                    new Vector3(x, 0.3f, depth / 2 + 0.8f),
+                    new Vector3(1.5f, 0.6f, 1.6f), new Color(0.55f, 0.55f, 0.55f));
+
+                // Upper windows
+                for (int f = 1; f < Mathf.FloorToInt(unitH / FLOOR_HEIGHT); f++)
+                {
+                    float wy = f * FLOOR_HEIGHT + FLOOR_HEIGHT * 0.6f;
+                    BuildWindow(root.transform, new Vector3(x, wy, depth / 2 + 0.02f), trimC);
+                }
+            }
+
+            // Shared pitched roof
+            BuildPitchedRoof(root.transform, height, totalWidth, depth, 1.8f,
+                new Color(0.3f, 0.28f, 0.25f));
+
+            AddBuildingCollider(root, totalWidth, height + 2f, depth);
+            return root;
+        }
+
+        /// <summary>
+        /// Office building — glass and steel, 4-8 stories. Downtown commercial.
+        /// </summary>
+        public static GameObject BuildOfficeBuilding(Vector3 pos, float wealthLevel = 0.7f)
+        {
+            float width = Random.Range(14f, 22f);
+            float depth = Random.Range(12f, 18f);
+            int floors = Random.Range(4, 9);
+            float height = floors * FLOOR_HEIGHT;
+
+            Color frameColor = new Color(0.35f, 0.38f, 0.42f);
+            Color glassColor = new Color(0.45f, 0.55f, 0.65f, 0.7f);
+
+            GameObject root = new GameObject($"Office_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            // Steel frame structure
+            BuildBox(root.transform, "Frame", Vector3.up * (height / 2),
+                new Vector3(width, height, depth), frameColor);
+
+            // Glass curtain wall — front face
+            for (int f = 0; f < floors; f++)
+            {
+                float y = f * FLOOR_HEIGHT + FLOOR_HEIGHT * 0.5f;
+                BuildBox(root.transform, $"Glass_F_{f}",
+                    new Vector3(0, y, depth / 2 + 0.05f),
+                    new Vector3(width * 0.9f, FLOOR_HEIGHT * 0.7f, 0.08f), glassColor);
+                // Floor separator
+                BuildBox(root.transform, $"FloorLine_F_{f}",
+                    new Vector3(0, f * FLOOR_HEIGHT, depth / 2 + 0.06f),
+                    new Vector3(width * 0.92f, 0.12f, 0.05f), frameColor * 0.7f);
+            }
+
+            // Side glass
+            for (int f = 0; f < floors; f++)
+            {
+                float y = f * FLOOR_HEIGHT + FLOOR_HEIGHT * 0.5f;
+                BuildBox(root.transform, $"Glass_R_{f}",
+                    new Vector3(width / 2 + 0.05f, y, 0),
+                    new Vector3(0.08f, FLOOR_HEIGHT * 0.7f, depth * 0.9f), glassColor);
+            }
+
+            // Flat roof
+            BuildBox(root.transform, "Roof", new Vector3(0, height + 0.1f, 0),
+                new Vector3(width + 0.2f, 0.2f, depth + 0.2f), frameColor * 0.8f);
+
+            // Lobby entrance — recessed with overhang
+            BuildBox(root.transform, "Lobby_Overhang",
+                new Vector3(0, FLOOR_HEIGHT * 0.95f, depth / 2 + 2f),
+                new Vector3(width * 0.4f, 0.15f, 4f), frameColor);
+
+            // Revolving door
+            BuildCylinder(root.transform, "RevolvingDoor",
+                new Vector3(0, 1.2f, depth / 2 + 0.5f),
+                0.8f, 2.4f, new Color(0.5f, 0.55f, 0.6f, 0.6f));
+
+            // HVAC on roof
+            BuildBox(root.transform, "HVAC",
+                new Vector3(width * 0.2f, height + 0.8f, -depth * 0.2f),
+                new Vector3(3f, 1.5f, 3f), new Color(0.5f, 0.5f, 0.52f));
+
+            AddBuildingCollider(root, width, height, depth);
+            return root;
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  URBAN FURNITURE (Streetlights, hydrants, mailboxes, etc.)
+        // ═══════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Street light pole with lamp head.
+        /// </summary>
+        public static GameObject BuildStreetLight(Vector3 pos)
+        {
+            GameObject root = new GameObject($"StreetLight_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            Color poleColor = new Color(0.25f, 0.25f, 0.28f);
+            Color lampColor = new Color(0.95f, 0.9f, 0.7f);
+
+            BuildCylinder(root.transform, "Pole", new Vector3(0, 3f, 0), 0.08f, 6f, poleColor);
+            // Arm
+            BuildBox(root.transform, "Arm", new Vector3(0.5f, 5.8f, 0),
+                new Vector3(1f, 0.06f, 0.06f), poleColor);
+            // Lamp head
+            BuildBox(root.transform, "Lamp", new Vector3(0.8f, 5.6f, 0),
+                new Vector3(0.5f, 0.15f, 0.25f), lampColor);
+
+            return root;
+        }
+
+        /// <summary>
+        /// Fire hydrant.
+        /// </summary>
+        public static GameObject BuildFireHydrant(Vector3 pos)
+        {
+            GameObject root = new GameObject($"Hydrant_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            BuildCylinder(root.transform, "Body", new Vector3(0, 0.3f, 0),
+                0.12f, 0.6f, new Color(0.8f, 0.15f, 0.1f));
+            BuildCylinder(root.transform, "Cap", new Vector3(0, 0.65f, 0),
+                0.15f, 0.1f, new Color(0.8f, 0.15f, 0.1f));
+
+            // Side nozzle
+            BuildCylinder(root.transform, "Nozzle", new Vector3(0.12f, 0.35f, 0),
+                0.04f, 0.12f, new Color(0.75f, 0.2f, 0.1f));
+
+            return root;
+        }
+
+        /// <summary>
+        /// Dumpster — rectangular container.
+        /// </summary>
+        public static GameObject BuildDumpster(Vector3 pos)
+        {
+            GameObject root = new GameObject($"Dumpster_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.isStatic = true;
+
+            Color color = new Color(0.15f, 0.35f, 0.2f); // Dark green
+            BuildBox(root.transform, "Body", new Vector3(0, 0.6f, 0),
+                new Vector3(1.8f, 1.2f, 1.2f), color);
+            // Lid
+            BuildBox(root.transform, "Lid", new Vector3(0, 1.22f, 0),
+                new Vector3(1.85f, 0.05f, 1.25f), color * 0.8f);
+
+            BoxCollider col = root.AddComponent<BoxCollider>();
+            col.center = new Vector3(0, 0.6f, 0);
+            col.size = new Vector3(1.8f, 1.2f, 1.2f);
+
+            return root;
+        }
+
+        /// <summary>
+        /// Parked car — simple box approximation.
+        /// </summary>
+        public static GameObject BuildParkedCar(Vector3 pos, float yRotation = 0f)
+        {
+            Color bodyColor = Color.HSVToRGB(Random.Range(0f, 1f), Random.Range(0.2f, 0.7f), Random.Range(0.3f, 0.8f));
+            Color wheelColor = new Color(0.15f, 0.15f, 0.15f);
+            Color windowColor = new Color(0.3f, 0.35f, 0.45f, 0.7f);
+
+            GameObject root = new GameObject($"Car_{pos.x:F0}_{pos.z:F0}");
+            root.transform.position = pos;
+            root.transform.rotation = Quaternion.Euler(0, yRotation, 0);
+            root.isStatic = true;
+
+            // Body
+            BuildBox(root.transform, "Body", new Vector3(0, 0.6f, 0),
+                new Vector3(2f, 0.7f, 4.5f), bodyColor);
+            // Cabin
+            BuildBox(root.transform, "Cabin", new Vector3(0, 1.1f, -0.2f),
+                new Vector3(1.7f, 0.6f, 2f), bodyColor * 0.95f);
+            // Windshield
+            BuildBox(root.transform, "Windshield", new Vector3(0, 1.15f, 0.82f),
+                new Vector3(1.6f, 0.5f, 0.06f), windowColor);
+            // Rear window
+            BuildBox(root.transform, "RearWindow", new Vector3(0, 1.15f, -1.22f),
+                new Vector3(1.6f, 0.5f, 0.06f), windowColor);
+
+            // Wheels (4)
+            float wx = 0.85f, wz = 1.3f;
+            BuildCylinder(root.transform, "Wheel_FL", new Vector3(-wx, 0.25f, wz), 0.25f, 0.2f, wheelColor);
+            BuildCylinder(root.transform, "Wheel_FR", new Vector3(wx, 0.25f, wz), 0.25f, 0.2f, wheelColor);
+            BuildCylinder(root.transform, "Wheel_BL", new Vector3(-wx, 0.25f, -wz), 0.25f, 0.2f, wheelColor);
+            BuildCylinder(root.transform, "Wheel_BR", new Vector3(wx, 0.25f, -wz), 0.25f, 0.2f, wheelColor);
+
+            BoxCollider col = root.AddComponent<BoxCollider>();
+            col.center = new Vector3(0, 0.7f, 0);
+            col.size = new Vector3(2f, 1.4f, 4.5f);
+
+            return root;
+        }
+
+        // ═══════════════════════════════════════════════════════
         //  POLICE STATIONS (Spec v2.0 Section 29)
         // ═══════════════════════════════════════════════════════
 
