@@ -228,4 +228,44 @@ namespace Clout.Utils
         public string reason;
         public ReputationVector vector;  // Full 4D state after change
     }
+
+    // ─── Police Events (Spec v2.0 Sections 26-30) ──────────────
+
+    public struct PoliceBackupRequestEvent
+    {
+        public GameObject requestingOfficer;
+        public Vector3 location;
+        public float currentHeat;
+    }
+
+    public struct PoliceSpawnedEvent
+    {
+        public GameObject officerObject;
+        public Vector3 spawnPosition;
+        public int totalOfficers;
+    }
+
+    public struct PlayerArrestedEvent
+    {
+        public GameObject arrestingOfficer;
+        public Vector3 location;
+        public float heatAtArrest;
+        public bool wasLethalForce;
+    }
+
+    public struct CrimeWitnessedEvent
+    {
+        public string crimeType;
+        public Vector3 location;
+        public int witnessCount;
+        public float heatGenerated;
+        public float severity;
+    }
+
+    public struct PropertyRaidAlertEvent
+    {
+        public string propertyId;
+        public float warningTime;
+        public int raidStrength;
+    }
 }

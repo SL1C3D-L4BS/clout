@@ -21,6 +21,7 @@ using Clout.Inventory;
 using Clout.Empire.Economy;
 using Clout.Empire.Properties;
 using Clout.Empire.Employees;
+using Clout.World.Police;
 using Clout.UI;
 using UnityEditor.Animations;
 
@@ -113,6 +114,9 @@ namespace Clout.Editor
             // === WORKERS ===
             BuildWorkerSystem();
 
+            // === POLICE ===
+            BuildPoliceSystem();
+
             // === NAVMESH ===
             BakeNavMesh();
 
@@ -129,7 +133,8 @@ namespace Clout.Editor
                 "• Economy system (CashManager, Ledger, Market)\n" +
                 "• 3 Shop NPCs (Chemo's Supply, Pawn It, Big Tony's)\n" +
                 "• 8 Property buildings (surrounding arena)\n" +
-                "• Worker system (Hire: Tab, Manage: Y)\n\n" +
+                "• Worker system (Hire: Tab, Manage: Y)\n" +
+                "• Police system (patrol, pursue, arrest, raids)\n\n" +
                 "Hit Play to test.", "Let's Go");
         }
 
@@ -749,6 +754,62 @@ namespace Clout.Editor
             WorkerManagementUI mgmtUI = workerObj.AddComponent<WorkerManagementUI>();
 
             Debug.Log("[Clout] Worker system created: WorkerManager + RecruitmentManager + HireUI + WorkerManagementUI.");
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  POLICE SYSTEM
+        // ─────────────────────────────────────────────────────────
+
+        private static void BuildPoliceSystem()
+        {
+            // Police system root
+            GameObject policeObj = new GameObject("PoliceSystem");
+
+            // HeatResponseManager — spawns/manages officers based on heat
+            HeatResponseManager hrm = policeObj.AddComponent<HeatResponseManager>();
+
+            // WitnessSystem — civilians generate heat from observed crimes
+            WitnessSystem ws = policeObj.AddComponent<WitnessSystem>();
+
+            // PropertyRaidSystem — executes raids on player properties
+            PropertyRaidSystem prs = policeObj.AddComponent<PropertyRaidSystem>();
+
+            // Police stations — spawn points for officers
+            // Station 1: NE corner of the city block
+            GameObject station1 = new GameObject("PoliceStation_Central");
+            station1.transform.position = new Vector3(55f, 0f, 55f);
+            PoliceStation ps1 = station1.AddComponent<PoliceStation>();
+            ps1.stationName = "Central Precinct";
+
+            // Station visual — blue box
+            GameObject stationVisual1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stationVisual1.name = "StationBuilding";
+            stationVisual1.transform.SetParent(station1.transform);
+            stationVisual1.transform.localPosition = new Vector3(0f, 2f, 0f);
+            stationVisual1.transform.localScale = new Vector3(8f, 4f, 6f);
+            stationVisual1.isStatic = true;
+
+            Renderer sr1 = stationVisual1.GetComponent<Renderer>();
+            Material stationMat = EditorShaderHelper.CreateMaterial(new Color(0.15f, 0.2f, 0.5f));
+            sr1.sharedMaterial = stationMat;
+
+            // Station 2: SW corner
+            GameObject station2 = new GameObject("PoliceStation_South");
+            station2.transform.position = new Vector3(-55f, 0f, -55f);
+            PoliceStation ps2 = station2.AddComponent<PoliceStation>();
+            ps2.stationName = "South Precinct";
+
+            GameObject stationVisual2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stationVisual2.name = "StationBuilding";
+            stationVisual2.transform.SetParent(station2.transform);
+            stationVisual2.transform.localPosition = new Vector3(0f, 2f, 0f);
+            stationVisual2.transform.localScale = new Vector3(8f, 4f, 6f);
+            stationVisual2.isStatic = true;
+
+            Renderer sr2 = stationVisual2.GetComponent<Renderer>();
+            sr2.sharedMaterial = stationMat;
+
+            Debug.Log("[Clout] Police system created: HeatResponseManager + WitnessSystem + PropertyRaidSystem + 2 Police Stations.");
         }
 
         // ─────────────────────────────────────────────────────────
