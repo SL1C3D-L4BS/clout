@@ -5,120 +5,335 @@ using System;
 namespace Clout.Empire.Economy
 {
     /// <summary>
-    /// Economy simulation — Phase 2 singleplayer.
-    /// FishNet server-authoritative logic will be restored in Phase 4.
+    /// Economy simulation — multi-layer market dynamics.
+    ///
+    /// Spec v2.0 Section 23: Full price formula:
+    ///   P(t) = P_base × (D(t)/S(t)) × (1 + E_r) × (1 + R_m) × M_s
+    ///
+    /// Where:
+    ///   D(t)/S(t) — dynamic demand/supply ratio (updated every tick)
+    ///   E_r       — price elasticity per region (how sensitive price is to supply changes)
+    ///   R_m       — risk modifier from heat/investigation (high heat = risk premium)
+    ///   M_s       — seasonal/geopolitical multiplier
+    ///
+    /// Market mechanics:
+    ///   - Per-district supply/demand curves
+    ///   - Player actions directly move markets (flood = crash, restrict = spike)
+    ///   - Addiction economics (addicted customers are price-inelastic)
+    ///   - Quality premium (exponential price increase for high quality)
+    ///   - Competition pricing (AI factions undercut dynamically — Phase 4)
+    ///   - Cross-district arbitrage
+    ///
+    /// Phase 2 singleplayer — server-authoritative logic restored in Phase 4.
     /// </summary>
     public class EconomyManager : MonoBehaviour
     {
-        [Header("Market Config")]
-        public float priceUpdateInterval = 300f;     // 5 minutes between market shifts
-        public float maxPriceSwing = 0.3f;           // 30% max price change per interval
-        public float demandDecayRate = 0.01f;        // Natural demand decrease
+        // ─── Configuration ───────────────────────────────────────────
+
+        [Header("Market Tick")]
+        [Tooltip("Seconds between market price recalculations.")]
+        public float priceUpdateInterval = 300f;
+
+        [Header("Price Formula Parameters")]
+        [Tooltip("Maximum D/S ratio effect. Prevents infinite price spikes.")]
+        public float maxDemandSupplyRatio = 3f;
+
+        [Tooltip("Minimum D/S ratio. Prevents prices from reaching zero.")]
+        public float minDemandSupplyRatio = 0.2f;
+
+        [Header("Elasticity (E_r) — Per Region")]
+        [Tooltip("Default elasticity. 0 = inelastic (price doesn't move much). 1 = very elastic.")]
+        [Range(0f, 1f)] public float defaultElasticity = 0.3f;
+
+        [Header("Risk Modifier (R_m) — From Heat")]
+        [Tooltip("Heat-to-risk conversion. At max heat (100), risk modifier = this value.")]
+        [Range(0f, 1f)] public float maxRiskPremium = 0.5f;
+
+        [Header("Seasonal Modifier (M_s)")]
+        [Tooltip("Current seasonal multiplier. 1.0 = no effect. Set by world events.")]
+        public float seasonalMultiplier = 1f;
 
         [Header("Money Laundering")]
-        public float launderingRate = 0.1f;          // 10% fee to launder
-        public float maxDailyLaunder = 5000f;        // Per business per day
+        public float launderingFeeRate = 0.1f;
+        public float maxDailyLaunderPerBusiness = 5000f;
 
-        // Market state
-        private Dictionary<string, MarketData> _marketPrices = new Dictionary<string, MarketData>();
+        [Header("Quality Premium")]
+        [Tooltip("Exponent for quality-based pricing. Higher = bigger premium for top-tier product.")]
+        public float qualityExponent = 1.5f;
+
+        // ─── Market State ────────────────────────────────────────────
+
+        private Dictionary<string, MarketData> _markets = new Dictionary<string, MarketData>();
         private float _lastPriceUpdate;
+        private float _currentGlobalHeat;   // Cached from WantedSystem for R_m calculation
 
-        public event Action<string, float> OnPriceChanged;  // productId, newPrice
+        // ─── Events ─────────────────────────────────────────────────
+
+        public event Action<string, float, float> OnPriceChanged;  // productId, oldPrice, newPrice
+
+        // ─── Lifecycle ───────────────────────────────────────────────
 
         private void Start()
         {
             _lastPriceUpdate = Time.time;
         }
 
-        /// <summary>
-        /// Get current street price for a product in a specific zone.
-        /// </summary>
-        public float GetStreetPrice(string productId, string zoneId)
-        {
-            if (_marketPrices.TryGetValue($"{productId}_{zoneId}", out var data))
-                return data.currentPrice;
-
-            return 50f; // Default fallback
-        }
-
-        /// <summary>
-        /// Record a sale — affects supply/demand calculations.
-        /// </summary>
-        public void RecordSale(string productId, string zoneId, int quantity, float quality)
-        {
-            string key = $"{productId}_{zoneId}";
-            if (!_marketPrices.ContainsKey(key))
-            {
-                _marketPrices[key] = new MarketData { productId = productId, zoneId = zoneId, currentPrice = 50f };
-            }
-
-            var data = _marketPrices[key];
-            data.totalSoldThisCycle += quantity;
-
-            // Oversupply reduces price
-            if (data.totalSoldThisCycle > data.demandThisCycle)
-            {
-                float excess = (data.totalSoldThisCycle - data.demandThisCycle) / Mathf.Max(1f, data.demandThisCycle);
-                data.currentPrice *= (1f - excess * 0.1f);
-            }
-
-            // Quality affects repeat business
-            data.averageQuality = Mathf.Lerp(data.averageQuality, quality, 0.1f);
-
-            _marketPrices[key] = data;
-        }
-
-        /// <summary>
-        /// Launder cash through a business front. Returns laundered amount (minus fee).
-        /// </summary>
-        public float LaunderCash(float cashAmount, string businessId)
-        {
-            float fee = cashAmount * launderingRate;
-            float laundered = cashAmount - fee;
-            Debug.Log($"[Economy] Laundered ${cashAmount:F0} through {businessId} -> ${laundered:F0} clean (${fee:F0} fee)");
-            return laundered;
-        }
-
         private void Update()
         {
             if (Time.time - _lastPriceUpdate >= priceUpdateInterval)
             {
-                UpdateMarketPrices();
+                UpdateAllMarkets();
                 _lastPriceUpdate = Time.time;
             }
         }
 
-        private void UpdateMarketPrices()
+        // ─── Core Price Formula (Spec v2.0 Section 23) ───────────────
+
+        /// <summary>
+        /// Full multi-layer price calculation:
+        ///   P = P_base × (D/S) × (1 + E_r × (D/S - 1)) × (1 + R_m) × M_s × Q_mult
+        ///
+        /// The elasticity term amplifies or dampens the D/S effect:
+        ///   - Low elasticity (0.1): price barely moves with supply changes (staple goods)
+        ///   - High elasticity (0.8): price swings wildly with supply changes (luxury goods)
+        /// </summary>
+        public float CalculatePrice(string productId, string zoneId, float quality = 0.5f)
         {
-            foreach (var key in new List<string>(_marketPrices.Keys))
+            MarketData market = GetOrCreateMarket(productId, zoneId);
+
+            // 1. Base price
+            float basePrice = market.basePrice;
+
+            // 2. Demand/Supply ratio (clamped to prevent extremes)
+            float supply = Mathf.Max(1f, market.totalSoldThisCycle + 1f);
+            float demand = Mathf.Max(1f, market.demandThisCycle);
+            float dsRatio = Mathf.Clamp(demand / supply, minDemandSupplyRatio, maxDemandSupplyRatio);
+
+            // 3. Elasticity — amplifies how much D/S affects price
+            float elasticity = market.elasticity > 0f ? market.elasticity : defaultElasticity;
+            float elasticityFactor = 1f + elasticity * (dsRatio - 1f);
+
+            // 4. Risk modifier — heat creates risk premium (buyers pay more in hot zones)
+            float riskModifier = 1f + (_currentGlobalHeat / 100f) * maxRiskPremium;
+
+            // 5. Seasonal multiplier
+            float seasonal = seasonalMultiplier;
+
+            // 6. Quality premium — exponential curve rewards high quality
+            float qualityMultiplier = Mathf.Pow(0.5f + quality, qualityExponent);
+
+            // Full formula
+            float finalPrice = basePrice * dsRatio * elasticityFactor * riskModifier * seasonal * qualityMultiplier;
+
+            return Mathf.Max(1f, finalPrice);  // Floor of $1
+        }
+
+        /// <summary>
+        /// Convenience method — returns price for average quality product.
+        /// Used by DealerAI and ShopKeeper for default pricing.
+        /// </summary>
+        public float GetStreetPrice(string productId, string zoneId)
+        {
+            return CalculatePrice(productId, zoneId, 0.5f);
+        }
+
+        // ─── Market Operations ───────────────────────────────────────
+
+        /// <summary>
+        /// Record a sale — shifts supply curve. More sales = more supply pressure = lower prices.
+        /// </summary>
+        public void RecordSale(string productId, string zoneId, int quantity, float quality)
+        {
+            MarketData market = GetOrCreateMarket(productId, zoneId);
+
+            market.totalSoldThisCycle += quantity;
+
+            // Running average quality (EMA with 0.1 smoothing)
+            market.averageQuality = Mathf.Lerp(market.averageQuality, quality, 0.1f);
+
+            // Track historical volume for trend analysis
+            market.lifetimeVolume += quantity;
+
+            _markets[$"{productId}_{zoneId}"] = market;
+        }
+
+        /// <summary>
+        /// Record a purchase — shifts demand curve. More buying = more demand = higher prices.
+        /// Called when player/NPC buys from suppliers.
+        /// </summary>
+        public void RecordPurchase(string productId, string zoneId, int quantity)
+        {
+            MarketData market = GetOrCreateMarket(productId, zoneId);
+            market.demandThisCycle += quantity * 0.5f;  // Purchases indicate demand
+            _markets[$"{productId}_{zoneId}"] = market;
+        }
+
+        /// <summary>
+        /// Update the heat value used in risk modifier calculation.
+        /// Called by WantedSystem when heat changes.
+        /// </summary>
+        public void UpdateHeatForPricing(float currentHeat)
+        {
+            _currentGlobalHeat = currentHeat;
+        }
+
+        /// <summary>
+        /// Set seasonal multiplier — called by world event system or time manager.
+        /// Examples: summer festival = 1.3 (demand spike), winter = 0.85 (reduced outdoor dealing)
+        /// </summary>
+        public void SetSeasonalMultiplier(float multiplier)
+        {
+            seasonalMultiplier = Mathf.Clamp(multiplier, 0.5f, 2f);
+        }
+
+        /// <summary>
+        /// Register a new product in a zone with initial market conditions.
+        /// </summary>
+        public void InitializeMarket(string productId, string zoneId, float basePrice, float baseDemand, float elasticity = 0f)
+        {
+            string key = $"{productId}_{zoneId}";
+            _markets[key] = new MarketData
             {
-                var data = _marketPrices[key];
+                productId = productId,
+                zoneId = zoneId,
+                basePrice = basePrice,
+                currentPrice = basePrice,
+                baseDemand = baseDemand,
+                demandThisCycle = baseDemand,
+                elasticity = elasticity > 0f ? elasticity : defaultElasticity,
+                averageQuality = 0.5f
+            };
+        }
 
-                // Natural demand recovery
-                data.demandThisCycle = Mathf.Max(10f, data.baseDemand * (1f + UnityEngine.Random.Range(-0.2f, 0.2f)));
+        // ─── Money Laundering ────────────────────────────────────────
 
-                // Reset cycle
-                data.totalSoldThisCycle = 0;
+        /// <summary>
+        /// Launder cash through a business front. Returns clean amount (minus fee).
+        /// Spec v2.0 Section 15: 5-step pipeline. Phase 2 implements step 1 (placement) only.
+        /// </summary>
+        public float LaunderCash(float dirtyAmount, string businessId)
+        {
+            float fee = dirtyAmount * launderingFeeRate;
+            float clean = dirtyAmount - fee;
+            Debug.Log($"[Economy] Laundered ${dirtyAmount:F0} through {businessId} -> ${clean:F0} clean (${fee:F0} fee)");
+            return clean;
+        }
 
-                // Price drift toward base
-                data.currentPrice = Mathf.Lerp(data.currentPrice, data.basePrice, 0.1f);
+        // ─── Market Queries ──────────────────────────────────────────
 
-                _marketPrices[key] = data;
-                OnPriceChanged?.Invoke(data.productId, data.currentPrice);
+        /// <summary>
+        /// Get current market data for analysis (UI, AI decision-making).
+        /// </summary>
+        public MarketData GetMarketData(string productId, string zoneId)
+        {
+            return GetOrCreateMarket(productId, zoneId);
+        }
+
+        /// <summary>
+        /// Get all tracked markets for dashboard display.
+        /// </summary>
+        public IReadOnlyDictionary<string, MarketData> GetAllMarkets() => _markets;
+
+        /// <summary>
+        /// Get the demand/supply ratio for a product in a zone. >1 = undersupplied, <1 = oversupplied.
+        /// Used by DealerAI to choose optimal dealing locations.
+        /// </summary>
+        public float GetDemandSupplyRatio(string productId, string zoneId)
+        {
+            MarketData market = GetOrCreateMarket(productId, zoneId);
+            float supply = Mathf.Max(1f, market.totalSoldThisCycle + 1f);
+            float demand = Mathf.Max(1f, market.demandThisCycle);
+            return demand / supply;
+        }
+
+        /// <summary>
+        /// Is a market oversaturated? Returns true if supply > demand × 1.5.
+        /// Used by DealerAI to avoid flooded zones.
+        /// </summary>
+        public bool IsMarketSaturated(string productId, string zoneId)
+        {
+            return GetDemandSupplyRatio(productId, zoneId) < 0.67f;
+        }
+
+        // ─── Market Tick ─────────────────────────────────────────────
+
+        private void UpdateAllMarkets()
+        {
+            foreach (var key in new List<string>(_markets.Keys))
+            {
+                var market = _markets[key];
+                float oldPrice = market.currentPrice;
+
+                // Demand recovery — drifts toward base with variance
+                float demandVariance = UnityEngine.Random.Range(-0.15f, 0.15f);
+                market.demandThisCycle = Mathf.Max(5f, market.baseDemand * (1f + demandVariance));
+
+                // Reset supply tracking for new cycle
+                market.totalSoldThisCycle = 0;
+
+                // Recalculate current price using full formula
+                market.currentPrice = CalculatePrice(market.productId, market.zoneId, market.averageQuality);
+
+                // Price inertia — don't swing too fast (damped movement)
+                market.currentPrice = Mathf.Lerp(oldPrice, market.currentPrice, 0.3f);
+
+                _markets[key] = market;
+
+                if (Mathf.Abs(oldPrice - market.currentPrice) > 0.5f)
+                    OnPriceChanged?.Invoke(market.productId, oldPrice, market.currentPrice);
             }
+        }
+
+        private MarketData GetOrCreateMarket(string productId, string zoneId)
+        {
+            string key = $"{productId}_{zoneId}";
+            if (!_markets.TryGetValue(key, out var data))
+            {
+                data = new MarketData
+                {
+                    productId = productId,
+                    zoneId = zoneId,
+                    basePrice = 50f,
+                    currentPrice = 50f,
+                    baseDemand = 20f,
+                    demandThisCycle = 20f,
+                    elasticity = defaultElasticity,
+                    averageQuality = 0.5f
+                };
+                _markets[key] = data;
+            }
+            return data;
         }
     }
 
+    // ─── Market Data Struct ──────────────────────────────────────────
+
+    /// <summary>
+    /// Per-product per-zone market state.
+    /// Spec v2.0 Section 23: tracks all variables in the price formula.
+    /// </summary>
     [System.Serializable]
     public struct MarketData
     {
         public string productId;
         public string zoneId;
+
+        // Price
         public float currentPrice;
         public float basePrice;
+
+        // Demand/Supply
         public float baseDemand;
         public float demandThisCycle;
         public int totalSoldThisCycle;
+
+        // Elasticity (per-product per-zone)
+        public float elasticity;
+
+        // Quality tracking
         public float averageQuality;
+
+        // Historical
+        public long lifetimeVolume;
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Clout.Empire.Reputation;
 
 namespace Clout.Utils
 {
@@ -166,5 +167,65 @@ namespace Clout.Utils
     {
         public string districtId;
         public string previousDistrictId;
+    }
+
+    // ─── Worker Events (Spec v2.0 Section 13) ────────────────────
+
+    public struct WorkerFiredEvent
+    {
+        public string workerId;
+        public string workerName;
+        public string reason;
+        public string assignedPropertyId;
+    }
+
+    public struct WorkerArrestedEvent
+    {
+        public string workerId;
+        public string workerName;
+        public float heatGenerated;
+        public bool knewCriticalInfo;    // Compartmentalization risk — did they know enough to hurt you?
+        public string assignedPropertyId;
+    }
+
+    public struct WorkerBetrayedEvent
+    {
+        public string workerId;
+        public string workerName;
+        public string betrayalType;      // "informant", "theft", "rival_defection", "independent"
+        public float damageAmount;       // Cash/product stolen or intel value leaked
+        public string assignedPropertyId;
+    }
+
+    public struct WorkerShiftEndEvent
+    {
+        public string workerId;
+        public string workerName;
+        public string role;              // "Dealer", "Cook", "Guard"
+        public float cashEarned;         // Revenue generated this shift (dealers)
+        public int unitsProduced;        // Product made this shift (cooks)
+        public int dealsMade;            // Number of deals completed (dealers)
+        public string assignedPropertyId;
+    }
+
+    public struct WorkerDealCompleteEvent
+    {
+        public string workerId;
+        public string customerId;
+        public string productId;
+        public int quantity;
+        public float cashEarned;
+        public float quality;
+    }
+
+    // ─── Reputation Events (Spec v2.0 Section 36) ────────────────
+
+    public struct ReputationChangedEvent
+    {
+        public ReputationDimension dimension;
+        public float oldValue;
+        public float newValue;
+        public string reason;
+        public ReputationVector vector;  // Full 4D state after change
     }
 }
