@@ -21,6 +21,7 @@ using Clout.Inventory;
 using Clout.Empire.Economy;
 using Clout.Empire.Properties;
 using Clout.Empire.Employees;
+using Clout.World.Districts;
 using Clout.UI;
 using UnityEditor.Animations;
 
@@ -116,6 +117,9 @@ namespace Clout.Editor
             // === POLICE ===
             BuildPoliceSystem();
 
+            // === DISTRICTS ===
+            BuildDistrictSystem();
+
             // === NAVMESH ===
             BakeNavMesh();
 
@@ -133,7 +137,8 @@ namespace Clout.Editor
                 "• 3 Shop NPCs (Chemo's Supply, Pawn It, Big Tony's)\n" +
                 "• 8 Property buildings (surrounding arena)\n" +
                 "• Worker system (Hire: Tab, Manage: Y)\n" +
-                "• Police system (patrol, pursue, arrest, raids)\n\n" +
+                "• Police system (patrol, pursue, arrest, raids)\n" +
+                "• District system (The Fillmore — Bay Area)\n\n" +
                 "Hit Play to test.", "Let's Go");
         }
 
@@ -169,6 +174,7 @@ namespace Clout.Editor
             PropertySystemFactory.SpawnPropertiesHeadless();
             BuildWorkerSystem();
             BuildPoliceSystem();
+            BuildDistrictSystem();
             BakeNavMesh();
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
@@ -844,6 +850,116 @@ namespace Clout.Editor
             Debug.Log("[Clout] Police system: 2 stations placed." +
                 " Central Precinct at NE (66, 70.5) facing south." +
                 " South Precinct+Jail at SW (-58.5, -61.5) facing east.");
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  DISTRICT SYSTEM
+        // ─────────────────────────────────────────────────────────
+
+        private static void BuildDistrictSystem()
+        {
+            // ── DistrictManager singleton ──────────────────────────
+            GameObject districtObj = new GameObject("DistrictSystem");
+            DistrictManager dm = districtObj.AddComponent<DistrictManager>();
+
+            // ── Create "The Fillmore" district SO ─────────────────
+            // Covers the entire test arena as a single starting district.
+            // Modeled after SF's Fillmore/Western Addition — mixed residential/commercial,
+            // moderate police presence, diverse population.
+
+            string soPath = "Assets/_Project/ScriptableObjects/Districts";
+            if (!AssetDatabase.IsValidFolder(soPath))
+            {
+                if (!AssetDatabase.IsValidFolder("Assets/_Project/ScriptableObjects"))
+                    AssetDatabase.CreateFolder("Assets/_Project", "ScriptableObjects");
+                AssetDatabase.CreateFolder("Assets/_Project/ScriptableObjects", "Districts");
+            }
+
+            string assetPath = $"{soPath}/DIST_Fillmore.asset";
+            DistrictDefinition fillmore = AssetDatabase.LoadAssetAtPath<DistrictDefinition>(assetPath);
+            if (fillmore == null)
+            {
+                fillmore = ScriptableObject.CreateInstance<DistrictDefinition>();
+                fillmore.districtId = "fillmore";
+                fillmore.districtName = "The Fillmore";
+                fillmore.description = "Western Addition — historic jazz district turned hustle ground. " +
+                    "Mixed residential and commercial. Moderate police. Where you start.";
+
+                // Geography — covers entire test arena
+                fillmore.worldCenter = Vector3.zero;
+                fillmore.halfExtents = new Vector3(80f, 50f, 80f);
+
+                // Zone composition
+                fillmore.residentialRatio = 0.4f;
+                fillmore.commercialRatio = 0.35f;
+                fillmore.industrialRatio = 0.15f;
+                fillmore.waterfrontRatio = 0.1f;
+
+                // Wealth & atmosphere
+                fillmore.wealthLevel = 0.35f;
+                fillmore.density = 0.55f;
+                fillmore.grimeLevel = 0.4f;
+
+                // Population
+                fillmore.maxCustomers = 8;
+                fillmore.maxCivilians = 15;
+                fillmore.npcSpawnInterval = 12f;
+
+                // Law enforcement
+                fillmore.basePolicePatrols = 2;
+                fillmore.policePresenceMultiplier = 0.8f;
+                fillmore.policeResponseTime = 25f;
+
+                // Economy — products in demand
+                fillmore.productDemands = new ProductDemand[]
+                {
+                    new ProductDemand { product = ProductType.Cannabis,        baseDemand = 30f, basePrice = 40f,  elasticity = 0.2f },
+                    new ProductDemand { product = ProductType.Methamphetamine, baseDemand = 15f, basePrice = 120f, elasticity = 0.5f },
+                    new ProductDemand { product = ProductType.Prescription,    baseDemand = 20f, basePrice = 30f,  elasticity = 0.3f },
+                };
+                fillmore.priceMultiplier = 1f;
+
+                // Properties
+                fillmore.availablePropertyTypes = new PropertyType[]
+                {
+                    PropertyType.Safehouse, PropertyType.Lab, PropertyType.Growhouse,
+                    PropertyType.Storefront, PropertyType.Restaurant
+                };
+                fillmore.maxPropertySlots = 6;
+
+                // Rivals
+                fillmore.rivalThreat = 0.3f;
+                fillmore.rivalCrewName = "Divisadero Boys";
+
+                // Road network
+                fillmore.majorStreetsNS = 3;
+                fillmore.majorStreetsEW = 3;
+                fillmore.streetWidth = 8f;
+                fillmore.sidewalkWidth = 2.5f;
+
+                AssetDatabase.CreateAsset(fillmore, assetPath);
+                EditorUtility.SetDirty(fillmore);
+                Debug.Log("[Clout] Created district SO: The Fillmore");
+            }
+
+            // Wire district to manager
+            dm.districts.Add(fillmore);
+
+            // ── District trigger zone ─────────────────────────────
+            // Covers the entire arena — player starts inside it.
+            GameObject triggerObj = new GameObject("DistrictZone_Fillmore");
+            triggerObj.transform.position = Vector3.zero;
+
+            BoxCollider triggerCol = triggerObj.AddComponent<BoxCollider>();
+            triggerCol.isTrigger = true;
+            triggerCol.size = new Vector3(160f, 20f, 160f);
+            triggerCol.center = new Vector3(0f, 10f, 0f);
+
+            DistrictTriggerZone zone = triggerObj.AddComponent<DistrictTriggerZone>();
+            zone.districtId = "fillmore";
+            zone.districtName = "The Fillmore";
+
+            Debug.Log("[Clout] District system created: DistrictManager + The Fillmore zone.");
         }
 
         // ─────────────────────────────────────────────────────────

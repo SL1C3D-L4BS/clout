@@ -1,6 +1,7 @@
 using UnityEngine;
 using Clout.Core;
 using Clout.Empire.Properties;
+using Clout.World.Police;
 
 namespace Clout.World
 {
@@ -537,6 +538,300 @@ namespace Clout.World
                 new Vector3(WINDOW_SIZE + f * 2, f, 0.06f), frameColor * 0.6f);
             BuildBox(parent, "WinFrame_B", pos + new Vector3(0, -WINDOW_SIZE / 2 - f / 2, 0),
                 new Vector3(WINDOW_SIZE + f * 2, f, 0.06f), frameColor * 0.6f);
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  POLICE STATIONS (Spec v2.0 Section 29)
+        // ═══════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Build a standard police precinct — 2-story institutional building with
+        /// badge emblem, barred windows, dispatch antenna, and parking bay.
+        /// Attaches PoliceStation component with configured spawn/arrest points.
+        /// </summary>
+        public static GameObject BuildPoliceStation(Vector3 position, string stationName)
+        {
+            float width = 16f;
+            float depth = 10f;
+            int floors = 2;
+            float height = floors * FLOOR_HEIGHT;
+
+            Color wallColor = new Color(0.55f, 0.55f, 0.62f);    // Institutional blue-grey
+            Color roofColor = new Color(0.30f, 0.30f, 0.35f);    // Dark slate
+            Color trimColor = new Color(0.20f, 0.30f, 0.55f);    // Police blue
+            Color doorColor = new Color(0.25f, 0.25f, 0.30f);    // Steel
+            Color badgeColor = new Color(0.85f, 0.75f, 0.20f);   // Gold badge
+            Color barColor = new Color(0.3f, 0.3f, 0.3f);        // Window bars
+
+            GameObject root = new GameObject(stationName);
+            root.transform.position = position;
+
+            // ── Main building ──────────────────────────────────
+            BuildBox(root.transform, "Walls", Vector3.up * (height / 2),
+                new Vector3(width, height, depth), wallColor);
+
+            // Flat institutional roof with parapet
+            BuildBox(root.transform, "Roof", new Vector3(0, height + 0.1f, 0),
+                new Vector3(width + 0.3f, 0.2f, depth + 0.3f), roofColor);
+            BuildBox(root.transform, "Parapet_F", new Vector3(0, height + 0.5f, depth / 2),
+                new Vector3(width + 0.3f, 0.8f, WALL_THICKNESS), roofColor);
+            BuildBox(root.transform, "Parapet_B", new Vector3(0, height + 0.5f, -depth / 2),
+                new Vector3(width + 0.3f, 0.8f, WALL_THICKNESS), roofColor);
+            BuildBox(root.transform, "Parapet_L", new Vector3(-width / 2, height + 0.5f, 0),
+                new Vector3(WALL_THICKNESS, 0.8f, depth + 0.3f), roofColor);
+            BuildBox(root.transform, "Parapet_R", new Vector3(width / 2, height + 0.5f, 0),
+                new Vector3(WALL_THICKNESS, 0.8f, depth + 0.3f), roofColor);
+
+            // ── Blue stripe — police accent band ───────────────
+            BuildBox(root.transform, "BlueStripe_F", new Vector3(0, height * 0.42f, depth / 2 + 0.02f),
+                new Vector3(width, 0.25f, 0.05f), trimColor);
+            BuildBox(root.transform, "BlueStripe_B", new Vector3(0, height * 0.42f, -depth / 2 - 0.02f),
+                new Vector3(width, 0.25f, 0.05f), trimColor);
+
+            // ── Entrance — double doors with overhang ──────────
+            // Concrete canopy over entrance
+            BuildBox(root.transform, "Canopy", new Vector3(0, FLOOR_HEIGHT * 0.95f, depth / 2 + 1.5f),
+                new Vector3(5f, 0.2f, 3f), new Color(0.45f, 0.45f, 0.50f));
+            // Canopy support pillars
+            BuildCylinder(root.transform, "Pillar_L", new Vector3(-2f, FLOOR_HEIGHT * 0.47f, depth / 2 + 2.5f),
+                0.2f, FLOOR_HEIGHT * 0.95f, new Color(0.50f, 0.50f, 0.55f));
+            BuildCylinder(root.transform, "Pillar_R", new Vector3(2f, FLOOR_HEIGHT * 0.47f, depth / 2 + 2.5f),
+                0.2f, FLOOR_HEIGHT * 0.95f, new Color(0.50f, 0.50f, 0.55f));
+
+            // Double doors
+            BuildBox(root.transform, "Door_L", new Vector3(-0.65f, DOOR_HEIGHT / 2, depth / 2 + 0.01f),
+                new Vector3(DOOR_WIDTH, DOOR_HEIGHT, 0.08f), doorColor);
+            BuildBox(root.transform, "Door_R", new Vector3(0.65f, DOOR_HEIGHT / 2, depth / 2 + 0.01f),
+                new Vector3(DOOR_WIDTH, DOOR_HEIGHT, 0.08f), doorColor);
+            // Door frame
+            BuildBox(root.transform, "DoorFrame_Top", new Vector3(0, DOOR_HEIGHT + 0.06f, depth / 2 + 0.01f),
+                new Vector3(DOOR_WIDTH * 2 + 0.4f, 0.12f, 0.12f), doorColor * 0.7f);
+
+            // ── Front steps ────────────────────────────────────
+            BuildBox(root.transform, "Steps_1", new Vector3(0, 0.1f, depth / 2 + 0.8f),
+                new Vector3(4f, 0.2f, 1.6f), new Color(0.5f, 0.5f, 0.5f));
+            BuildBox(root.transform, "Steps_2", new Vector3(0, 0.3f, depth / 2 + 0.4f),
+                new Vector3(4f, 0.2f, 0.8f), new Color(0.5f, 0.5f, 0.5f));
+
+            // ── Badge emblem on facade ─────────────────────────
+            // Shield shape approximated with overlapping box + cylinder
+            BuildBox(root.transform, "Badge_Back", new Vector3(0, height * 0.75f, depth / 2 + 0.03f),
+                new Vector3(1.8f, 2.2f, 0.08f), trimColor);
+            BuildCylinder(root.transform, "Badge_Star", new Vector3(0, height * 0.76f, depth / 2 + 0.08f),
+                0.5f, 0.08f, badgeColor);
+
+            // ── Barred windows (1st floor — detention level) ───
+            for (int i = 0; i < 3; i++)
+            {
+                float x = -width * 0.3f + i * (width * 0.3f);
+                // Skip center window on ground floor (door is there)
+                if (i == 1) continue;
+
+                float y = FLOOR_HEIGHT * 0.6f;
+                BuildWindow(root.transform, new Vector3(x, y, depth / 2 + 0.02f), barColor);
+                // Vertical bars over window
+                for (int b = 0; b < 3; b++)
+                {
+                    float bx = x - 0.3f + b * 0.3f;
+                    BuildBox(root.transform, $"Bar_{i}_{b}",
+                        new Vector3(bx, y, depth / 2 + 0.05f),
+                        new Vector3(0.04f, WINDOW_SIZE, 0.04f), barColor);
+                }
+            }
+
+            // ── 2nd floor windows (office level — no bars) ─────
+            float y2 = FLOOR_HEIGHT + FLOOR_HEIGHT * 0.55f;
+            for (int i = 0; i < 4; i++)
+            {
+                float x = -width * 0.35f + i * (width * 0.23f);
+                BuildWindow(root.transform, new Vector3(x, y2, depth / 2 + 0.02f), trimColor);
+            }
+
+            // ── Radio antenna on roof ──────────────────────────
+            BuildCylinder(root.transform, "Antenna_Mast", new Vector3(width * 0.3f, height + 2.5f, -depth * 0.3f),
+                0.06f, 4.5f, new Color(0.5f, 0.5f, 0.5f));
+            // Antenna crossbars
+            BuildBox(root.transform, "Antenna_Cross1", new Vector3(width * 0.3f, height + 3.5f, -depth * 0.3f),
+                new Vector3(1.5f, 0.06f, 0.06f), new Color(0.5f, 0.5f, 0.5f));
+            BuildBox(root.transform, "Antenna_Cross2", new Vector3(width * 0.3f, height + 4f, -depth * 0.3f),
+                new Vector3(1f, 0.06f, 0.06f), new Color(0.5f, 0.5f, 0.5f));
+
+            // ── Satellite dish on roof ─────────────────────────
+            BuildCylinder(root.transform, "Dish_Base", new Vector3(-width * 0.3f, height + 0.5f, depth * 0.2f),
+                0.15f, 0.6f, new Color(0.45f, 0.45f, 0.45f));
+            BuildCylinder(root.transform, "Dish_Bowl", new Vector3(-width * 0.3f, height + 1.0f, depth * 0.2f),
+                0.6f, 0.1f, new Color(0.8f, 0.8f, 0.82f));
+
+            // ── Parking bay (side of building) ─────────────────
+            BuildBox(root.transform, "ParkingPad", new Vector3(width / 2 + 3f, 0.02f, 0),
+                new Vector3(5f, 0.04f, depth * 0.8f), new Color(0.25f, 0.25f, 0.28f));
+            // Parking stripe
+            BuildBox(root.transform, "ParkStripe_1", new Vector3(width / 2 + 1.5f, 0.03f, -depth * 0.2f),
+                new Vector3(0.1f, 0.02f, 3f), Color.white);
+            BuildBox(root.transform, "ParkStripe_2", new Vector3(width / 2 + 4.5f, 0.03f, -depth * 0.2f),
+                new Vector3(0.1f, 0.02f, 3f), Color.white);
+
+            // ── Flagpole ───────────────────────────────────────
+            BuildCylinder(root.transform, "Flagpole", new Vector3(-width * 0.4f, 3f, depth / 2 + 3f),
+                0.05f, 6f, new Color(0.6f, 0.6f, 0.6f));
+            BuildBox(root.transform, "Flag", new Vector3(-width * 0.4f + 0.6f, 5.5f, depth / 2 + 3f),
+                new Vector3(1.2f, 0.7f, 0.02f), new Color(0.1f, 0.2f, 0.6f));
+
+            // ── Colliders ──────────────────────────────────────
+            AddBuildingCollider(root, width, height + 1f, depth);
+
+            // ── PoliceStation component ────────────────────────
+            PoliceStation ps = root.AddComponent<PoliceStation>();
+            ps.stationName = stationName;
+            ps.spawnOffset = new Vector3(width / 2 + 3f, 0f, 0f);  // Spawn in parking bay
+            ps.arrestPoint = new Vector3(0f, 0f, depth / 2 + 2f);  // Arrest at front entrance
+
+            return root;
+        }
+
+        /// <summary>
+        /// Build a police station with attached jail wing — larger complex with
+        /// cell block extension, exercise yard, razor wire fencing, watchtower,
+        /// and sally port (secure vehicle entrance).
+        /// </summary>
+        public static GameObject BuildPoliceStationWithJail(Vector3 position, string stationName)
+        {
+            // Build the main station first
+            GameObject root = BuildPoliceStation(position, stationName);
+
+            float mainWidth = 16f;
+            float mainDepth = 10f;
+            float mainHeight = 2 * FLOOR_HEIGHT;
+
+            Color cellColor = new Color(0.48f, 0.48f, 0.52f);    // Colder grey
+            Color fenceColor = new Color(0.4f, 0.4f, 0.4f);      // Chain-link grey
+            Color wireColor = new Color(0.55f, 0.55f, 0.55f);    // Razor wire
+            Color yardColor = new Color(0.35f, 0.38f, 0.34f);    // Concrete yard
+            Color towerColor = new Color(0.45f, 0.45f, 0.50f);
+
+            // ── Jail wing (extends from rear of station) ───────
+            float jailWidth = 12f;
+            float jailDepth = 14f;
+            float jailHeight = FLOOR_HEIGHT * 1.5f; // Lower, more oppressive
+
+            BuildBox(root.transform, "JailWing_Walls", new Vector3(0, jailHeight / 2, -mainDepth / 2 - jailDepth / 2),
+                new Vector3(jailWidth, jailHeight, jailDepth), cellColor);
+
+            // Jail flat roof
+            BuildBox(root.transform, "JailWing_Roof", new Vector3(0, jailHeight + 0.1f, -mainDepth / 2 - jailDepth / 2),
+                new Vector3(jailWidth + 0.2f, 0.15f, jailDepth + 0.2f), cellColor * 0.75f);
+
+            // ── Cell windows (small, barred) ───────────────────
+            for (int row = 0; row < 2; row++)
+            {
+                for (int col = 0; col < 4; col++)
+                {
+                    float x = -jailWidth * 0.35f + col * (jailWidth * 0.23f);
+                    float z = -mainDepth / 2 - jailDepth * 0.3f - row * jailDepth * 0.35f;
+
+                    // Small slit window
+                    BuildBox(root.transform, $"CellWindow_{row}_{col}",
+                        new Vector3(x, jailHeight * 0.7f, jailWidth / 2 + 0.02f),
+                        new Vector3(0.5f, 0.3f, 0.04f), new Color(0.4f, 0.45f, 0.5f, 0.5f));
+
+                    // Heavy bars
+                    for (int b = 0; b < 2; b++)
+                    {
+                        BuildBox(root.transform, $"CellBar_{row}_{col}_{b}",
+                            new Vector3(x - 0.12f + b * 0.24f, jailHeight * 0.7f, jailWidth / 2 + 0.04f),
+                            new Vector3(0.05f, 0.35f, 0.05f), new Color(0.25f, 0.25f, 0.25f));
+                    }
+                }
+            }
+
+            // ── Exercise yard ──────────────────────────────────
+            float yardX = jailWidth / 2 + 5f;
+            float yardZ = -mainDepth / 2 - jailDepth / 2;
+            float yardSize = 10f;
+
+            // Yard surface
+            BuildBox(root.transform, "Yard_Floor", new Vector3(yardX, 0.02f, yardZ),
+                new Vector3(yardSize, 0.04f, yardSize), yardColor);
+
+            // Perimeter fence (4 walls)
+            float fenceHeight = 3.5f;
+            float fenceThick = 0.08f;
+            BuildBox(root.transform, "Fence_N", new Vector3(yardX, fenceHeight / 2, yardZ + yardSize / 2),
+                new Vector3(yardSize, fenceHeight, fenceThick), fenceColor);
+            BuildBox(root.transform, "Fence_S", new Vector3(yardX, fenceHeight / 2, yardZ - yardSize / 2),
+                new Vector3(yardSize, fenceHeight, fenceThick), fenceColor);
+            BuildBox(root.transform, "Fence_E", new Vector3(yardX + yardSize / 2, fenceHeight / 2, yardZ),
+                new Vector3(fenceThick, fenceHeight, yardSize), fenceColor);
+            BuildBox(root.transform, "Fence_W", new Vector3(yardX - yardSize / 2, fenceHeight / 2, yardZ),
+                new Vector3(fenceThick, fenceHeight, yardSize), fenceColor);
+
+            // Razor wire on top of fence
+            float wireY = fenceHeight + 0.2f;
+            BuildCylinder(root.transform, "Wire_N", new Vector3(yardX, wireY, yardZ + yardSize / 2),
+                0.15f, 0.3f, wireColor);
+            BuildCylinder(root.transform, "Wire_S", new Vector3(yardX, wireY, yardZ - yardSize / 2),
+                0.15f, 0.3f, wireColor);
+            BuildCylinder(root.transform, "Wire_E", new Vector3(yardX + yardSize / 2, wireY, yardZ),
+                0.15f, 0.3f, wireColor);
+
+            // ── Watchtower ─────────────────────────────────────
+            float towerX = yardX + yardSize / 2;
+            float towerZ = yardZ + yardSize / 2;
+            float towerHeight = 8f;
+
+            // Tower legs (4 cylinders)
+            float legSpacing = 1.2f;
+            for (int lx = 0; lx < 2; lx++)
+            {
+                for (int lz = 0; lz < 2; lz++)
+                {
+                    float legX = towerX - legSpacing / 2 + lx * legSpacing;
+                    float legZ = towerZ - legSpacing / 2 + lz * legSpacing;
+                    BuildCylinder(root.transform, $"TowerLeg_{lx}_{lz}",
+                        new Vector3(legX, towerHeight / 2, legZ),
+                        0.12f, towerHeight, towerColor);
+                }
+            }
+
+            // Tower cabin
+            BuildBox(root.transform, "TowerCabin", new Vector3(towerX, towerHeight, towerZ),
+                new Vector3(3f, 2.5f, 3f), towerColor);
+
+            // Tower roof
+            BuildBox(root.transform, "TowerRoof", new Vector3(towerX, towerHeight + 1.4f, towerZ),
+                new Vector3(3.5f, 0.15f, 3.5f), towerColor * 0.7f);
+
+            // Searchlight
+            BuildCylinder(root.transform, "Searchlight", new Vector3(towerX, towerHeight + 1.8f, towerZ),
+                0.2f, 0.4f, new Color(0.9f, 0.9f, 0.7f));
+
+            // ── Sally port (secure vehicle entrance) ───────────
+            float sallyX = -jailWidth / 2 - 2.5f;
+            float sallyZ = -mainDepth / 2 - jailDepth * 0.3f;
+
+            // Garage-style secure entrance
+            BuildBox(root.transform, "SallyPort_Walls", new Vector3(sallyX, 2f, sallyZ),
+                new Vector3(5f, 4f, 6f), cellColor * 0.9f);
+            BuildBox(root.transform, "SallyPort_Roof", new Vector3(sallyX, 4.1f, sallyZ),
+                new Vector3(5.3f, 0.15f, 6.3f), cellColor * 0.75f);
+            // Rolling gate
+            BuildBox(root.transform, "SallyGate", new Vector3(sallyX, 1.75f, sallyZ + 3.01f),
+                new Vector3(3.5f, 3.5f, 0.1f), new Color(0.35f, 0.35f, 0.4f));
+
+            // ── Collider for jail wing ─────────────────────────
+            // Add a second collider for the jail extension
+            BoxCollider jailCol = root.AddComponent<BoxCollider>();
+            jailCol.center = new Vector3(0, jailHeight / 2, -mainDepth / 2 - jailDepth / 2);
+            jailCol.size = new Vector3(jailWidth, jailHeight, jailDepth);
+
+            // Update PoliceStation arrest point to jail sally port
+            PoliceStation ps = root.GetComponent<PoliceStation>();
+            if (ps != null)
+            {
+                ps.arrestPoint = new Vector3(sallyX, 0f, sallyZ + 4f);
+            }
+
+            return root;
         }
 
         // ═══════════════════════════════════════════════════════

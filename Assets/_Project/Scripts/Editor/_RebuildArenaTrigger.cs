@@ -15,7 +15,7 @@ namespace Clout.Editor
         private static void RunOnce()
         {
             EditorApplication.delayCall -= RunOnce;
-            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding arena (police station math overhaul)...");
+            Debug.Log("[Clout] _RebuildArenaTrigger: rebuilding arena (Step 8 District System)...");
             try
             {
                 TestArenaBuilder.BuildTestArenaHeadless();
