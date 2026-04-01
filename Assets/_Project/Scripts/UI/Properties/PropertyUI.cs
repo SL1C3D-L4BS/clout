@@ -73,7 +73,18 @@ namespace Clout.UI.Properties
                 if (_messageTimer <= 0) _message = "";
             }
 
-            if (_visible && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            if (Keyboard.current == null) return;
+
+            // P toggles property browser
+            if (Keyboard.current.pKey.wasPressedThisFrame)
+            {
+                if (_visible)
+                    Close();
+                else
+                    OpenBrowse();
+            }
+
+            if (_visible && Keyboard.current.escapeKey.wasPressedThisFrame)
                 Close();
         }
 
