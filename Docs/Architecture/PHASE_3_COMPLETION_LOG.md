@@ -1,7 +1,7 @@
 # CLOUT -- Phase 3 Completion Log
 
-> Version 1.1 | April 2, 2026
-> Status: IN PROGRESS (Steps 11-12 of 15 complete)
+> Version 1.2 | April 2, 2026
+> Status: IN PROGRESS (Steps 11-13 of 15 complete)
 
 ---
 
@@ -170,14 +170,98 @@ Phase 3 adds depth, consequences, and advanced simulation layers to the empire. 
 
 ---
 
+## Step 13: Advanced Economy & Market Simulator -- COMPLETE
+
+**Date:** April 2, 2026
+**New Scripts:** 5
+**New Lines:** ~1,750 (new files) + ~80 (integration edits)
+**Modified Files:** 4 existing scripts
+
+### Files Created
+
+| File | Type | Lines | Purpose |
+|------|------|-------|---------|
+| `Scripts/Empire/Economy/MarketEvent.cs` | ScriptableObject + Data | 165 | 8 MarketEventType enum values. MarketEvent SO with scope (products/districts), duration, price/demand/supply multipliers, daily probability, cooldown, bell-curve intensity. ActiveMarketEvent runtime wrapper with progress-based intensity scaling |
+| `Scripts/Empire/Economy/CommodityTracker.cs` | Singleton | 300 | 6 precursor commodities (Pseudoephedrine, Methylamine, CocaLeaf, Acetone, PrecursorChem, CuttingAgent). Ornstein-Uhlenbeck process (geometric Brownian motion with mean reversion). Box-Muller Gaussian RNG. External shock injection. 90-day price history. 7-day moving average and trend queries. Full save/load |
+| `Scripts/Empire/Economy/MarketSimulator.cs` | Singleton | 550 | Core market simulation engine. Per-product per-district SimulatedMarket with supply breakdown (player/rival/import). Upgraded price formula: P = base × (D/S)^(1/E) × risk × seasonal × quality × competition × events. Market event triggering/processing with cooldowns. Competition pressure modeling. Consumer confidence from heat. 90-day price history. Rival activity tracking. Full save/load |
+| `Scripts/Empire/Economy/MarketManipulation.cs` | Static Utility | 310 | 5 player manipulation tactics: FloodMarket (dump product), CreateScarcity (withhold supply), CornerMarket (buy all precursors, $5K+ investment), PriceWar (undercut rivals, $1K+ subsidy), QualityFlood (premium reputation lock). Cost/duration/risk/heat profiles. TacticProfile query for UI |
+| `Scripts/UI/Economy/MarketAnalysisUI.cs` | OnGUI | 400 | 4-tab market intelligence dashboard: Overview (per-market prices, D/S ratios, trends, sparkline charts, competition indicators), Commodities (precursor prices with daily change, 7d trend, sparkline), Events (active events with progress/intensity/modifiers), Manipulation (tactic selector, profiles, target inputs, execution). Toggle: M key |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `Scripts/Core/GameBalanceConfig.cs` | +12 market simulation tuning values: supply decay rate, import recovery rate, event global modifier, max active events, commodity mean reversion, commodity price floor/ceiling ratios, manipulation cooldown, rival base supply, competition floor, significant price threshold, consumer confidence heat sensitivity |
+| `Scripts/Empire/Economy/EconomyManager.cs` | CalculatePrice() now delegates to MarketSimulator.GetPrice() when MarketSimulator.Instance is available. Legacy formula preserved as fallback |
+| `Scripts/Empire/Dealing/DealManager.cs` | ExecuteDeal() resolves current district via DistrictManager.Instance and feeds sale data into MarketSimulator.RecordSale() for supply curve tracking |
+| `Scripts/Utils/EventBus.cs` | +5 event structs: MarketPriceChangedEvent, MarketEventTriggeredEvent, MarketEventEndedEvent, CommodityPriceShockEvent, MarketManipulationEvent |
+
+### EventBus Events Added (5)
+
+| Event | Publisher |
+|-------|----------|
+| `MarketPriceChangedEvent` | MarketSimulator (daily tick, >10% change) |
+| `MarketEventTriggeredEvent` | MarketSimulator (event activation) |
+| `MarketEventEndedEvent` | MarketSimulator (event expiry) |
+| `CommodityPriceShockEvent` | CommodityTracker (daily tick, >5% change) |
+| `MarketManipulationEvent` | MarketManipulation (tactic execution) |
+
+### Data Structures Added
+
+| Type | Purpose |
+|------|---------|
+| `MarketEventType` | 8-value enum: Drought, Festival, PortStrike, PoliceCrackdown, RivalBust, MediaExpose, CelebrityDeath, SupplyRouteCut |
+| `ActiveMarketEvent` | Runtime event wrapper with progress, intensity-scaled modifiers, tick/expiry |
+| `CommodityType` | 6-value enum: Pseudoephedrine, Methylamine, CocaLeaf, Acetone, PrecursorChem, CuttingAgent |
+| `CommodityState` | Per-commodity state: prices, volatility, shock multiplier, daily change, price history |
+| `SimulatedMarket` | Extended per-product per-district state: supply breakdown, competition, confidence, volume, history |
+| `ManipulationType` | 5-value enum: FloodMarket, CreateScarcity, CornerMarket, PriceWar, QualityFlood |
+| `ManipulationResult` | Tactic execution result with success, message, price impact, heat generated |
+| `TacticProfile` | UI display data: name, description, cost, requirements, duration, risk, heat |
+
+### Integration Points
+
+- **EconomyManager** -- CalculatePrice() delegates to MarketSimulator when active; legacy formula as fallback
+- **DealManager** -- ExecuteDeal() feeds sales into MarketSimulator.RecordSale() with district resolution
+- **TransactionLedger** -- OnDayEnd drives daily simulation tick for both MarketSimulator and CommodityTracker
+- **CashManager** -- CornerMarket and PriceWar tactics spend dirty cash
+- **WantedSystem** -- FloodMarket and CornerMarket tactics generate heat
+- **DistrictManager** -- District ID resolution for deal-market mapping
+- **GameBalanceConfig** -- All 12 market tuning values read from GameBalanceConfig.Active
+- **EventBus** -- 5 new event structs for cross-system reactivity
+
+### Key Design Decisions
+
+1. **Ornstein-Uhlenbeck process** -- Mean-reverting Brownian motion prevents commodity prices from random-walking to extremes. θ=0.05 balances realism with gameplay interest.
+2. **Price formula delegation** -- MarketSimulator wraps (not replaces) EconomyManager. All existing code calling EconomyManager.CalculatePrice() automatically gets the enhanced formula. Zero migration cost.
+3. **Supply breakdown** -- Splitting supply into player/rival/import enables competition modeling. Rival supply decays slower (persistent presence), import supply auto-recovers (NPC baseline).
+4. **Multiplicative event stacking** -- Multiple active events compound multiplicatively, creating emergent price volatility. Bell-curve intensity prevents events from being binary on/off.
+5. **Manipulation risk-reward** -- Each tactic has meaningful tradeoffs: FloodMarket gives up product, CornerMarket costs $5K+ with massive heat, QualityFlood locks your reputation to high-quality.
+
+### Validation
+
+- [x] MarketSimulator initializes and registers on TransactionLedger.OnDayEnd
+- [x] CommodityTracker simulates 6 commodities with Brownian motion daily
+- [x] EconomyManager.CalculatePrice() delegates to MarketSimulator when present
+- [x] DealManager.ExecuteDeal() feeds sales into MarketSimulator with district
+- [x] Market events trigger stochastically with cooldowns and intensity curves
+- [x] 5 manipulation tactics execute with appropriate cost/heat/effect profiles
+- [x] MarketAnalysisUI dashboard toggles with M key
+- [x] GameBalanceConfig exposes all 12 market tuning values in Inspector
+- [x] Price history tracked per market for sparkline chart rendering
+- [x] EventBus publishes significant price changes and event state transitions
+- [x] Full save/load serialization for all market and commodity state
+
+---
+
 ## Upcoming Steps
 
 | Step | Title | Status | Est. Scripts |
 |------|-------|--------|-------------|
 | 11 | Money Laundering Pipeline | **COMPLETE** | 5 delivered |
 | 12 | Signature & Forensics System | **COMPLETE** | 5 delivered |
-| 13 | Advanced Economy / Market Simulator | UP NEXT | ~3-4 |
-| 14 | Rival Faction AI | PLANNED | ~5-6 |
+| 13 | Advanced Economy / Market Simulator | **COMPLETE** | 5 delivered |
+| 14 | Rival Faction AI | UP NEXT | ~5-6 |
 | 15 | Advanced Police & Investigation | PLANNED | ~4-5 |
 
 ---

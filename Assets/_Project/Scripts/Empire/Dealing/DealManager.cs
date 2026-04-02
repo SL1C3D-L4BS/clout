@@ -251,6 +251,16 @@ namespace Clout.Empire.Dealing
                 }
             }
 
+            // ── Step 13: Feed sale into MarketSimulator ─────────────
+            string dealDistrict = "";
+            var districtMgr = World.Districts.DistrictManager.Instance;
+            if (districtMgr != null)
+                dealDistrict = districtMgr.CurrentDistrictId;
+
+            var marketSim = Economy.MarketSimulator.Instance;
+            if (marketSim != null)
+                marketSim.RecordSale(productStack.productId, dealDistrict, quantity, quality);
+
             // Publish event
             EventBus.Publish(new DealCompletedEvent
             {
@@ -258,7 +268,7 @@ namespace Clout.Empire.Dealing
                 quantity = quantity,
                 cashEarned = totalCash,
                 customerId = _currentCustomer.customerName,
-                districtId = "" // TODO: territory zone
+                districtId = dealDistrict
             });
 
             EventBus.Publish(new MoneyChangedEvent

@@ -90,42 +90,36 @@ namespace Clout.Empire.Economy
         // ─── Core Price Formula (Spec v2.0 Section 23) ───────────────
 
         /// <summary>
-        /// Full multi-layer price calculation:
-        ///   P = P_base × (D/S) × (1 + E_r × (D/S - 1)) × (1 + R_m) × M_s × Q_mult
+        /// Full multi-layer price calculation.
         ///
-        /// The elasticity term amplifies or dampens the D/S effect:
-        ///   - Low elasticity (0.1): price barely moves with supply changes (staple goods)
-        ///   - High elasticity (0.8): price swings wildly with supply changes (luxury goods)
+        /// Step 13: When MarketSimulator is active, delegates to its advanced formula
+        /// (competition, events, commodity costs, consumer confidence). Falls back to
+        /// the legacy formula when MarketSimulator is not present.
         /// </summary>
         public float CalculatePrice(string productId, string zoneId, float quality = 0.5f)
         {
+            // Step 13 — delegate to MarketSimulator when available
+            var sim = MarketSimulator.Instance;
+            if (sim != null)
+                return sim.GetPrice(productId, zoneId, quality);
+
+            // Legacy formula (Phase 2 fallback)
             MarketData market = GetOrCreateMarket(productId, zoneId);
 
-            // 1. Base price
             float basePrice = market.basePrice;
-
-            // 2. Demand/Supply ratio (clamped to prevent extremes)
             float supply = Mathf.Max(1f, market.totalSoldThisCycle + 1f);
             float demand = Mathf.Max(1f, market.demandThisCycle);
             float dsRatio = Mathf.Clamp(demand / supply, minDemandSupplyRatio, maxDemandSupplyRatio);
 
-            // 3. Elasticity — amplifies how much D/S affects price
             float elasticity = market.elasticity > 0f ? market.elasticity : defaultElasticity;
             float elasticityFactor = 1f + elasticity * (dsRatio - 1f);
 
-            // 4. Risk modifier — heat creates risk premium (buyers pay more in hot zones)
             float riskModifier = 1f + (_currentGlobalHeat / 100f) * maxRiskPremium;
-
-            // 5. Seasonal multiplier
             float seasonal = seasonalMultiplier;
-
-            // 6. Quality premium — exponential curve rewards high quality
             float qualityMultiplier = Mathf.Pow(0.5f + quality, qualityExponent);
 
-            // Full formula
             float finalPrice = basePrice * dsRatio * elasticityFactor * riskModifier * seasonal * qualityMultiplier;
-
-            return Mathf.Max(1f, finalPrice);  // Floor of $1
+            return Mathf.Max(1f, finalPrice);
         }
 
         /// <summary>

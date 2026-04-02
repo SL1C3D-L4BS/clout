@@ -268,4 +268,48 @@ namespace Clout.Utils
         public float warningTime;
         public int raidStrength;
     }
+
+    // ─── Market Events (Step 13) ────────────────────────────────
+
+    public struct MarketPriceChangedEvent
+    {
+        public string productId;
+        public string districtId;
+        public float oldPrice;
+        public float newPrice;
+        public float percentChange;
+    }
+
+    public struct MarketEventTriggeredEvent
+    {
+        public string eventName;
+        public Empire.Economy.MarketEventType eventType;
+        public int durationDays;
+        public float priceMultiplier;
+        public float demandMultiplier;
+    }
+
+    public struct MarketEventEndedEvent
+    {
+        public string eventName;
+        public Empire.Economy.MarketEventType eventType;
+        public int durationDays;
+    }
+
+    public struct CommodityPriceShockEvent
+    {
+        public Empire.Economy.CommodityType commodity;
+        public float oldPrice;
+        public float newPrice;
+        public float percentChange;
+    }
+
+    public struct MarketManipulationEvent
+    {
+        public Empire.Economy.ManipulationType tactic;
+        public string productId;
+        public string districtId;
+        public float investment;
+        public float estimatedPriceImpact;
+    }
 }

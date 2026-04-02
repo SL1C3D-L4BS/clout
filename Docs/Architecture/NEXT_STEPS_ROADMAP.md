@@ -1,7 +1,7 @@
 # CLOUT -- Development Roadmap v3.0
 # From Vertical Slice to Criminal Universe Operating System
 
-> Version: 3.1 -- April 2, 2026
+> Version: 3.2 -- April 2, 2026
 > Status: CANONICAL -- This document supersedes all prior roadmap versions.
 > Canonical Spec: `Docs/Architecture/BUILD_SPECIFICATION.md` (v2.0 -- 70 sections)
 > Vision Doc: `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md`
@@ -13,7 +13,7 @@
 
 Phase 2 is complete. The game is a playable single-player criminal empire simulator. A player can spawn into a procedurally generated Bay Area district with full road networks and building types, engage in Souls-like melee and ranged combat, purchase ingredients from shop NPCs, cook product at crafting stations, deal to customers with loyalty and addiction modeling, earn dirty cash, buy and upgrade 8+ property types, hire autonomous workers (dealers, cooks, guards, growers) gated by CLOUT rank, manage a growing organization through the phone UI, and contend with a 6-tier wanted system driving dynamic police response including patrols, investigations, pursuits, and property raids. The full game flow includes milestone tracking, difficulty presets, auto-save, and performance monitoring.
 
-### System Inventory (~146 Scripts)
+### System Inventory (~156 Scripts)
 
 | System                  | Scripts | Status   |
 |-------------------------|---------|----------|
@@ -27,12 +27,13 @@ Phase 2 is complete. The game is a playable single-player criminal empire simula
 | Network (offline stub)  | 1       | STUB     |
 | Empire -- Crafting      | 8       | COMPLETE |
 | Empire -- Dealing       | 10      | COMPLETE |
-| Empire -- Economy       | 4       | COMPLETE |
+| Empire -- Economy       | 8       | COMPLETE (Phase 3 Steps 11+13) |
 | Empire -- Laundering    | 4       | COMPLETE (Phase 3 Step 11) |
 | Empire -- Properties    | 5       | COMPLETE |
 | Empire -- Employees     | 10      | COMPLETE |
 | Empire -- Reputation    | 1       | COMPLETE |
 | Empire -- Territory     | 1       | COMPLETE |
+| Forensics               | 5       | COMPLETE (Phase 3 Step 12) |
 | World -- Police         | 5       | COMPLETE |
 | World -- Districts      | 4       | COMPLETE |
 | World -- NPCs           | 3       | COMPLETE |
@@ -42,11 +43,13 @@ Phase 2 is complete. The game is a playable single-player criminal empire simula
 | UI / HUD                | 6       | COMPLETE |
 | UI / Phone              | 6       | COMPLETE |
 | UI / Laundering         | 1       | COMPLETE (Phase 3 Step 11) |
+| UI / Economy            | 2       | COMPLETE (Phase 3 Step 13) |
+| UI / Forensics          | 1       | COMPLETE (Phase 3 Step 12) |
 | Core / Game Flow        | 3       | COMPLETE |
 | Editor Tools            | 12      | COMPLETE |
 | Utils                   | 4       | COMPLETE |
 | Save System             | 1       | COMPLETE |
-| **Total**               | **146** |          |
+| **Total**               | **~156** |          |
 
 Core / Game Flow includes GameFlowManager, GameBalanceConfig, and PerformanceMonitor.
 
@@ -383,9 +386,9 @@ Assets/Scripts/UI/Forensics/ForensicExposureUI.cs
 
 ---
 
-### Step 13: Advanced Economy / Market Simulator
+### Step 13: Advanced Economy / Market Simulator -- COMPLETE
 
-Replace the current `EconomyManager` price formula with a full market simulation modeling supply, demand, elasticity, competition, and external events per district and product type.
+**Delivered April 2, 2026.** Full market simulation wrapping EconomyManager with competition, events, commodities, and manipulation.
 
 #### 13A: MarketSimulator
 
@@ -461,24 +464,22 @@ MarketManipulation
 |   - Side effects (heat, reputation changes)
 ```
 
-#### Files to Create
+#### Files Delivered
 
 ```
-Assets/Scripts/Empire/Economy/MarketSimulator.cs
-Assets/Scripts/Empire/Economy/SupplyDemandCurve.cs
-Assets/Scripts/Empire/Economy/MarketEvent.cs
-Assets/Scripts/Empire/Economy/MarketManipulation.cs
-Assets/Scripts/UI/Economy/MarketAnalysisUI.cs
+Assets/Scripts/Empire/Economy/MarketSimulator.cs     -- 550+ lines, core simulation singleton
+Assets/Scripts/Empire/Economy/CommodityTracker.cs    -- 300+ lines, O-U Brownian motion precursor prices
+Assets/Scripts/Empire/Economy/MarketEvent.cs         -- 165 lines, SO + 8 event types + runtime wrapper
+Assets/Scripts/Empire/Economy/MarketManipulation.cs  -- 310+ lines, 5 player tactics
+Assets/Scripts/UI/Economy/MarketAnalysisUI.cs        -- 400+ lines, 4-tab OnGUI dashboard (M key)
 ```
 
-#### Integration Points
+#### Integration Completed
 
-- `EconomyManager` -- MarketSimulator takes over price calculation. EconomyManager becomes a facade.
-- `DealManager` / `DealerAI` -- Pull prices from MarketSimulator instead of EconomyManager directly.
-- `DistrictManager` -- Feed district population, wealth level, and heat into market curves.
-- `FactionManager` (Step 14) -- Rival supply injected into market curves.
-- `PhoneProductsTab` -- Add market trend indicators and price history graphs.
-- `GameBalanceConfig` -- Market tuning values (elasticity ranges, event probabilities).
+- `EconomyManager.CalculatePrice()` delegates to `MarketSimulator.GetPrice()` when active
+- `DealManager.ExecuteDeal()` feeds sales into `MarketSimulator.RecordSale()` with district resolution
+- `GameBalanceConfig` +12 market tuning values (supply decay, import recovery, event modifier, commodity mean reversion, manipulation cooldown, competition floor, etc.)
+- `EventBus` +5 event structs: MarketPriceChanged, MarketEventTriggered/Ended, CommodityPriceShock, MarketManipulation
 
 ---
 
@@ -1017,7 +1018,7 @@ Begin implementation. Files to create in order:
    -- Add test laundering scenario to arena setup
 ```
 
-Steps 11-12 are complete. Proceed to Step 13: Advanced Economy / Market Simulator.
+Steps 11-13 are complete. Proceed to Step 14: Rival Faction AI.
 
 ---
 

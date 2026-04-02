@@ -265,7 +265,7 @@ namespace Clout.UI.Forensics
         {
             GUILayout.Label("Scrubber Equipment", _subHeaderStyle);
 
-            var scrubbers = FindObjectsByType<SignatureScrubber>(FindObjectsSortMode.None);
+            var scrubbers = FindObjectsByType<SignatureScrubber>(FindObjectsInactive.Exclude);
             if (scrubbers == null || scrubbers.Length == 0)
             {
                 GUILayout.Label("  No scrubbers installed.", _labelStyle);

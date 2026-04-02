@@ -157,6 +157,52 @@ namespace Clout.Core
         [Range(0f, 0.2f)]
         public float undercoverBuyHeatScaling = 0.08f;
 
+        // ─── Market Simulation (Step 13) ────────────────────────────
+
+        [Header("Market Simulation")]
+        [Tooltip("Daily supply decay rate — how fast yesterday's sales fade from supply curve")]
+        [Range(0.1f, 0.6f)]
+        public float marketSupplyDecayRate = 0.3f;
+
+        [Tooltip("Import supply recovery rate — how fast NPC baseline supply refills")]
+        [Range(0.05f, 0.3f)]
+        public float marketImportRecoveryRate = 0.1f;
+
+        [Tooltip("Global modifier on market event daily probability (1.0 = normal, 2.0 = double)")]
+        [Range(0.5f, 3f)]
+        public float marketEventGlobalModifier = 1.0f;
+
+        [Tooltip("Maximum simultaneous active market events")]
+        public int maxActiveMarketEvents = 3;
+
+        [Tooltip("Commodity mean-reversion speed (Ornstein-Uhlenbeck theta)")]
+        [Range(0.01f, 0.2f)]
+        public float commodityMeanReversion = 0.05f;
+
+        [Tooltip("Commodity price floor as ratio of base price")]
+        public float commodityPriceFloorRatio = 0.3f;
+
+        [Tooltip("Commodity price ceiling as ratio of base price")]
+        public float commodityPriceCeilingRatio = 4.0f;
+
+        [Tooltip("Market manipulation cooldown in game days")]
+        public float manipulationCooldownDays = 7f;
+
+        [Tooltip("Base rival supply per contested district per day")]
+        public float rivalBaseSupplyPerDay = 10f;
+
+        [Tooltip("Competition floor — minimum competitor price pressure")]
+        [Range(0.3f, 1f)]
+        public float competitionPriceFloor = 0.6f;
+
+        [Tooltip("Significant price change threshold for event publishing (0-1)")]
+        [Range(0.05f, 0.3f)]
+        public float significantPriceChangeThreshold = 0.1f;
+
+        [Tooltip("Consumer confidence sensitivity to heat (higher = buyers scare easier)")]
+        [Range(0.1f, 0.5f)]
+        public float consumerConfidenceHeatSensitivity = 0.3f;
+
         // ─── Workers — Wages & Capacity ─────────────────────────────
 
         [Header("Workers — Wages & Capacity")]

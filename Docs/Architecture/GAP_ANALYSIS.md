@@ -1,10 +1,10 @@
 # CLOUT -- Gap Analysis: Spec v3.0 vs Current Codebase
 
-> **Version:** 2.1
+> **Version:** 2.2
 > **Date:** April 2, 2026
-> **Codebase:** ~151 C# scripts | Unity 6 (6000.4.0f1) | URP
+> **Codebase:** ~156 C# scripts | Unity 6 (6000.4.0f1) | URP
 > **Spec:** BUILD_SPECIFICATION v3.0 (70 sections)
-> **Phase Status:** Phase 3 IN PROGRESS (Steps 11-12 COMPLETE)
+> **Phase Status:** Phase 3 IN PROGRESS (Steps 11-13 COMPLETE)
 
 This document maps every section of the v3.0 spec to the current codebase.
 It identifies gaps, tracks implementation status, and prioritizes what must
@@ -84,7 +84,10 @@ be built in Phase 3 and beyond.
 
 | # | Section | Status | Current State | Gap / Notes |
 |---|---------|--------|---------------|-------------|
-| 23 | Multi-Layer Economy | **[X] BUILT** | Full price formula with elasticity, risk modifier, seasonal multiplier | Aligned |
+| 23 | Multi-Layer Economy | **[X] BUILT** | Full price formula with elasticity, risk modifier, seasonal multiplier. Step 13: MarketSimulator with competition/events/commodities/manipulation wrapping EconomyManager | Aligned |
+| 23b | Commodity Markets | **[X] BUILT** | CommodityTracker: 6 precursor commodities with Ornstein-Uhlenbeck Brownian motion, mean reversion, 90-day price history, external shocks | Step 13 COMPLETE |
+| 23c | Market Events | **[X] BUILT** | 8 event types (Drought, Festival, PortStrike, PoliceCrackdown, RivalBust, MediaExpose, CelebrityDeath, SupplyRouteCut) with stochastic triggers, bell-curve intensity, cooldowns | Step 13 COMPLETE |
+| 23d | Market Manipulation | **[X] BUILT** | 5 player tactics (Flood, Scarcity, Corner, PriceWar, QualityFlood) with cost/risk/heat profiles | Step 13 COMPLETE |
 | 24 | Player-Driven Markets | **[ ] MISSING** | No player-to-player market, no auction house, no dynamic supply/demand PvP | Phase 4 |
 | 25 | Crypto / Dark Web | **[ ] MISSING** | No cryptocurrency system, no dark web marketplace | Phase 5 |
 
@@ -199,7 +202,7 @@ be built in Phase 3 and beyond.
 | Part II: Player Systems | 5 | 3 | 2 | 0 | 10 |
 | Part III: Empire Systems | 5 | 1 | 1 | 0 | 7 |
 | Part IV: World Systems | 4 | 0 | 3 | 0 | 7 |
-| Part V: Economy & Markets | 1 | 0 | 2 | 0 | 3 |
+| Part V: Economy & Markets | 4 | 0 | 2 | 0 | 6 |
 | Part VI: Law Enforcement | 1 | 1 | 3 | 0 | 5 |
 | Part VII: AI & Factions | 0 | 2 | 3 | 0 | 5 |
 | Part VIII: Social & Political | 1 | 1 | 3 | 0 | 5 |
@@ -208,21 +211,21 @@ be built in Phase 3 and beyond.
 | Part XI: UI/UX | 2 | 0 | 4 | 0 | 6 |
 | Part XII: Content & Polish | 0 | 0 | 6 | 0 | 6 |
 | Part XIII: Production | 7 | 0 | 0 | 0 | 7 |
-| **TOTALS** | **30** | **13** | **33** | **0** | **76** |
+| **TOTALS** | **33** | **13** | **33** | **0** | **79** |
 
-> **Note:** 76 rows reflects sub-sections (5b, 6b, 6c, 6d, 7b, 7c, 7d) counted individually.
-> Mapped to the 70 top-level spec sections: ~22 BUILT, ~16 PARTIAL, ~32 MISSING/DEFERRED.
+> **Note:** 79 rows reflects sub-sections counted individually.
+> Mapped to the 70 top-level spec sections: ~25 BUILT, ~16 PARTIAL, ~32 MISSING/DEFERRED.
 
 ### Coverage
 
 | Metric | Value |
 |--------|-------|
-| Sections with code (BUILT + PARTIAL) | 43 of 70 |
-| Spec coverage | **~56%** |
-| Change from Phase 2 | +2% (up from ~54%) |
-| Scripts in codebase | ~146 |
+| Sections with code (BUILT + PARTIAL) | 46 of 70 |
+| Spec coverage | **~58%** |
+| Change from Phase 2 | +4% (up from ~54%) |
+| Scripts in codebase | ~156 |
 | Phase 2 status | **COMPLETE** |
-| Phase 3 status | **IN PROGRESS** (Step 11/5 complete) |
+| Phase 3 status | **IN PROGRESS** (Steps 11-13 of 15 complete) |
 
 ---
 
@@ -242,11 +245,10 @@ ordered by build step:
   forensic trace system linking product to producer, law enforcement evidence chain
 - **Depends on:** ProductionStation (BUILT), RecipeSO (BUILT)
 
-### Step 13 -- Advanced Economy / Market Simulator
-- **Current:** Multi-layer economy exists but no dynamic market simulation
-- **Required:** NPC-driven supply/demand fluctuation, price wars between rivals,
-  market crash/boom cycles, territory-based price variance
-- **Depends on:** EconomyManager (BUILT), DistrictManager (BUILT)
+### Step 13 -- Advanced Economy / Market Simulator -- COMPLETE
+- **Delivered:** MarketSimulator (550+ lines), CommodityTracker (300+ lines), MarketEvent SO (165 lines), MarketManipulation (310+ lines), MarketAnalysisUI (400+ lines)
+- **Features:** Full supply/demand curves with competition modeling, 8 market event types with stochastic triggers, 6 commodity prices via Ornstein-Uhlenbeck Brownian motion, 5 player manipulation tactics, sparkline price charts, 90-day price history, consumer confidence modeling, rivalry supply pressure
+- **Integration:** EconomyManager (delegates pricing to MarketSimulator), DealManager (feeds sales + district), GameBalanceConfig (+12 tuning values), EventBus (+5 events), TransactionLedger (daily tick)
 
 ### Step 14 -- Rival Faction AI
 - **Current:** No faction AI
@@ -285,4 +287,4 @@ These systems are also slated for Phase 3 but are not primary build steps:
 
 ---
 
-*Document updated April 2, 2026. Phase 3 Step 11 (Money Laundering Pipeline) COMPLETE. Next update scheduled after Phase 3 Step 12 completion.*
+*Document updated April 2, 2026. Phase 3 Steps 11-13 COMPLETE. Next update scheduled after Phase 3 Step 14 completion.*
