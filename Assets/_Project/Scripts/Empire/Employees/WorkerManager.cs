@@ -351,6 +351,21 @@ namespace Clout.Empire.Employees
             return result;
         }
 
+        /// <summary>
+        /// Get worker count at a property by property name and role.
+        /// Used by LaunderingManager to count accountants at front businesses.
+        /// </summary>
+        public int GetWorkerCountAtProperty(string propertyName, EmployeeRole role)
+        {
+            int count = 0;
+            foreach (var w in _workers)
+            {
+                if (w.assignedPropertyId == propertyName && w.role == role)
+                    count++;
+            }
+            return count;
+        }
+
         public List<WorkerInstance> GetWorkersByProperty(Property property)
         {
             var result = new List<WorkerInstance>();

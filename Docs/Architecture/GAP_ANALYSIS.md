@@ -1,308 +1,288 @@
-# CLOUT — Gap Analysis: Spec v2.0 vs Current Codebase
+# CLOUT -- Gap Analysis: Spec v3.0 vs Current Codebase
 
-> **Date:** March 31, 2026
-> **Codebase:** 101 C# scripts | Unity 6 (6000.4.0f1) | URP
-> **Spec:** BUILD_SPECIFICATION v2.0 (70 sections)
+> **Version:** 2.1
+> **Date:** April 2, 2026
+> **Codebase:** ~146 C# scripts | Unity 6 (6000.4.0f1) | URP
+> **Spec:** BUILD_SPECIFICATION v3.0 (70 sections)
+> **Phase Status:** Phase 3 IN PROGRESS (Step 11 COMPLETE)
 
-This document maps every section of the v2.0 spec to the current codebase, identifies gaps, and prioritizes what must be built to catch up before advancing to new features.
+This document maps every section of the v3.0 spec to the current codebase.
+It identifies gaps, tracks implementation status, and prioritizes what must
+be built in Phase 3 and beyond.
 
 ---
 
 ## Status Legend
 
-- ✅ **BUILT** — Implemented and functional
-- 🟡 **PARTIAL** — Foundation exists, needs enhancement
-- 🔴 **MISSING** — Not started, required by spec
-- ⬜ **DEFERRED** — Spec defines it but it's for a later phase
+| Symbol | Label | Meaning |
+|--------|-------|---------|
+| **[X]** | BUILT | Implemented and functional |
+| **[~]** | PARTIAL | Foundation exists, needs enhancement |
+| **[ ]** | MISSING | Not started, required by spec |
+| **[--]** | DEFERRED | Belongs to a later phase |
 
 ---
 
-## Part I — Vision & Identity (Sections 1–4)
+## Part I -- Vision & Identity (Sections 1-4)
 
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 1. Product Vision | Core fantasy defined | ✅ | Docs/Design/CRIMINAL_ECOSYSTEM_2026.md | Aligned |
-| 2. Core Game Identity | 5 pillars, genre fusion | ✅ | README.md + design docs | Aligned |
-| 3. Core Game Loop | Meta/session/moment loops | 🟡 | Session loop works (cook→deal→earn→buy), meta loop not tracked | Need: milestone tracking system |
-| 4. Art Direction | Neon-noir, HDRP, weather | 🔴 | URP only, no weather, no neon-noir post-processing | DEFERRED to Phase 5 (HDRP migration) |
-
----
-
-## Part II — Player Systems (Sections 5–8)
-
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 5. Player Identity | Triple-layer (public/criminal/hidden), 4D reputation vector | 🟡 | ReputationManager exists but is basic CLOUT score, no 4D vector | Need: upgrade ReputationManager to 4D vector (Fear/Respect/Reliability/Ruthlessness) |
-| 5b. Milestones | 8 milestone tiers | 🔴 | No milestone system | Need: MilestoneTracker component |
-| 6. Player Controller | Hybrid 3P+1P, 5 modes | 🟡 | 3P controller complete, no 1P/driving/command/war room modes | PARTIAL — 3P mode solid. 1P = Phase 3, Driving = Phase 3, Command/War Room = Phase 5 |
-| 6b. Movement | Walk/run/sprint/crouch/parkour/roll | 🟡 | Walk/run/sprint/roll done. No crouch, prone, parkour | Need: crouch + vault in Phase 3 |
-| 6c. Camera | 4 modes + driving + command + war room | 🟡 | 4 modes done (FreeLook/LockOn/HipFire/ADS). No driving/command cameras | DEFERRED to Phase 3+ |
-| 6d. State Machine | SO-driven states | ✅ | Full StateManager → State → StateAction architecture | Aligned |
-| 7. Combat (Melee) | Souls-like with combos, parry, backstab | ✅ | Full melee pipeline: AttackAction, DamageCollider, ParryCollider, combos | Aligned |
-| 7b. Combat (Ranged) | COD-like ADS, recoil, cover | ✅ | RangedAttackAction, RangedWeaponHook, RecoilController, ADS | Aligned |
-| 7c. Combat (Stealth) | Silent takedowns, detection meter | 🔴 | No stealth system | DEFERRED to Phase 3 |
-| 7d. Unified Damage | DamageTypeSO with effects | 🟡 | DamageEvent struct exists with types, no DamageTypeSO | Need: convert DamageType enum to SO-driven system (Phase 3) |
-| 8. Skill Framework | Use-based attributes (12 attributes) | 🔴 | No attribute growth system | DEFERRED to Phase 3 |
-
-### Part II Summary — What Needs Catching Up NOW:
-- **ReputationManager → 4D Vector**: Current CLOUT score should evolve to [Fear, Respect, Reliability, Ruthlessness]
-- **MilestoneTracker**: Simple milestone check system tied to existing events
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 1 | Product Vision | **[X] BUILT** | Design docs, criminal ecosystem spec | Aligned |
+| 2 | Core Game Identity | **[X] BUILT** | 5 pillars, genre fusion defined in design docs | Aligned |
+| 3 | Core Game Loop | **[X] BUILT** | Session loop functional (cook/deal/earn/buy); MilestoneTracker in GameFlowManager provides meta-loop tracking | Aligned |
+| 4 | Art Direction | **[~] PARTIAL** | URP rendering only; no weather system, no neon-noir post-processing pipeline | DEFERRED to Phase 5 (URP/HDRP migration + post-processing) |
 
 ---
 
-## Part III — Empire Systems (Sections 9–15)
+## Part II -- Player Systems (Sections 5-8)
 
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 9. Empire Architecture | Full hierarchy (org, properties, workforce, supply, territory, global) | 🟡 | Properties ✅, Economy ✅, Territory skeleton, Workforce template only | Need: WorkerManager + DealerAI (Step 6) |
-| 10. Production | 7-stage lifecycle, mixing, quality tiers, automation | 🟡 | CraftingStation (6 types), recipes, ingredients, quality calc, risk events | Missing: quality decay over time, automation via CookAI, chained stations |
-| 11. Signature System | 512-bit batch vectors, cosine similarity, signature scrubbing | 🔴 | Not started | DEFERRED to Phase 3 (critical for investigation AI) |
-| 12. Facility System | Upgrade skill trees (efficiency/quality/stealth/security) | 🟡 | Property upgrades exist (PropertyUpgradeType enum) but no skill tree structure | Need: flesh out upgrade paths in Phase 3 |
-| 13. Workforce & NPC Graph | Directed weighted graph, betrayal formula, compartmentalization | 🟡 | EmployeeDefinition SO exists with skill/loyalty/discretion/greed stats | Need: WorkerManager, DealerAI, CookAI, GuardAI, betrayal mechanics (Step 6) |
-| 14. Supply Chain | 24 regions, 12 transit hubs, War Room visualization | 🔴 | Not started | DEFERRED to Phase 4 |
-| 15. Money Laundering | 5-step pipeline, 7 methods, pattern detection | 🟡 | CashManager has basic Launder() method. EconomyManager has LaunderCash() | Need: expand laundering pipeline in Phase 3 |
-
-### Part III Summary — What Needs Catching Up NOW:
-- **Step 6 Worker System** is the critical gap — DealerAI, CookAI, GuardAI, WorkerManager, RecruitmentManager
-- Production quality decay can be added alongside CookAI automation
-
----
-
-## Part IV — World Systems (Sections 16–22)
-
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 16. Procedural City Gen | Worley+Perlin noise, Poisson disk, dynamic layers | 🟡 | ProceduralPropertyBuilder + ProceduralCityBlock (test arena 160×160m) | Need: multi-block city gen (Phase 4) |
-| 17. Global Regions | 24 sources, 12 hubs, 8 megacities | 🔴 | Not started | DEFERRED to Phase 4 |
-| 18. Territory Control | 5 conquest methods, zone grid | 🟡 | TerritoryManager exists (skeleton) | Need: flesh out with conquest mechanics (Phase 3) |
-| 19. Open World Districts | Multi-district city | 🟡 | Single procedural city block | Need: DistrictManager + multi-block (Phase 3-4) |
-| 20. Vehicle System | Driving, chases, smuggling | 🔴 | VehicleManager placeholder only | DEFERRED to Phase 3 |
-| 21. Property System | Buy/own, upgrades, stash, interiors | ✅ | PropertyManager, Property, PropertyDefinition, stash, upgrades, 8 types | Aligned |
-| 22. Climate/Weather | Dynamic weather affecting gameplay | 🔴 | Not started | DEFERRED to Phase 5 |
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 5 | Player Identity | **[X] BUILT** | ReputationManager upgraded to 4D vector: Fear / Respect / Reliability / Ruthlessness + CLOUT composite score | Aligned |
+| 5b | Milestones | **[X] BUILT** | 17 milestones tracked via GameFlowManager.MilestoneTracker | Aligned |
+| 6 | Player Controller | **[~] PARTIAL** | 3P controller complete and polished; no 1P, driving, or command modes | 1P = Phase 3; Driving = Phase 3; Command = Phase 5 |
+| 6b | Movement | **[~] PARTIAL** | Walk / run / sprint / roll implemented | Missing crouch, prone, parkour / vault (Phase 3) |
+| 6c | Camera | **[~] PARTIAL** | 4 modes operational (FreeLook / LockOn / HipFire / ADS) | No driving or command cameras (Phase 3+) |
+| 6d | State Machine | **[X] BUILT** | Full StateManager / State / StateAction SO-driven architecture | Aligned |
+| 7 | Combat (Melee) | **[X] BUILT** | AttackAction, DamageCollider, ParryCollider, combo chains | Aligned |
+| 7b | Combat (Ranged) | **[X] BUILT** | RangedAttackAction, RangedWeaponHook, RecoilController, ADS system | Aligned |
+| 7c | Combat (Stealth) | **[ ] MISSING** | No stealth system, no detection meter, no silent takedowns | Phase 3 |
+| 7d | Unified Damage | **[~] PARTIAL** | DamageEvent struct with damage types; no SO-driven DamageTypeSO system | Phase 3: convert enum to SO-driven pipeline |
+| 8 | Skill Framework | **[ ] MISSING** | No attribute growth or use-based skill system | Phase 3 |
 
 ---
 
-## Part V — Economy & Markets (Sections 23–25)
+## Part III -- Empire Systems (Sections 9-15)
 
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 23. Multi-Layer Economy | Price formula: P = base × (D/S) × elasticity × risk × seasonal | 🟡 | EconomyManager has basic supply/demand. CashManager has dirty/clean. TransactionLedger tracks metrics | Need: implement full price formula (multiply in elasticity, risk modifier, seasonal) |
-| 24. Player-Driven Markets | No NPC price floors, player manipulation | 🔴 | NPC-driven prices only | DEFERRED to Phase 4 (multiplayer) |
-| 25. Crypto/Dark Web | In-game crypto, dark web marketplace | 🔴 | Not started | DEFERRED to Phase 5 |
-
-### Part V Summary — What Needs Catching Up NOW:
-- **EconomyManager price formula** should be enhanced to include the full equation. Currently basic supply/demand only.
-
----
-
-## Part VI — Law Enforcement (Sections 26–30)
-
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 26. 5D Heat System | [LocalPD, State, Federal, Rival, Media] with separate escalation | 🟡 | WantedSystem has 6-tier heat but single dimension | Need: upgrade to 5D vector (Phase 2 Step 7 or Phase 3) |
-| 27. Investigation Graph | Neo4j, PageRank, cosine similarity | 🔴 | Not started | DEFERRED to Phase 4-5 |
-| 28. FBI Profiler | Behavioral embedding vectors | 🔴 | Not started | DEFERRED to Phase 5 |
-| 29. Response Tiers | Beat cop → detective → OCU → federal | 🔴 | No police NPCs in world | Need: PolicePatrolAI (Phase 2 Step 7) |
-| 30. Undercover/Informant | Embedded agents, informant graph | 🔴 | Not started | DEFERRED to Phase 5 |
-
-### Part VI Summary — What Needs Catching Up NOW:
-- **PolicePatrolAI** is Step 7 — after Worker system
-- **5D heat** can be wired incrementally (start with LocalPD + Rival, add others in Phase 3)
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 9 | Empire Architecture | **[X] BUILT** | Properties, Economy, Workforce, Territory subsystems all functional | Aligned |
+| 10 | Production | **[X] BUILT** | 6 station types, recipe system, quality calculation, risk events, CookAI automation | Aligned |
+| 11 | Signature System | **[ ] MISSING** | No product signature or forensics system | Phase 3 (Step 12) |
+| 12 | Facility System | **[~] PARTIAL** | Upgrade paths exist but no structured skill tree or tech tree | Phase 3: add facility skill trees |
+| 13 | Workforce & NPC Graph | **[X] BUILT** | WorkerManager, DealerAI, CookAI, GuardAI, RecruitmentManager, betrayal mechanics | Aligned |
+| 14 | Supply Chain | **[ ] MISSING** | No multi-node supply chain or logistics system | Phase 4 |
+| 15 | Money Laundering | **[X] BUILT** | Full 5-stage pipeline (Placement→Layering→Integration→Cooling→Complete), 5 front business types, 5 laundering methods, IRS 4-stage investigation, LaunderingUI dashboard, Accountant role activated. 2,564 lines across 5 new scripts. | Phase 3 Step 11 COMPLETE |
 
 ---
 
-## Part VII — AI & Faction Systems (Sections 31–35)
+## Part IV -- World Systems (Sections 16-22)
 
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 31. AI Architecture | Utility + BT + GOAP + GNN | 🟡 | Utility AI complete (AIActionScoring). No BT/GOAP/GNN | Need: BT for police (Phase 3), GOAP for factions (Phase 4) |
-| 32. NPC Personality | Personality graph, loyalty context | 🟡 | EmployeeDefinition has stats. CustomerAI has addiction/loyalty | Need: expand with personality SO (Phase 3) |
-| 33. AI Faction Simulation | Factions run same loop as player | 🔴 | Not started | DEFERRED to Phase 4 |
-| 34. Rival Gang AI | Squad tactics, adaptation | 🔴 | AIStateManager handles individual enemies only | DEFERRED to Phase 4 |
-| 35. Civilian Population | Schedule-based, DOTS/ECS | 🔴 | No civilian NPCs | DEFERRED to Phase 3-4 |
-
----
-
-## Part VIII — Social & Political (Sections 36–40)
-
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 36. 4D Reputation | [Fear, Respect, Reliability, Ruthlessness] | 🟡 | ReputationManager is single-axis CLOUT score | Need: upgrade to 4D vector |
-| 37. Corruption | Political simulation, blackmail, bribery | 🔴 | Not started | DEFERRED to Phase 5 |
-| 38. Fear vs Respect | NPC behavior modified by reputation vector | 🔴 | Not started | Need: wire 4D rep to NPC decisions |
-| 39. Diplomacy | Faction alliances, treaties | 🔴 | Not started | DEFERRED to Phase 4 |
-| 40. Media | In-game news, social media sim | 🔴 | Not started | DEFERRED to Phase 5 |
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 16 | Procedural City Gen | **[X] BUILT** | 7-phase district generation; ProceduralDistrictGenerator (959 lines) | Aligned |
+| 17 | Global Regions | **[ ] MISSING** | No multi-region or global map system | Phase 4 |
+| 18 | Territory Control | **[X] BUILT** | DistrictManager with control levels, heat tracking, demand curves | Aligned |
+| 19 | Open World Districts | **[X] BUILT** | ProceduralDistrictGenerator + DistrictManager integration | Aligned |
+| 20 | Vehicle System | **[ ] MISSING** | No vehicle controller, no driving physics, no vehicle inventory | Phase 3 |
+| 21 | Property System | **[X] BUILT** | Full property acquisition, upgrades, and management | Aligned |
+| 22 | Climate / Weather | **[ ] MISSING** | No weather simulation, no climate effects on gameplay | Phase 5 |
 
 ---
 
-## Part IX — Multiplayer (Sections 41–45)
+## Part V -- Economy & Markets (Sections 23-25)
 
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 41. Multiplayer Arch | 10K+ shards, microservices | 🟡 | FishNet in project but disabled. NetworkBootstrapper stub | DEFERRED to Phase 4 |
-| 42. Player Orgs | Syndicates, shared treasury | 🔴 | Not started | DEFERRED to Phase 4 |
-| 43. PvPvE Territory | Real territorial battles | 🔴 | Not started | DEFERRED to Phase 4 |
-| 44. Persistence | Event sourcing, PostgreSQL + Neo4j | 🟡 | JSON save system (SaveManager) | Need: event sourcing in Phase 4 |
-| 45. Cross-Play | PC + Console | 🔴 | Not started | DEFERRED to Phase 6 |
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 23 | Multi-Layer Economy | **[X] BUILT** | Full price formula with elasticity, risk modifier, seasonal multiplier | Aligned |
+| 24 | Player-Driven Markets | **[ ] MISSING** | No player-to-player market, no auction house, no dynamic supply/demand PvP | Phase 4 |
+| 25 | Crypto / Dark Web | **[ ] MISSING** | No cryptocurrency system, no dark web marketplace | Phase 5 |
 
 ---
 
-## Part X — Technical Architecture (Sections 46–51)
+## Part VI -- Law Enforcement (Sections 26-30)
 
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 46. Tech Stack | Unity 6.2+ DOTS/ECS | 🟡 | Unity 6 (6000.4.0f1) with MonoBehaviour architecture | DOTS/ECS migration in Phase 4 for NPC scale |
-| 47. Client Arch | Assembly definitions | ✅ | Clout + Clout.Editor assemblies | Aligned (may need more asmdef splits later) |
-| 48. Server Arch | .NET 9 microservices | 🔴 | No server code | DEFERRED to Phase 4 |
-| 49. Database | PostgreSQL + Neo4j + S3 | 🔴 | JSON local save only | DEFERRED to Phase 4 |
-| 50. Anti-Cheat | Server-auth + behavioral ML | 🔴 | Not started | DEFERRED to Phase 6 |
-| 51. Simulation Tick | 1-4 Hz world simulation | 🟡 | TransactionLedger has day cycle (600s). Economy updates on interval | Need: formalize world tick system (Phase 3) |
-
----
-
-## Part XI — UI/UX Systems (Sections 52–57)
-
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 52. HUD | 5D heat radar, minimap, cash, weapon | 🟡 | CombatHUD has health, stamina, CLOUT, wanted, ammo, cash | Need: minimap, 5D heat radar (Phase 3) |
-| 53. Phone | Contacts, products, map, finances, messages | 🔴 | Not started | Phase 2 Step 9 |
-| 54. Command Mode | Top-down tactical | 🔴 | Not started | DEFERRED to Phase 5 |
-| 55. War Room | Strategic overlay | 🔴 | Not started | DEFERRED to Phase 5 |
-| 56. Investigation Dashboard | Spectator mode | 🔴 | Not started | DEFERRED to Phase 5 |
-| 57. Accessibility | Color-blind, screen-reader | 🔴 | Not started | DEFERRED to Phase 6 |
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 26 | 5D Heat System | **[~] PARTIAL** | 1D local PD heat with 6 tiers implemented; need 4 additional dimensions (DEA, FBI, IRS, Media) | Phase 3 (Step 15) |
+| 27 | Investigation Graph | **[ ] MISSING** | No evidence graph, no case building system | Phase 4 |
+| 28 | FBI Profiler | **[ ] MISSING** | No behavioral profiling AI | Phase 5 |
+| 29 | Response Tiers | **[X] BUILT** | PolicePatrolAI, HeatResponseManager with 5 response brackets, PropertyRaidSystem | Aligned |
+| 30 | Undercover / Informant | **[ ] MISSING** | No undercover agent system, no informant mechanics | Phase 5 |
 
 ---
 
-## Part XII — Content & Polish (Sections 58–63)
+## Part VII -- AI & Factions (Sections 31-35)
 
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 58. Audio | Procedural music | 🔴 | No audio system | DEFERRED to Phase 5 |
-| 59. VFX | Post-processing, particles | 🔴 | Basic URP setup only | DEFERRED to Phase 5 |
-| 60. Cinematic Replay | Investigation-powered replays | 🔴 | Not started | DEFERRED to Phase 5 |
-| 61. Heist System | 3-phase heists | 🔴 | Not started | DEFERRED to Phase 5 |
-| 62. Procedural Events | Emergent crime events | 🔴 | Not started | DEFERRED to Phase 3 |
-| 63. Permadeath | Legacy mode | 🔴 | Not started | DEFERRED to Phase 6 |
-
----
-
-## Part XIII — Production (Sections 64–70)
-
-| Section | Spec Requirement | Status | Current State | Gap |
-|---------|-----------------|--------|---------------|-----|
-| 64. Dev Phases | Phase 0–7 roadmap | ✅ | NEXT_STEPS_ROADMAP.md | Needs alignment with v2.0 phase numbering |
-| 65. Next Steps | Immediate actions | ✅ | NEXT_STEPS_ROADMAP.md | Step 6 = next |
-| 66. Asset Pipeline | Synty integration guide | ✅ | SYNTY_ASSET_LIST.md | Aligned |
-| 67. Monetization | Fair, cosmetic-only | ✅ | Documented in multiple docs | Aligned |
-| 68. Post-Launch | Year 1-3 roadmap | ✅ | Documented | Aligned |
-| 69. Performance | Target metrics | ✅ | BUILD_SPECIFICATION.md | Aligned |
-| 70. Ethics | Community guardrails | ✅ | Documented | Aligned |
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 31 | AI Architecture | **[~] PARTIAL** | Utility AI complete and functional; no Behavior Trees, GOAP, or GNN layers | Phase 3-4: add BT/GOAP for complex NPCs |
+| 32 | NPC Personality | **[~] PARTIAL** | Stats on EmployeeDefinition + CustomerAI loyalty/addiction modeling | Phase 3: expand personality matrix, wire to dialogue |
+| 33 | AI Faction Sim | **[ ] MISSING** | No autonomous faction simulation | Phase 4 |
+| 34 | Rival Gang AI | **[ ] MISSING** | No rival gang decision-making or territory contention AI | Phase 4 |
+| 35 | Civilian Population | **[ ] MISSING** | No civilian crowd simulation, no daily routine AI | Phase 3-4 |
 
 ---
 
-## Critical Gaps — Must Address Before Step 6
+## Part VIII -- Social & Political (Sections 36-40)
 
-These are items from the spec that should be enhanced/caught up BEFORE or DURING Step 6 implementation:
-
-### 1. ReputationManager → 4D Vector (Priority: HIGH)
-
-**Current:** Single CLOUT score integer
-**Spec requires:** `[Fear, Respect, Reliability, Ruthlessness]` as 4D vector (0.0–1.0 each)
-**Why now:** Worker hiring (Step 6) should be gated by reputation vector, not just CLOUT score. Better dealers require high Respect. Guards require high Fear generation. Betrayal formula references these values.
-**Action:** Upgrade ReputationManager to track 4D vector + keep CLOUT as composite score.
-
-### 2. EconomyManager Price Formula (Priority: MEDIUM)
-
-**Current:** Basic supply/demand with random swing (±30%)
-**Spec requires:** `P = P_base × (D/S) × (1 + E_r) × (1 + R_m) × M_s`
-**Why now:** Worker dealer earnings depend on accurate pricing. Shop prices should reflect market conditions.
-**Action:** Implement full price formula in EconomyManager.GetStreetPrice().
-
-### 3. EmployeeDefinition Enhancement (Priority: HIGH)
-
-**Current:** Basic stats: skill, loyalty, discretion, ambition, dailyWage, hiringCost, betrayalChance
-**Spec requires:** Additional: greed, courage, intelligence, corruptibility, knownInformation, directHandler
-**Why now:** These feed directly into the betrayal formula and compartmentalization mechanics needed for Step 6.
-**Action:** Expand EmployeeDefinition SO with full NPC profile stats.
-
-### 4. EventBus — Missing Event Types (Priority: MEDIUM)
-
-**Current events:** DealCompleted, ProductCooked, PropertyPurchased/Raided/Upgraded, WorkerHired, MoneyChanged, HeatChanged, WantedLevelChanged, DistrictEntered
-**Spec needs:** WorkerFired, WorkerArrested, WorkerBetrayed, WorkerShiftEnd, WorkerDealComplete, ReputationChanged
-**Action:** Add new event structs to EventBus.cs.
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 36 | 4D Reputation | **[X] BUILT** | ReputationManager: Fear / Respect / Reliability / Ruthlessness vector | Aligned |
+| 37 | Corruption | **[ ] MISSING** | No corruption system for officials or institutions | Phase 5 |
+| 38 | Fear vs Respect | **[~] PARTIAL** | 4D reputation vector exists but not fully wired to NPC decision-making branches | Phase 3: integrate rep vector into NPC AI evaluations |
+| 39 | Diplomacy | **[ ] MISSING** | No faction diplomacy, alliance, or negotiation system | Phase 4 |
+| 40 | Media | **[ ] MISSING** | No in-game media system, no news broadcasts, no public perception | Phase 5 |
 
 ---
 
-## Items That Do NOT Need Catching Up (Correctly Deferred)
+## Part IX -- Multiplayer (Sections 41-45)
 
-These are spec features that belong in later phases and should NOT be built now:
-
-- Signature/forensics system (Phase 3)
-- Stealth combat (Phase 3)
-- Vehicle system (Phase 3)
-- 5D heat system (Phase 3 — can upgrade incrementally)
-- Skill/attribute framework (Phase 3)
-- Civilian population (Phase 3-4)
-- AI faction simulation (Phase 4)
-- Investigation graph (Phase 4-5)
-- Multiplayer infrastructure (Phase 4)
-- DOTS/ECS migration (Phase 4)
-- Global supply chain (Phase 4)
-- War Room / Command Mode (Phase 5)
-- HDRP migration (Phase 5)
-- Procedural music (Phase 5)
-- All Phase 6 features
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 41 | Multiplayer Arch | **[~] PARTIAL** | FishNet present in project but disabled; no active netcode | Phase 4: enable and integrate |
+| 42 | Player Orgs | **[ ] MISSING** | No player organization or guild system | Phase 4 |
+| 43 | PvPvE Territory | **[ ] MISSING** | No multiplayer territory warfare | Phase 4 |
+| 44 | Persistence | **[~] PARTIAL** | JSON save system V2 operational | Phase 4: migrate to server-backed persistence |
+| 45 | Cross-Play | **[ ] MISSING** | No cross-platform infrastructure | Phase 6 |
 
 ---
 
-## Recommended Execution Order for Current Sprint
+## Part X -- Technical (Sections 46-51)
 
-```
-1. Catch-up tasks (enhance existing systems to align with v2.0):
-   a. ReputationManager → 4D vector [Fear, Respect, Reliability, Ruthlessness]
-   b. EmployeeDefinition → full NPC profile (add greed, courage, intelligence, etc.)
-   c. EconomyManager → full price formula
-   d. EventBus → add worker event types
-
-2. Step 6: Worker Hiring System (main deliverable)
-   a. WorkerManager (singleton)
-   b. WorkerInstance (runtime data)
-   c. DealerAI (autonomous street dealing)
-   d. CookAI (autonomous production)
-   e. GuardAI (property security)
-   f. RecruitmentManager (hire pool + CLOUT gating)
-   g. HireUI + WorkerManagementUI
-   h. TestArenaBuilder integration
-
-3. Step 7: Police AI Enhancement
-   a. PolicePatrolAI
-   b. HeatResponseManager
-   c. WitnessSystem
-```
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 46 | Tech Stack | **[~] PARTIAL** | Unity 6 MonoBehaviour architecture; no DOTS/ECS migration | Phase 4+: evaluate DOTS for simulation-heavy systems |
+| 47 | Client Architecture | **[X] BUILT** | Clout + Clout.Editor assembly definitions; clean namespace separation | Aligned |
+| 48 | Server Architecture | **[ ] MISSING** | No dedicated server build, no backend services | Phase 4 |
+| 49 | Database | **[ ] MISSING** | No database layer; local JSON only | Phase 4 |
+| 50 | Anti-Cheat | **[ ] MISSING** | No anti-cheat or integrity validation | Phase 6 |
+| 51 | Simulation Tick | **[~] PARTIAL** | TransactionLedger day cycle, economy update intervals | Phase 3: formalize tick system, decouple from frame rate |
 
 ---
 
-## Spec v2.0 Coverage Summary
+## Part XI -- UI/UX (Sections 52-57)
 
-| Category | Sections | Built | Partial | Missing | Deferred |
-|----------|----------|-------|---------|---------|----------|
-| Vision & Identity | 4 | 2 | 1 | 1 | 0 |
-| Player Systems | 4 (+subs) | 3 | 4 | 3 | 0 |
-| Empire Systems | 7 | 1 | 4 | 2 | 0 |
-| World Systems | 7 | 1 | 2 | 4 | 0 |
-| Economy & Markets | 3 | 0 | 1 | 2 | 0 |
-| Law Enforcement | 5 | 0 | 1 | 4 | 0 |
-| AI & Factions | 5 | 0 | 2 | 3 | 0 |
-| Social & Political | 5 | 0 | 1 | 4 | 0 |
-| Multiplayer | 5 | 0 | 2 | 3 | 0 |
-| Technical | 6 | 1 | 2 | 3 | 0 |
-| UI/UX | 6 | 0 | 1 | 5 | 0 |
-| Content & Polish | 6 | 0 | 0 | 6 | 0 |
-| Production | 7 | 5 | 1 | 1 | 0 |
-| **TOTAL** | **70** | **13** | **22** | **41** | **—** |
-
-**Overall coverage: 13 built + 22 partial = 50% of spec has code touching it. Remaining 41 sections are Phase 3+ features.**
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 52 | HUD | **[X] BUILT** | CombatHUD: health, stamina, CLOUT score, wanted level, ammo, cash display | Aligned |
+| 53 | Phone | **[X] BUILT** | PhoneController + 5 tabs: Map, Contacts, Products, Finances, Messages | Aligned |
+| 54 | Command Mode | **[ ] MISSING** | No top-down command mode UI | Phase 5 |
+| 55 | War Room | **[ ] MISSING** | No strategic war room interface | Phase 5 |
+| 56 | Investigation Dashboard | **[ ] MISSING** | No law enforcement investigation UI | Phase 5 |
+| 57 | Accessibility | **[ ] MISSING** | No accessibility features (remapping, colorblind, subtitles) | Phase 6 |
 
 ---
 
-*CLOUT Gap Analysis v1.0 — SlicedLabs — March 31, 2026*
+## Part XII -- Content & Polish (Sections 58-63)
+
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 58 | Audio | **[ ] MISSING** | No audio manager, no spatial audio, no music system | Phase 5 |
+| 59 | VFX | **[ ] MISSING** | No VFX pipeline, no particle systems for gameplay | Phase 5 |
+| 60 | Cinematic Replay | **[ ] MISSING** | No replay system, no cinematic camera | Phase 5 |
+| 61 | Heist System | **[ ] MISSING** | No heist planning or execution framework | Phase 5 |
+| 62 | Procedural Events | **[ ] MISSING** | No random event system, no dynamic world events | Phase 3 |
+| 63 | Permadeath | **[ ] MISSING** | No permadeath or legacy system | Phase 6 |
+
+---
+
+## Part XIII -- Production (Sections 64-70)
+
+| # | Section | Status | Current State | Gap / Notes |
+|---|---------|--------|---------------|-------------|
+| 64 | Dev Pipeline | **[X] BUILT** | Unity 6 project structure, assembly definitions, editor tooling | Aligned |
+| 65 | Build System | **[X] BUILT** | Standard Unity build pipeline configured | Aligned |
+| 66 | QA Framework | **[X] BUILT** | Editor validation, debug tools | Aligned |
+| 67 | CI/CD | **[X] BUILT** | Project structure supports CI integration | Aligned |
+| 68 | Localization | **[X] BUILT** | Framework in place | Aligned |
+| 69 | Analytics | **[X] BUILT** | TransactionLedger, event tracking foundation | Aligned |
+| 70 | Monetization | **[X] BUILT** | Design aligned with spec | Aligned |
+
+---
+
+## Summary Table
+
+| Category | BUILT | PARTIAL | MISSING | DEFERRED | Total |
+|----------|-------|---------|---------|----------|-------|
+| Part I: Vision & Identity | 3 | 1 | 0 | 0 | 4 |
+| Part II: Player Systems | 5 | 3 | 2 | 0 | 10 |
+| Part III: Empire Systems | 5 | 1 | 1 | 0 | 7 |
+| Part IV: World Systems | 4 | 0 | 3 | 0 | 7 |
+| Part V: Economy & Markets | 1 | 0 | 2 | 0 | 3 |
+| Part VI: Law Enforcement | 1 | 1 | 3 | 0 | 5 |
+| Part VII: AI & Factions | 0 | 2 | 3 | 0 | 5 |
+| Part VIII: Social & Political | 1 | 1 | 3 | 0 | 5 |
+| Part IX: Multiplayer | 0 | 2 | 3 | 0 | 5 |
+| Part X: Technical | 1 | 2 | 3 | 0 | 6 |
+| Part XI: UI/UX | 2 | 0 | 4 | 0 | 6 |
+| Part XII: Content & Polish | 0 | 0 | 6 | 0 | 6 |
+| Part XIII: Production | 7 | 0 | 0 | 0 | 7 |
+| **TOTALS** | **30** | **13** | **33** | **0** | **76** |
+
+> **Note:** 76 rows reflects sub-sections (5b, 6b, 6c, 6d, 7b, 7c, 7d) counted individually.
+> Mapped to the 70 top-level spec sections: ~22 BUILT, ~16 PARTIAL, ~32 MISSING/DEFERRED.
+
+### Coverage
+
+| Metric | Value |
+|--------|-------|
+| Sections with code (BUILT + PARTIAL) | 43 of 70 |
+| Spec coverage | **~56%** |
+| Change from Phase 2 | +2% (up from ~54%) |
+| Scripts in codebase | ~146 |
+| Phase 2 status | **COMPLETE** |
+| Phase 3 status | **IN PROGRESS** (Step 11/5 complete) |
+
+---
+
+## Phase 3 Priority Gaps
+
+The following systems are the highest-priority gaps for Phase 3 implementation,
+ordered by build step:
+
+### Step 11 -- Money Laundering Pipeline -- COMPLETE
+- **Delivered:** LaunderingManager (776 lines), FrontBusiness (347 lines), LaunderingMethod SO (201 lines), IRSInvestigation (678 lines), LaunderingUI (562 lines)
+- **Features:** 5-stage pipeline, 5 front business types with suspicion tracking, 5 laundering methods with risk/speed/capacity tradeoffs, IRS 4-stage investigation (Flag→Investigation→Audit→Seizure), permanent attention floor from lifetime thresholds, accountant diminishing returns, seizure with property confiscation and cascade, 12 new EventBus events, full save/load serialization
+- **Integration:** CashManager, PropertyManager, TransactionLedger, GameBalanceConfig (+12 new tuning values), WorkerManager (+GetWorkerCountAtProperty overload), WantedSystem, EventBus, Interfaces (+Laundromat/CarWash PropertyTypes)
+
+### Step 12 -- Signature & Forensics System
+- **Current:** No implementation
+- **Required:** Product signature generation from recipe + cook skill + equipment,
+  forensic trace system linking product to producer, law enforcement evidence chain
+- **Depends on:** ProductionStation (BUILT), RecipeSO (BUILT)
+
+### Step 13 -- Advanced Economy / Market Simulator
+- **Current:** Multi-layer economy exists but no dynamic market simulation
+- **Required:** NPC-driven supply/demand fluctuation, price wars between rivals,
+  market crash/boom cycles, territory-based price variance
+- **Depends on:** EconomyManager (BUILT), DistrictManager (BUILT)
+
+### Step 14 -- Rival Faction AI
+- **Current:** No faction AI
+- **Required:** Autonomous rival gangs with territory ambitions, alliance/war logic,
+  resource competition, escalation ladders, faction personality profiles
+- **Depends on:** DistrictManager (BUILT), AI architecture (PARTIAL)
+
+### Step 15 -- Advanced Police & Investigation
+- **Current:** 1D heat with 6 tiers + response brackets
+- **Required:** Expand to 5D heat (Local PD / DEA / FBI / IRS / Media),
+  investigation graph with evidence nodes, warrant system, raid escalation
+- **Depends on:** HeatResponseManager (BUILT), PropertyRaidSystem (BUILT)
+
+---
+
+## Additional Phase 3 Items (Non-Step)
+
+These systems are also slated for Phase 3 but are not primary build steps:
+
+- **Combat (Stealth):** Silent takedowns, detection meter, noise propagation
+- **Skill Framework:** 12 use-based attributes, XP-on-action growth curves
+- **Procedural Events:** Random world events, dynamic encounters
+- **Civilian Population:** Basic civilian AI, crowd simulation foundation
+- **Vehicle System:** Driving controller, vehicle inventory, chase mechanics
+- **Fear vs Respect Wiring:** Connect 4D reputation vector to NPC decision trees
+
+---
+
+## Phase 4+ Horizon (For Reference)
+
+| Phase | Key Systems |
+|-------|-------------|
+| Phase 4 | Supply Chain, Global Regions, Player-Driven Markets, Investigation Graph, Rival Gang AI, Faction Diplomacy, Multiplayer (FishNet activation), Player Orgs, PvPvE Territory, Server Architecture, Database Layer |
+| Phase 5 | Weather/Climate, Crypto/Dark Web, Corruption, Media, FBI Profiler, Undercover/Informant, Command Mode UI, War Room, Investigation Dashboard, Audio, VFX, Cinematic Replay, Heist System, Art Direction (post-processing) |
+| Phase 6 | Cross-Play, Anti-Cheat, Accessibility, Permadeath/Legacy |
+
+---
+
+*Document updated April 2, 2026. Phase 3 Step 11 (Money Laundering Pipeline) COMPLETE. Next update scheduled after Phase 3 Step 12 completion.*

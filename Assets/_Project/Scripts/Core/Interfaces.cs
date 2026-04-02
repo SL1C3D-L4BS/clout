@@ -167,7 +167,9 @@ namespace Clout.Core
         Warehouse,
         Nightclub,
         AutoShop,
-        Restaurant
+        Restaurant,
+        Laundromat,     // Step 11 — Best laundering ratio, low revenue
+        CarWash          // Step 11 — Classic front, balanced profile
     }
 
     public enum EmployeeRole

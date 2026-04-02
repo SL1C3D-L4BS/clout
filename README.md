@@ -1,268 +1,250 @@
 # CLOUT
 
-> **Build your empire. Earn your name. Rule the streets.**
+**Build an empire. Control the streets. Own the game.**
 
-A criminal ecosystem simulator with deep Souls-like melee combat and tactical shooter gunplay, built in Unity 6 with procedurally generated low-poly aesthetics. From street-level dealing to transnational syndicate operations.
+A criminal ecosystem simulator built in Unity 6 where every deal, betrayal, and territory war emerges from interconnected systems -- not scripted events.
 
 ---
 
 ## The Pitch
 
-You're nobody. You roll into a procedurally generated low-poly city with $500 and a burner phone. Cook product, hire dealers, buy properties, launder money, fight rival cartels with skill-based combat — and scale from corner hustler to criminal empire operator.
-
-**Schedule 1** proved the crime empire loop sells (8M+ copies). **GTA Online** proved multiplayer crime empires retain players for years. **EVE Online** proved player-driven economies create emergent stories. **Nobody has combined all three with deep combat.** Until now.
+CLOUT drops players into a living open world where they build a criminal empire from nothing. Cook product, hire workers, acquire properties, manage supply chains, and defend territory -- all while evading an escalating law enforcement response. Every system feeds into every other: your economy drives your reputation, your reputation attracts better workers, your workers expand your territory, and your territory grows your economy. One bad decision cascades through all of it.
 
 ---
 
 ## Core Pillars
 
-### 1. Empire Building
-- **Crafting System** — Cook and mix products with ScriptableObject-driven recipes. Additives modify quality, effects, and street value. 6 station types with risk events (explosions, fume detection).
-- **Property Management** — Buy safehouses, labs, growhouses, storefronts, warehouses, nightclubs, auto shops, restaurants. 8 property types with upgrade paths, stash storage, and employee slots.
-- **Employee System** — Hire dealers, cooks, guards, drivers, accountants, lookouts, enforcers. Each has skills, loyalty, and betrayal probability.
-- **Money Pipeline** — Dirty/clean cash separation. Deals earn dirty, laundering converts to clean, legal purchases require clean. Full transaction ledger with daily/weekly metrics.
-- **Dynamic Economy** — Supply/demand pricing, market events, competitor pressure. Multi-layer market formula with elasticity, risk modifiers, and seasonal multipliers.
+| Pillar | Description |
+|---|---|
+| **Empire Building** | Acquire 8 property types, recruit autonomous workers (dealers, cooks, guards), establish supply chains with 6-type crafting, and scale operations across procedurally generated districts. Full transaction ledger with dirty/clean cash separation. |
+| **Deep Combat** | Souls-like melee with combo chains, parry, backstab, and dodge rolls. Ranged combat with ADS, recoil curves, and ammo management. 4-mode Cinemachine camera (Exploration, Combat Lock-On, Aim, Cinematic). |
+| **Territory Wars** | Compete for district control through influence, dealing presence, and force. Workers autonomously defend and expand turf. Rival factions contest your operations. |
+| **Living World** | Autonomous NPC customers with preferences and loyalty. Dynamic supply/demand pricing. 6-tier wanted system with police patrols, investigations, pursuits, and property raids. Witness-driven evidence that degrades over time. 7-phase procedural district generation. |
 
-### 2. Deep Combat
-- **Melee** — Souls-like parry, backstab, dodge, combo chains. Stamina-gated, animation-driven.
-- **Ranged** — TPS/FPS gunplay with ADS, recoil curves, spread accumulation, ammo management.
-- **Hybrid Weapons** — Gun-blades, staffs with projectile attacks, thrown weapons.
-- **4 Camera Modes** — FreeLook, HipFire, ADS, LockOn via Cinemachine priority switching.
+---
 
-### 3. Territory Wars (Multiplayer — Phase 4)
-- **Zone Control** — City divided into territories with economic value.
-- **PvPvE** — Fight rival player empires AND AI cartels for corners, blocks, districts.
-- **Influence System** — Control builds through dealing, property ownership, eliminating rivals.
-- **Co-op Empire** — Build and manage empires together with friends.
+## Current Status
 
-### 4. Living World
-- **Wanted System** — 6-tier heat with police AI, evidence, bribery, disguises.
-- **CLOUT Score** — Your street reputation unlocks properties, suppliers, employees, respect.
-- **NPC Consumers** — AI customers with preferences, addiction mechanics, and loyalty.
-- **Procedural City** — Generated city blocks with street grids, 8 distinct building types, roads, sidewalks, and interaction zones.
-- **Investigation AI** (planned) — Law enforcement that learns player patterns and builds evidence graphs.
+| Phase | Name | Steps | Status |
+|---|---|---|---|
+| 0 | Foundation | -- | COMPLETE |
+| 1 | Core Loop | -- | COMPLETE (62 scripts) |
+| 2 | Empire Systems | 10/10 | COMPLETE (+77 scripts) |
+| 3 | Advanced Empire | 1/5 | IN PROGRESS |
+
+**Total: ~134 scripts** across 18 system modules. Phase 3 Step 11 (Money Laundering Pipeline) complete.
+
+Phase 2 delivered: crafting pipeline, property management, employee AI with betrayal mechanics, dynamic economy, dealing systems, 6-tier wanted/police systems, procedural districts, phone UI empire hub, game flow management with milestones and tutorials, and GameBalanceConfig with 50+ tunable values across 3 difficulty presets.
+
+Phase 3 Step 11 delivered: Full 5-stage money laundering pipeline (Placement → Layering → Integration → Cooling → Complete), 5 front business types with simulated revenue and suspicion tracking, 5 laundering methods (Structuring, Smurfing, RealEstate, CashIntensive, Crypto), 4-stage IRS investigation system (Flag → Investigation → Audit → Seizure), laundering dashboard UI (L key), and Accountant worker role activation.
+
+---
+
+## System Inventory
+
+| System | Scripts | Key Components |
+|---|---|---|
+| Core | 13 | GameBootstrapper, CloutGameFlowManager, GameBalanceConfig, StateManager, CharacterStateManager, PerformanceMonitor |
+| Actions | 7 | InputHandler, MovePlayerCharacter, HandleRotation, InputsForCombo, MonitorInteraction, HandleStats, HandleRollVelocity |
+| Combat | 12 | AttackAction, RangedAttackAction, WeaponHolderManager, DamageCollider, Projectile, RecoilController, AmmoCacheManager |
+| AI | 7 | AIStateManager, AIDetection, AIPatrol, AIChaseTarget, AICombatSelector, AIRangedAttack, AIActionScoring |
+| Player | 3 | PlayerStateManager, PlayerInputHandler, AppearanceManager |
+| Camera | 2 | CameraManager, CameraCollision |
+| Animation | 1 | AnimatorHook |
+| Network | 4 | NetworkBootstrapper, PlayerSpawnManager, NetworkDamageHandler, NetworkAnimatorSync |
+| Inventory | 3 | InventoryManager, ItemDefinition, ConsumableItem |
+| Empire / Crafting | 7 | ProductionManager, CraftingStation, CraftingBootstrapper, RecipeDefinition, ProductDefinition, IngredientDefinition, IngredientInventory |
+| Empire / Dealing | 4 | DealManager, DealingBootstrapper, SupplierDefinition, ProductInventory |
+| Empire / Properties | 4 | PropertyManager, Property, PropertyDefinition |
+| Empire / Employees | 10 | WorkerManager, RecruitmentManager, DealerAI, CookAI, GuardAI, WorkerInstance, EmployeeDefinition, HireUI, WorkerManagementUI |
+| Empire / Economy | 3 | EconomyManager, CashManager, TransactionLedger |
+| Empire / Laundering | 4 | LaunderingManager, FrontBusiness, LaunderingMethod (SO), IRSInvestigation |
+| Empire / Reputation | 1 | ReputationManager |
+| Empire / Territory | 1 | TerritoryManager |
+| World / Police | 6 | WantedSystem, WitnessSystem, PoliceOfficerAI, HeatResponseManager, PropertyRaidSystem, PoliceStation |
+| World / Districts | 4 | DistrictManager, ProceduralDistrictGenerator, DistrictDefinition, DistrictTriggerZone |
+| World / NPCs | 4 | CustomerAI, SupplierNPC, ShopKeeper, DealInteraction |
+| World / Interactables | 3 | DoorInteractable, PickupInteractable, DestructibleProp |
+| World (root) | 1 | ProceduralPropertyBuilder |
+| UI / HUD | 1 | CombatHUD |
+| UI / Phone | 6 | PhoneController, PhoneMapTab, PhoneContactsTab, PhoneProductsTab, PhoneFinanceTab, PhoneMessagesTab |
+| UI / Dealing | 2 | DealUI, SupplierUI |
+| UI / Economy | 1 | ShopUI |
+| UI / Laundering | 1 | LaunderingUI (L key toggle dashboard) |
+| UI / Production | 1 | CraftingUI |
+| Stats | 1 | RuntimeStats |
+| Save | 1 | SaveManager (V2 -- JSON, auto-save, slot management) |
+| Utils | 4 | EventBus, ObjectPooler, ObjectPoolConfig, ResourceDatabase |
+| Editor | 12 | TestArenaBuilder, SceneBootstrapBuilder, WeaponAssetFactory, PlayerPrefabBuilder, AnimatorSetup, URPSetup, EditorShaderHelper, DealingSystemFactory, ProductionSystemFactory, EconomySystemFactory, PropertySystemFactory, TMPWarningFix |
 
 ---
 
 ## Tech Stack
 
-| System | Technology |
-|--------|-----------|
+| Component | Version / Detail |
+|---|---|
 | Engine | Unity 6 (6000.4.0f1) |
-| Networking | FishNet v4.7.0 (disabled — singleplayer Phase 2) |
-| Render Pipeline | URP 17.4 |
-| Input | Unity Input System 1.19 |
+| Render Pipeline | Universal Render Pipeline (URP) |
+| Networking | FishNet v4.7.0 (disabled for singleplayer Phase 2) |
 | Camera | Cinemachine 3.1.6 |
-| AI Navigation | Unity AI Navigation 2.0.6 |
-| Level Design | ProBuilder 6.0.9 + Procedural Generation |
-| UI | OnGUI (prototyping) → UI Toolkit (production) |
-| Art Style | Synty POLYGON + Procedural low-poly |
-
----
-
-## Current Status: Phase 2 — Steps 1–5 Complete (101 scripts)
-
-### What's Playable
-
-```
-Player spawns in procedural 160×160m city block →
-  8 procedural buildings (safehouses, labs, growhouses, shops, etc.) →
-  3 shop NPCs (ingredient supplier, fence, weapon dealer) →
-  3 customer NPCs (seeking product, with addiction/loyalty) →
-  3 enemy NPCs (melee thug, ranged shooter, hybrid enforcer) →
-  Full Souls-like melee + ranged combat →
-  Buy ingredients → Cook at crafting station → Deal to customers →
-  Earn dirty cash → Buy/sell at shops → Purchase properties →
-  Manage property stash → Upgrade properties → Track finances →
-  6-tier heat/wanted system → Street grid with roads and sidewalks
-```
-
-### System Inventory
-
-| System | Scripts | Status |
-|--------|---------|--------|
-| Core State Machine | 7 | ✅ Complete |
-| Controller Actions | 7 | ✅ Complete |
-| Combat System | 9 | ✅ Complete |
-| Camera System | 2 | ✅ Complete |
-| Animation | 1 | ✅ Complete |
-| Player | 2 | ✅ Complete |
-| AI System | 7 | ✅ Complete |
-| Network (offline stub) | 1 | ✅ Stub |
-| Empire — Crafting | 8 | ✅ Complete |
-| Empire — Dealing | 10 | ✅ Complete |
-| Empire — Economy | 4 | ✅ Complete |
-| Empire — Properties | 5 | ✅ Complete |
-| Empire — Employees | 1 | 🟡 Template only |
-| World — Police/Heat | 1 | ✅ Basic |
-| World — NPCs | 3 | ✅ Complete |
-| World — Procedural | 2 | ✅ Complete |
-| UI / HUD | 6 | ✅ Complete |
-| Editor Tools | 9 | ✅ Complete |
-| Utils + Stats + Save | 6 | ✅ Complete |
-
-### Core Gameplay Pipeline
-
-```
-Supplier → Buy wholesale ingredients → IngredientInventory
-Ingredients → CraftingStation (6 types) → ProductInventory (quality tiers)
-Product → Deal to CustomerAI → DealManager negotiation
-Deal success → CashManager.EarnDirty() → TransactionLedger
-Cash → ShopKeeper (buy more ingredients) OR PropertyManager (buy property)
-Property → Stash storage, upgrade slots, employee capacity
-Heat accumulates → WantedSystem (6 tiers) → Police response
-```
-
-### Next Up: Step 6 — Worker Hiring System
-
-Autonomous dealer AI, cook AI, guard AI. Recruitment, wages, betrayal mechanics. The automation layer that transforms the game from "do everything yourself" to "run an organization."
+| Input | New Input System |
+| Level Design | ProBuilder |
+| Art Style | Synty POLYGON |
+| Assembly Definitions | `Clout` (runtime) + `Clout.Editor` (editor tooling) |
+| Source Control | Git + LFS (GitHub: SL1C3D-L4BS/clout) |
 
 ---
 
 ## Architecture
 
 ```
-Clout/
-├── Assets/
-│   ├── _Project/
-│   │   ├── Scripts/
-│   │   │   ├── Core/           # State machine, interfaces, enums, event bus
-│   │   │   ├── Player/         # PlayerStateManager, PlayerInputHandler
-│   │   │   ├── AI/             # Enemy AI — detection, patrol, chase, combat, utility scoring
-│   │   │   │   └── Actions/    # Pluggable AI state actions
-│   │   │   ├── Combat/         # Melee + ranged combat, weapons, damage, ammo
-│   │   │   ├── Camera/         # 4-mode Cinemachine camera system
-│   │   │   ├── Input/          # Input System bindings
-│   │   │   ├── Inventory/      # Item management, equipment
-│   │   │   ├── Animation/      # AnimatorHook, IK, root motion
-│   │   │   ├── Network/        # Network bootstrapper (offline stub for Phase 2)
-│   │   │   ├── Empire/
-│   │   │   │   ├── Crafting/   # CraftingStation (6 types), ProductionManager, recipes, ingredients
-│   │   │   │   ├── Dealing/    # DealManager, ProductInventory, SupplierNPC, CustomerAI, DealingBootstrapper
-│   │   │   │   ├── Properties/ # PropertyManager, PropertyDefinition, Property, stash, upgrades
-│   │   │   │   ├── Employees/  # EmployeeDefinition (SO template — workers in Step 6)
-│   │   │   │   ├── Economy/    # CashManager (dirty/clean), EconomyManager, TransactionLedger
-│   │   │   │   ├── Reputation/ # ReputationManager (CLOUT score)
-│   │   │   │   ├── Territory/  # TerritoryManager (zone control)
-│   │   │   │   └── Vehicles/   # VehicleManager (placeholder)
-│   │   │   ├── World/
-│   │   │   │   ├── Police/     # WantedSystem (6-tier heat)
-│   │   │   │   ├── NPCs/       # CustomerAI, ShopKeeper, DealInteraction
-│   │   │   │   └── *.cs        # ProceduralPropertyBuilder, ProceduralCityBlock
-│   │   │   ├── Stats/          # RuntimeStats (health, stamina, poise)
-│   │   │   ├── Save/           # SaveManager
-│   │   │   ├── UI/
-│   │   │   │   ├── HUD/        # CombatHUD
-│   │   │   │   ├── Dealing/    # DealUI, SupplierUI
-│   │   │   │   ├── Production/ # CraftingUI
-│   │   │   │   ├── Economy/    # ShopUI
-│   │   │   │   └── Properties/ # PropertyUI
-│   │   │   ├── Editor/         # TestArenaBuilder, WeaponAssetFactory, AnimatorSetup, + 6 more
-│   │   │   └── Utils/          # EventBus, ObjectPooler, ResourceDatabase, extensions
-│   │   ├── Models/Weapons/     # BaseballBat_Low FBX + PBR textures
-│   │   ├── ScriptableObjects/  # Weapons, recipes, products, ingredients, employees, properties
-│   │   ├── Prefabs/            # Player, NPCs, weapons, props
-│   │   └── Scenes/             # Bootstrap, Main, Test
-│   └── _Placeholder/           # boxMan FBX (Humanoid), placeholder models
-├── Docs/
-│   ├── Architecture/           # Phase plans, build spec, roadmap, port maps
-│   ├── Design/                 # Criminal Ecosystem 2026 vision, game design doc
-│   └── Art/                    # Art direction reference
-├── Packages/                   # Unity package manifest
-└── ProjectSettings/            # Unity project configuration
+Assets/_Project/
+  Scripts/
+    Core/                   # Bootstrap, state machines, game flow, balance config, perf monitor
+    Player/                 # Player state, input handling, appearance
+    AI/                     # AI state manager, detection, patrol, chase, combat
+      Actions/              # Modular AI action behaviors with utility scoring
+    Combat/                 # Melee + ranged attacks, weapons, projectiles, damage, ammo
+    Camera/                 # 4-mode Cinemachine camera, collision avoidance
+    Animation/              # Animator hook, root motion
+    Actions/                # Player movement, rotation, combos, interaction, dodge
+    Input/                  # New Input System bindings
+    Network/                # FishNet bootstrapper, spawn, sync, damage (offline stub)
+    Inventory/              # Item definitions, consumables, inventory manager
+    Empire/
+      Crafting/             # 6-type crafting stations, recipes, ingredients, production manager
+      Dealing/              # Suppliers, product inventory, deal manager
+      Properties/           # 8 property types, upgrades, stash, manager
+      Employees/            # Autonomous worker AI (dealers, cooks, guards), recruitment, betrayal
+      Economy/              # Dynamic pricing, cash flow, transaction ledger
+        Laundering/         # Step 11: Money laundering pipeline, front businesses, IRS investigation
+      Reputation/           # Street rep, faction standing
+      Territory/            # District control, influence mechanics
+    World/
+      Police/               # 6-tier wanted system, witness/evidence, patrols, raids, pursuit AI
+      NPCs/                 # Customers, suppliers, shopkeepers, deal interactions
+      Districts/            # 7-phase procedural generation, district definitions, trigger zones
+      Interactables/        # Doors, pickups, destructibles
+    Stats/                  # Runtime stat tracking
+    Save/                   # Save system V2 (JSON, auto-save, slot management)
+    UI/
+      HUD/                  # Combat HUD (health, stamina, ammo, wanted level, cash)
+      Phone/                # Empire hub (Map, Contacts, Products, Finances, Messages)
+      Dealing/              # Deal negotiation, supplier browsing
+      Economy/              # Shop interface
+      Production/           # Crafting interface
+      Laundering/           # Money laundering dashboard
+    Editor/                 # Scene builders, asset factories, prefab generators
+    Utils/                  # EventBus, object pooling, resource database
 ```
 
-### Design Patterns
-- **State Machine** — All characters (player + AI) share `CharacterStateManager` base
-- **Strategy Pattern** — `StateAction` classes are pluggable behaviors composed into states
-- **ScriptableObject Architecture** — Items, recipes, NPCs, weapons, properties, employees all SO-driven
-- **Singleton Managers** — CashManager, PropertyManager, ProductionManager, TransactionLedger
-- **Event Bus** — Type-safe pub/sub for cross-system communication (12+ event types)
-- **Utility Theory AI** — Weighted scoring for AI combat decisions
-- **Procedural Generation** — City blocks, buildings, streets, interiors
-- **Assembly Definitions** — `Clout` (runtime) and `Clout.Editor` (editor-only)
+---
 
-### Heritage
-Built on foundations from:
-- **Sharp Accent Souls-like** — State machine, melee combat, lock-on, inventory, AI utility theory
-- **Sharp Accent TPS/FPS Shooter** — Gunplay, ADS, recoil, stances, FPS camera
-- **NullReach** — FishNet networking layer, per-player systems, hybrid combat engine
-- **Bastaard Engine** — Style meter philosophy (evolved into CLOUT score)
+## Design Patterns
+
+| Pattern | Usage |
+|---|---|
+| **State Machine** | Core gameplay loop, player states, AI behavior states, game flow phases. `CharacterStateManager` base shared by player and AI. |
+| **Strategy Pattern** | Modular `StateAction` components composed into states. Swap behaviors without modifying state logic. |
+| **ScriptableObject Architecture** | All data definitions (weapons, recipes, products, properties, employees, districts) are SO-driven for designer-friendly tuning. |
+| **Singleton Managers** | Service locator pattern for core managers (Economy, Property, Territory, Wanted, Save, GameFlow). |
+| **Event Bus** | Type-safe publish/subscribe decoupling between systems. Zero direct references between Empire, World, and UI layers. |
+| **Utility Theory AI** | `AIActionScoring` evaluates weighted utility functions to select NPC behaviors dynamically. Used by police, workers, and enemy AI. |
+| **Procedural Generation** | 7-phase district generator producing layouts, POI placement, road networks, and building interiors. |
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-- Unity 6 (6000.4.0f1+)
-- Git LFS installed (`git lfs install`)
+
+- Unity 6 (6000.4.0f1) via Unity Hub
+- Git with LFS enabled (`git lfs install`)
+- 16 GB RAM minimum recommended
 
 ### Setup
+
 ```bash
-git clone git@github.com:SL1C3D-L4BS/clout.git Clout
-cd Clout
+git clone git@github.com:SL1C3D-L4BS/clout.git
+cd clout
 git lfs pull
 ```
 
-Open in Unity Hub. The project targets Unity 6 with URP.
+Open the project in Unity Hub. Allow the initial import to complete (first launch may take several minutes).
 
 ### First Run
-1. Open Unity Hub → Add Project → select `Clout/` folder
-2. Wait for package resolution and import
-3. Use menu: **Clout > Build Test Arena** to generate the test scene
-4. Press Play
+
+1. Open `Assets/_Project/Scenes/Bootstrap.unity`.
+2. Press Play. The bootstrap scene loads all managers and transitions to the game scene.
+3. Press **F3** to toggle the performance monitor overlay.
 
 ### Build Test Arena
-The editor tool (`Clout > Build Test Arena`) programmatically creates:
-- Procedural 160×160m city block with street grid, roads, sidewalks
-- 8 procedural buildings (safehouses, labs, growhouses, shops, warehouse, nightclub, auto shop, restaurant)
-- Player with full component stack (StateManager, Combat, Camera, AnimatorHook)
-- 3 enemy types: melee thug, ranged shooter, hybrid enforcer
-- 3 shop NPCs: ingredient supplier, fence, weapon dealer
-- 3 customer NPCs with addiction/loyalty mechanics
-- Economy managers: CashManager, TransactionLedger, EconomyManager
-- Property system: PropertyManager with 8 purchasable buildings
-- Crafting station with production pipeline
-- Cinemachine 4-mode camera rig
-- Full HUD: health, stamina, CLOUT rank, wanted level, ammo, cash, interaction prompts
+
+Use the editor tooling to generate a test environment:
+
+```
+Unity Menu > SlicedLabs > Build Test Arena
+```
+
+This invokes `TestArenaBuilder` to scaffold a playable arena with enemies, NPCs, properties, crafting stations, and the full economy pipeline for rapid iteration.
+
+---
+
+## Controls
+
+| Input | Action |
+|---|---|
+| WASD | Movement |
+| Mouse | Camera |
+| Left Click | Light attack |
+| Right Click | Heavy attack / Aim (ranged) |
+| Left Shift | Sprint |
+| Space | Dodge roll |
+| Tab | Lock-on toggle |
+| E | Interact |
+| P | Phone (empire hub) |
+| I | Inventory |
+| L | Laundering dashboard |
+| F3 | Performance monitor |
+| Esc | Pause menu |
 
 ---
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| `Docs/Architecture/BUILD_SPECIFICATION.md` | **Canonical spec v2.0** — 70-section full-stack masterclass specification |
-| `Docs/Architecture/GAP_ANALYSIS.md` | Spec v2.0 vs codebase — every section mapped to implementation status |
-| `Docs/Architecture/NEXT_STEPS_ROADMAP.md` | Complete development roadmap (Phase 2–6) with catch-up tasks |
-| `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md` | Vision doc — criminal universe operating system |
-| `Docs/Design/GAME_DESIGN_DOCUMENT.md` | Core game design document |
-| `Docs/Design/VIRAL_MECHANICS_2026.md` | Viral mechanics and retention analysis |
-| `Docs/Architecture/PHASE_2_MASTERCLASS_PLAN.md` | Phase 2 vertical slice — 10 steps to playable |
-| `Docs/Architecture/PHASE_1_EXECUTION_PLAN.md` | Phase 1 completion log |
-| `Docs/Architecture/SYNTY_ASSET_LIST.md` | Synty POLYGON asset requirements & integration |
-| `Docs/Architecture/SYSTEM_PORT_MAP.md` | Sharp Accent → CLOUT system port analysis |
+| Document | Path | Description |
+|---|---|---|
+| Game Design Document | `Docs/Design/GAME_DESIGN_DOCUMENT.md` | Full GDD: vision, mechanics, content plan |
+| Criminal Ecosystem | `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md` | Interconnected criminal systems deep dive |
+| Viral Mechanics | `Docs/Design/VIRAL_MECHANICS_2026.md` | Engagement and retention loop design |
+| Build Specification | `Docs/Architecture/BUILD_SPECIFICATION.md` | Canonical build spec (70-section masterclass) |
+| Phase 1 Plan | `Docs/Architecture/PHASE_1_EXECUTION_PLAN.md` | Core loop implementation spec |
+| Phase 2 Plan | `Docs/Architecture/PHASE_2_MASTERCLASS_PLAN.md` | Empire systems spec (10 steps) |
+| System Port Map | `Docs/Architecture/SYSTEM_PORT_MAP.md` | System dependency and communication map |
+| Gap Analysis | `Docs/Architecture/GAP_ANALYSIS.md` | Feature gap tracking and prioritization |
+| Synty Asset List | `Docs/Architecture/SYNTY_ASSET_LIST.md` | Synty POLYGON asset inventory and integration |
+| Next Steps Roadmap | `Docs/Architecture/NEXT_STEPS_ROADMAP.md` | Forward-looking roadmap and priorities |
 
 ---
 
 ## Development Phases
 
-| Phase | Focus | Status |
-|-------|-------|--------|
-| Phase 0: Foundation | Codebase merge, architecture, URP | ✅ Complete |
-| Phase 1: Core Loop | Combat, inventory, AI, camera, editor tools | ✅ Complete |
-| Phase 2: Empire Systems | Dealing, production, economy, properties, workers | 🟡 70% (Steps 1–5 done) |
-| Phase 3: Advanced Empire | Laundering pipeline, forensics, rival factions, investigation AI | 🔴 Not started |
-| Phase 4: World & Multiplayer | Multi-district city, global supply chain, FishNet re-enable | 🔴 Not started |
-| Phase 5: Content & Polish | UI/UX migration, procedural music, accessibility, content pipeline | 🔴 Not started |
-| Phase 6: Ship | Scale testing, live ops, Early Access Q3 2026, Full Launch Q4 2027 | 🔴 Not started |
+| Phase | Name | Scope | Status |
+|---|---|---|---|
+| 0 | Foundation | Project setup, URP, input system, bootstrap, assembly definitions | COMPLETE |
+| 1 | Core Loop | Movement, combat, camera, AI, inventory, networking scaffold, world basics (62 scripts) | COMPLETE |
+| 2 | Empire Systems | Crafting, dealing, properties, employees, economy, police, districts, phone UI, game flow, balance (10 steps, +77 scripts) | COMPLETE |
+| 3 | Advanced Empire | Money laundering, forensic accounting, rival factions, investigation AI, advanced territory warfare | IN PROGRESS (Step 11 complete) |
+| 4 | World and Multiplayer | FishNet re-enable, co-op, persistent world, expanded districts, dynamic world events | PLANNED |
+| 5 | Content and Polish | Story missions, side content, audio, VFX, UI polish, localization, QA | PLANNED |
+| 6 | Ship | Platform certification, optimization, launch prep, post-launch roadmap | PLANNED |
 
 ---
 
 ## License
 
-Proprietary. All rights reserved.
+This project is proprietary software owned by SlicedLabs. All rights reserved. Unauthorized copying, distribution, or modification is strictly prohibited.
 
 ---
 
-*Built with obsession by TheArchitect × Claude. SlicedLabs 2026.*
+SlicedLabs -- SL1C3D-L4BS/clout

@@ -1,623 +1,1024 @@
-# CLOUT — Full Development Roadmap
+# CLOUT -- Development Roadmap v3.0
 # From Vertical Slice to Criminal Universe Operating System
 
-> Last Updated: April 1, 2026
-> Canonical Spec: `Docs/Architecture/BUILD_SPECIFICATION.md` (v2.0 — 70 sections)
+> Version: 3.1 -- April 2, 2026
+> Status: CANONICAL -- This document supersedes all prior roadmap versions.
+> Canonical Spec: `Docs/Architecture/BUILD_SPECIFICATION.md` (v2.0 -- 70 sections)
 > Vision Doc: `Docs/Design/CRIMINAL_ECOSYSTEM_2026.md`
 > Gap Analysis: `Docs/Architecture/GAP_ANALYSIS.md`
 
 ---
 
-## Current State: ~139 Scripts, Phase 2 COMPLETE (All 10 Steps)
+## Current State Summary
 
-### What's Playable Right Now
+Phase 2 is complete. The game is a playable single-player criminal empire simulator. A player can spawn into a procedurally generated Bay Area district with full road networks and building types, engage in Souls-like melee and ranged combat, purchase ingredients from shop NPCs, cook product at crafting stations, deal to customers with loyalty and addiction modeling, earn dirty cash, buy and upgrade 8+ property types, hire autonomous workers (dealers, cooks, guards, growers) gated by CLOUT rank, manage a growing organization through the phone UI, and contend with a 6-tier wanted system driving dynamic police response including patrols, investigations, pursuits, and property raids. The full game flow includes milestone tracking, difficulty presets, auto-save, and performance monitoring.
 
-```
-Player spawns in procedurally generated Bay Area district →
-  Full 7-phase district generation (ground → roads → blocks → buildings → properties → furniture → parks) →
-  Victorian houses, Painted Ladies row houses, fire-escape apartments, glass office towers →
-  Road networks with major/minor streets, alleys, sidewalks, crosswalks, lane markings →
-  8+ purchasable property types (safehouses, labs, growhouses, shops, warehouse, nightclub, auto shop, restaurant) →
-  Shop NPCs (ingredient supplier, fence, weapon dealer) →
-  Customer NPCs (seeking product, loyalty tracking, addiction modeling) →
-  Enemy NPCs (melee/ranged/hybrid) →
-  Full melee + ranged Souls-like combat →
-  Buy ingredients → Cook at crafting station → Deal to customers →
-  Earn dirty cash → Buy/sell at shops → Purchase properties →
-  Manage stash → Upgrade properties → Track finances →
-  Hire workers (Dealers, Cooks, Guards, Growers) → Autonomous operations →
-  Recruitment system with CLOUT-gated tiers →
-  6-tier wanted level + dynamic police response (patrols, investigation, pursuit, raids) →
-  Witness system + evidence degradation →
-  Property raids with confiscation + defense →
-  Phone UI empire hub (M key): Map, Contacts, Products, Finances, Messages →
-  Real-time notifications for 15+ event types →
-  District territory control + heat radar
-```
+### System Inventory (~146 Scripts)
 
-### System Inventory (~136 scripts)
+| System                  | Scripts | Status   |
+|-------------------------|---------|----------|
+| Core State Machine      | 7       | COMPLETE |
+| Controller Actions      | 7       | COMPLETE |
+| Combat System           | 9       | COMPLETE |
+| Camera System           | 2       | COMPLETE |
+| Animation               | 1       | COMPLETE |
+| Player                  | 2       | COMPLETE |
+| AI System               | 7       | COMPLETE |
+| Network (offline stub)  | 1       | STUB     |
+| Empire -- Crafting      | 8       | COMPLETE |
+| Empire -- Dealing       | 10      | COMPLETE |
+| Empire -- Economy       | 4       | COMPLETE |
+| Empire -- Laundering    | 4       | COMPLETE (Phase 3 Step 11) |
+| Empire -- Properties    | 5       | COMPLETE |
+| Empire -- Employees     | 10      | COMPLETE |
+| Empire -- Reputation    | 1       | COMPLETE |
+| Empire -- Territory     | 1       | COMPLETE |
+| World -- Police         | 5       | COMPLETE |
+| World -- Districts      | 4       | COMPLETE |
+| World -- NPCs           | 3       | COMPLETE |
+| World -- Procedural     | 2       | COMPLETE |
+| Stats                   | 1       | COMPLETE |
+| Inventory               | 2       | COMPLETE |
+| UI / HUD                | 6       | COMPLETE |
+| UI / Phone              | 6       | COMPLETE |
+| UI / Laundering         | 1       | COMPLETE (Phase 3 Step 11) |
+| Core / Game Flow        | 3       | COMPLETE |
+| Editor Tools            | 12      | COMPLETE |
+| Utils                   | 4       | COMPLETE |
+| Save System             | 1       | COMPLETE |
+| **Total**               | **146** |          |
 
-| System | Scripts | Status |
-|--------|---------|--------|
-| Core State Machine | 7 | ✅ Complete |
-| Controller Actions | 7 | ✅ Complete |
-| Combat System | 9 | ✅ Complete |
-| Camera System | 2 | ✅ Complete |
-| Animation | 1 | ✅ Complete |
-| Player | 2 | ✅ Complete |
-| AI System | 7 | ✅ Complete |
-| Network (offline stub) | 1 | ✅ Stub |
-| Empire — Crafting | 8 | ✅ Complete |
-| Empire — Dealing | 10 | ✅ Complete |
-| Empire — Economy | 4 | ✅ Complete |
-| Empire — Properties | 5 | ✅ Complete |
-| Empire — Employees | 10 | ✅ Complete (Step 6) |
-| Empire — Reputation | 1 | ✅ Complete |
-| Empire — Territory | 1 | ✅ Complete |
-| World — Police | 5 | ✅ Complete (Step 7) |
-| World — Districts | 4 | ✅ Complete (Step 8) |
-| World — NPCs | 3 | ✅ Complete |
-| World — Procedural | 2 | ✅ Complete |
-| Stats | 1 | ✅ Complete |
-| Inventory | 2 | ✅ Complete |
-| UI / HUD | 6 | ✅ Complete |
-| UI / Phone | 6 | ✅ Complete (Step 9) |
-| Editor Tools | 10 | ✅ Complete |
-| Utils | 4 | ✅ Complete |
-| Save System | 1 | ✅ Complete |
+Core / Game Flow includes GameFlowManager, GameBalanceConfig, and PerformanceMonitor.
 
 ---
 
-## Phase 2 Completion Log
+## Completed Phases (Summary)
 
-### Step 5.5: Spec v2.0 Catch-Up ✅ COMPLETE
-**4 files modified, 0 new files**
+### Phase 0: Foundation -- COMPLETE
 
-The Build Specification v2.0 (70 sections) revealed 4 systems that need enhancement before the Worker system can be built correctly. See `GAP_ANALYSIS.md` for full breakdown.
+Project scaffolding, Unity project setup, Input System configuration, core architecture decisions (EventBus, ScriptableObject-driven data, singleton managers).
 
-#### 5.5A: ReputationManager → 4D Reputation Vector
+### Phase 1: Core Loop -- COMPLETE (62 scripts)
 
-**Current:** Single CLOUT score (integer rank 0–6)
-**Spec v2.0 Section 36:** `[Fear, Respect, Reliability, Ruthlessness]` as 4D float vector
+State machine, third-person controller, Souls-like combat (melee + ranged), camera system, AI framework (patrol/chase/attack/flee), crafting pipeline, dealing system, customer AI, basic economy, inventory, stats, HUD, test arena builder, and all editor tooling.
 
-**Why before Step 6:** The betrayal formula (`P(betray) = (Greed + Fear - Loyalty + ExternalOffer) / Compartmentalization`) references the Fear dimension. Worker hiring quality should be gated by Respect, not just CLOUT rank. Guard effectiveness depends on Fear generation.
+### Phase 2: Empire Systems -- COMPLETE (10 steps, ~77 new scripts)
 
-**Action:** Add 4 float fields to ReputationManager. Keep existing CLOUT rank as a composite derived score. Update EventBus with `ReputationChangedEvent`.
-
-#### 5.5B: EmployeeDefinition → Full NPC Profile
-
-**Current:** skill, loyalty, discretion, ambition, dailyWage, hiringCost, betrayalChance, arrestChance, hasRecord, role
-**Spec v2.0 Section 13:** Add greed, courage, intelligence, corruptibility, knownInformation[], directHandler
-
-**Why before Step 6:** The betrayal probability formula requires `Greed` as a field. `Courage` determines if workers flee or fight during raids. `Intelligence` affects CookAI quality bonus. These are the core stats the Worker AI decision-making reads.
-
-**Action:** Add missing fields to EmployeeDefinition.cs SO.
-
-#### 5.5C: EconomyManager → Full Price Formula
-
-**Current:** Basic `GetStreetPrice()` with supply/demand and random swing
-**Spec v2.0 Section 23:** `P = P_base × (D/S) × (1 + E_r) × (1 + R_m) × M_s`
-
-**Why before Step 6:** DealerAI auto-pricing must use the real formula. Otherwise dealer earnings won't reflect market conditions, heat risk premiums, or seasonal modifiers.
-
-**Action:** Implement full formula in EconomyManager with elasticity per region, risk modifier from WantedSystem heat, and seasonal multiplier stub.
-
-#### 5.5D: EventBus → Worker Event Types
-
-**Current:** 11 event types defined
-**Needed for Step 6:** WorkerFiredEvent, WorkerArrestedEvent, WorkerBetrayedEvent, WorkerShiftEndEvent, WorkerDealCompleteEvent, ReputationChangedEvent
-
-**Action:** Add 6 new event structs to EventBus.cs.
+- **Step 1-4:** Crafting expansion, dealing mechanics, economy/cash management, property system.
+- **Step 5:** Build Specification v2.0 alignment (4D reputation vector, expanded NPC profiles, full price formula, worker event types).
+- **Step 6:** Worker system -- autonomous DealerAI, CookAI, GuardAI, GrowerAI, recruitment with CLOUT-gated tiers, wage processing.
+- **Step 7:** Police AI -- patrol/investigate/pursue/arrest states, heat response scaling, witness system, property raids.
+- **Step 8:** District system -- procedural generation (7-phase pipeline), district management, 13 ambient building types, scene transitions.
+- **Step 9:** Phone UI -- 5-tab empire hub (Map, Contacts, Products, Finances, Messages), 15+ notification types.
+- **Step 10:** Integration pass -- GameFlowManager (milestones, tutorial, auto-save), GameBalanceConfig (50+ tuning values, 3 difficulty presets), PerformanceMonitor, SaveManager v2.
 
 ---
 
-### Step 6: Worker Hiring — Autonomous Dealer AI, Recruitment, Wage System ✅ COMPLETE
-**10 scripts created**
+## Phase 3: Advanced Empire Systems (Weeks 7-12)
 
-This is the automation layer — the step where the game transforms from "you do everything yourself" to "you run an organization." Workers are the bridge between the dealing/production loop and the empire management vision.
-
-#### 6A: WorkerManager (Singleton)
-
-Central manager for all hired workers. Tracks active employees, processes daily wages, handles firing/death/arrest events.
-
-```
-WorkerManager
-├── hiredWorkers: List<WorkerInstance>
-├── maxWorkers (scales with CLOUT rank)
-├── HireWorker(EmployeeDefinition, Property, EmployeeRole)
-├── FireWorker(workerId)
-├── ProcessDailyWages() → draws from CashManager
-├── GetWorkersByRole(EmployeeRole)
-├── GetWorkersByProperty(propertyId)
-├── OnWorkerArrested / OnWorkerKilled / OnWorkerBetrayed events
-└── Subscribes to TransactionLedger.OnDayEnd for wage processing
-```
-
-**Key design decisions:**
-- Workers are MonoBehaviours with NavMeshAgent, spawned in the world
-- Each worker has a `WorkerInstance` runtime data class tracking state
-- Max workers gated by CLOUT rank (rank 1 = 2 workers, rank 5 = 15+)
-- Workers assigned to specific properties (must own a property to hire)
-
-#### 6B: DealerAI (Autonomous Street Dealing)
-
-The first worker type. Autonomous NPC that follows a route and deals to customers without player intervention.
-
-```
-DealerAI : MonoBehaviour
-├── States: Idle → Traveling → Seeking → Dealing → Returning → Fleeing
-├── assignedProperty: Property (home base, collects product from stash)
-├── route: List<Vector3> (patrol waypoints in territory)
-├── carriedProduct: ProductStack (loaded from property stash)
-├── cashOnHand: float (collected from deals, returns to stash)
-│
-├── Behavior Loop:
-│   1. Load product from assigned property stash
-│   2. Walk route waypoints (NavMeshAgent)
-│   3. Detect nearby CustomerAI (OverlapSphere)
-│   4. Initiate auto-deal (price = street value × worker skill modifier)
-│   5. Customer accepts/rejects based on quality + price
-│   6. On sale: cash collected, product decremented
-│   7. When product empty OR shift over → return to property
-│   8. Deposit cash to property stash → CashManager.EarnDirty()
-│   9. Take cut (wage + loyalty-based tip)
-│
-├── Risk Events:
-│   - Robbery (rival NPCs or players can rob)
-│   - Arrest (police detection based on heat + discretion stat)
-│   - Death (combat encounters)
-│   - Betrayal (loyalty check: P = (greed + fear - loyalty + externalOffer) / compartmentalization)
-│
-└── Events: OnDealComplete, OnShiftEnd, OnArrested, OnKilled, OnBetrayed
-```
-
-**Betrayal formula** (from Criminal Ecosystem spec):
-```
-P(betray) = (Greed + Fear - Loyalty + ExternalOfferValue) / CompartmentalizationFactor
-```
-
-#### 6C: CookAI (Autonomous Production)
-
-Second worker type. Operates crafting stations without player input.
-
-```
-CookAI : MonoBehaviour
-├── States: Idle → Loading → Cooking → Storing → Resting
-├── assignedStation: CraftingStation
-├── assignedRecipe: RecipeDefinition
-├── skill: float (0-1, affects output quality)
-│
-├── Behavior Loop:
-│   1. Check station availability
-│   2. Pull ingredients from property stash
-│   3. Start batch (quality = base × skill modifier)
-│   4. Wait for production time
-│   5. Store output in property stash
-│   6. Rest period (scales with station heat)
-│
-└── Risk: explosion chance modified by skill, contamination events
-```
-
-#### 6D: GuardAI (Property Security)
-
-Third worker type. Defends properties from raids and rival attacks.
-
-```
-GuardAI : MonoBehaviour
-├── Extends AIStateManager combat behavior
-├── Patrols property perimeter
-├── Engages hostile NPCs/players entering property zone
-├── Security level contribution: +0.1 per guard skill level
-├── Raid defense: guards fight police during property raids
-└── Alert system: notifies player of threats via EventBus
-```
-
-#### 6E: RecruitmentManager
-
-How players find and hire workers.
-
-```
-RecruitmentManager
-├── availableRecruits: List<EmployeeDefinition> (refreshes daily)
-├── recruitmentLocations: bars, street corners, online (phone)
-├── CLOUT-gated tiers:
-│   Rank 0-1: Street-level (low skill, high betrayal)
-│   Rank 2-3: Mid-tier (moderate stats)
-│   Rank 4-5: Professional (high skill, expensive)
-│   Rank 6+: Elite (rare, custom loyalty contracts)
-├── GenerateRecruitPool(cloutRank)
-├── HireRecruit(EmployeeDefinition) → cost from CashManager
-└── Events: OnRecruitPoolRefreshed
-```
-
-#### 6F: HireUI + WorkerManagementUI
-
-```
-HireUI (OnGUI)
-├── Browse available recruits (name, role, stats, cost)
-├── Filter by role type
-├── Stat comparison (skill, loyalty, discretion, wage)
-├── Hire button → CashManager.Spend(hiringCost)
-├── Assignment selector (which property, which role)
-
-WorkerManagementUI (OnGUI)
-├── List all hired workers
-├── Per-worker: name, role, assigned property, stats, daily earnings
-├── Fire worker button
-├── Reassign worker to different property
-├── Worker loyalty indicator (green/yellow/red)
-├── Daily wage total, income vs expense breakdown
-```
-
-#### 6G: Wire Into Existing Systems
-
-- `DealManager` → DealerAI uses same deal logic but NPC-to-NPC
-- `CraftingStation` → CookAI calls StartBatch() programmatically
-- `Property.stash` → Workers load/unload from property stash
-- `CashManager` → Daily wages via ProcessDailyWages()
-- `TransactionLedger` → All worker transactions categorized as "wages"
-- `ReputationManager` → CLOUT rank gates recruitment quality
-- `WantedSystem` → Worker arrests contribute to player heat
-- `EventBus` → `WorkerHiredEvent` (already defined), new: `WorkerFiredEvent`, `WorkerArrestedEvent`, `WorkerBetrayedEvent`
-
-#### 6H: TestArenaBuilder Integration
-
-Update TestArenaBuilder to spawn:
-- RecruitmentManager with 5 test recruits (2 dealers, 2 cooks, 1 guard)
-- WorkerManager singleton
-- Recruitment interaction point (bar/corner)
+> Focus: Depth, consequences, forensic investigation layer, rival organizations.
+> Estimated new scripts: ~25
+> Running total after phase: ~164
+> **Progress: Step 11 COMPLETE (5 scripts, 2,564 lines delivered April 2, 2026)**
 
 ---
-
-### Step 7: Police AI Enhancement — Patrol, Investigate, Pursue, Arrest ✅ COMPLETE
-**5 scripts created**
-
-#### Current State
-- WantedSystem exists with 6-tier heat
-- No actual police NPCs in the world
-- Heat accumulates from combat/dealing but triggers no response
-
-#### What's Needed
-
-```
-PolicePatrolAI : AIStateManager (extends existing AI)
-├── States: Patrol → Investigate → Pursue → Arrest → Combat → CallBackup
-├── Patrol: follow NavMesh waypoint routes through district
-├── Investigate: respond to heat sources (gunfire audio, reported deals, witnesses)
-├── Pursue: chase player/worker on foot
-├── Arrest: non-lethal takedown at low wanted levels (stun + confiscate)
-├── Combat: lethal force at high wanted levels
-├── CallBackup: spawns additional officers at high heat
-
-HeatResponseManager (Singleton)
-├── Monitors WantedSystem heat levels globally
-├── Spawns police based on heat brackets:
-│   Heat 0-20: Normal patrols (2 officers)
-│   Heat 20-40: Increased patrols (4 officers)
-│   Heat 40-60: Active investigation (6 officers + detective)
-│   Heat 60-80: Pursuit mode (8 officers + helicopter sound FX)
-│   Heat 80-100: SWAT response (10+ officers, property raids trigger)
-├── Police spawn at station locations, patrol toward heat source
-
-WitnessSystem
-├── Civilian NPCs who see crimes generate heat
-├── Evidence degrades over time (30s → 5min based on severity)
-├── Player can intimidate witnesses (fear check)
-├── Destroying evidence at crime scenes reduces heat gain
-
-PropertyRaidSystem
-├── Triggered by PropertyManager when raid check succeeds
-├── Spawns police squad at property entrance
-├── Guards engage, stash can be confiscated
-├── Player can defend or flee
-├── Outcome: stash loss, property damage, arrest risk
-```
-
----
-
-### Step 8: District System — From Test Arena to Playable City ✅ COMPLETE
-**4 scripts (ProceduralDistrictGenerator 959 lines, DistrictManager 518 lines, DistrictDefinition, DistrictTriggerZone) + ProceduralPropertyBuilder updated (+732 lines, 13 ambient building types)**
-
-```
-DistrictManager
-├── Manages one district zone: NPCs, demand, heat, control level
-├── Tracks: who controls district, current demand per product, active NPCs
-├── Spawns: customers, police, ambient civilians on timer
-├── Dynamic demand curves per product type
-
-DistrictDefinition (ScriptableObject)
-├── districtName, baseDemand, wealthLevel, policePresence
-├── preferredProducts[], maxCustomers, maxPolice
-├── propertySlots (available properties for purchase)
-
-ProceduralDistrictGenerator
-├── Extends current ProceduralPropertyBuilder to full districts
-├── Multi-block generation with road networks
-├── Zone types: residential, commercial, industrial, waterfront
-├── POI placement: shops, bars, corners, parks, police stations
-
-SceneTransitionManager
-├── Additive scene loading for district interiors
-├── Property enter/exit flow
-├── Loading screens with district flavor text
-```
-
----
-
-### Step 9: Phone UI — Empire Management Device ✅ COMPLETE
-**6 scripts created (1,905 total lines): PhoneController (365), PhoneMapTab (337), PhoneContactsTab (300), PhoneFinanceTab (289), PhoneProductsTab (246), PhoneMessagesTab (368)**
-
-```
-PhoneController
-├── Tab/DPad-Up to open in-game phone
-├── Tabs: Map, Contacts, Products, Finances, Messages
-│
-├── MapTab: district with territory control overlay + heat radar
-├── ContactsTab: workers, suppliers, customers (loyalty bars)
-├── ProductsTab: inventory summary, pricing, quality breakdown
-├── FinanceTab: income/expense charts, TransactionLedger data
-├── MessagesTab: worker reports, tips, warnings, deal notifications
-
-Minimap (HUD)
-├── Render texture from top-down camera
-├── Color-coded blips: player, customers, police, workers, properties
-├── Expand to full map on phone
-```
-
----
-
-### Step 10: Integration & Polish Pass ✅ COMPLETE
-**3 new scripts + 1 enhanced + TestArenaBuilder updated (1,931 total lines)**
-
-Scripts created/enhanced:
-- `Core/GameFlowManager.cs` (586 lines) — Session lifecycle, milestone tracking (17 milestones), tutorial prompt queue, auto-save on day-end, pause/resume, game-over conditions (bankrupt), quick save F5/load F9, daily tick orchestration
-- `Core/GameBalanceConfig.cs` (291 lines) — ScriptableObject centralizing 50+ tuning values across 12 categories (pricing, cash, laundering, workers, betrayal, heat, police, reputation, properties, production, district, game day), 3 difficulty presets (Easy/Normal/Hardcore)
-- `Core/PerformanceMonitor.cs` (367 lines) — F3 toggle, FPS/avg/1% low tracking, memory monitoring, NavMesh agent budget, per-system object counts, frame time analysis, budget warnings
-- `Save/SaveManager.cs` enhanced to V2 — New fields: 4D reputation vector, session stats (days/deals/revenue/kills), completed milestones list, district runtime state, full worker stats (discretion, greed, courage, intelligence, totalDeals, shiftsCompleted, etc.)
-
----
-
-## Phase 3: Advanced Empire Systems
-
-> **Timeline: Weeks 7–12**
-> **Focus: Depth, consequences, and the investigation layer**
 
 ### Step 11: Money Laundering Pipeline
 
-Full 5-step laundering system replacing basic `Launder()` method:
+The current `CashManager.Launder()` is a placeholder. This step replaces it with a full 5-step pipeline where dirty cash must flow through front businesses, each with its own simulation, detection risk, and capacity limits.
+
+#### 11A: LaunderingManager
+
+Central orchestrator for all laundering operations.
 
 ```
-LaunderingManager
-├── Business fronts: Restaurant, AutoShop, Nightclub (from existing PropertyTypes)
-├── Daily laundering capacity per business (scales with revenue)
-├── Structuring detection: AI flags deposits > threshold
-├── Velocity anomaly detection: too-fast laundering raises flags
-├── Front business simulation: actual customers, revenue, expenses
-├── IRS audit events at high laundering volume
+LaunderingManager (Singleton)
+|-- Pipeline Stages:
+|   1. PLACEMENT   -- Dirty cash enters front business register
+|   2. LAYERING    -- Funds split across methods to obscure origin
+|   3. INTEGRATION -- Clean cash deposited to player accounts
+|   4. COOLING     -- Mandatory delay before funds are spendable
+|   5. EXTRACTION  -- Player withdraws clean cash for use
+|
+|-- activeFronts: List<FrontBusiness>
+|-- dailyLaunderingCap: float (sum of all front capacities)
+|-- totalLaundered: float (lifetime, tracked for IRS triggers)
+|-- velocityTracker: float[] (rolling 30-day window)
+|-- pendingFunds: Queue<LaunderingBatch> (in cooling stage)
+|
+|-- StartLaundering(amount, method, frontBusiness)
+|-- ProcessDailyLaundering() -- called by TransactionLedger.OnDayEnd
+|-- GetCleanCashAvailable() -- funds past cooling period
+|-- WithdrawCleanCash(amount) -- moves to CashManager clean balance
+|-- GetDetectionRisk() -- aggregate risk across all fronts
+|
+|-- Events: OnLaunderingComplete, OnAuditTriggered, OnFrontBusted
 ```
+
+Key mechanics:
+- Each front business has a maximum daily laundering capacity based on its legitimate revenue (a restaurant doing $2,000/day in real sales can launder ~$3,000 without suspicion).
+- Velocity anomaly detection: if laundering volume increases faster than 15% per week, detection risk spikes.
+- Cooling period scales with amount (small amounts: 1 day, large amounts: 3-7 days).
+- If total laundered exceeds thresholds ($50K, $250K, $1M), IRS scrutiny permanently increases.
+
+#### 11B: FrontBusiness
+
+Each front business is a living simulation that generates legitimate revenue alongside laundered funds.
+
+```
+FrontBusiness : MonoBehaviour
+|-- businessType: FrontBusinessType (Restaurant, AutoShop, Nightclub)
+|-- assignedProperty: Property (must be owned property of matching type)
+|-- legitimateRevenue: float (daily, simulated from customer flow)
+|-- launderingCapacity: float (function of legitimate revenue)
+|-- suspicionLevel: float (0-100, rises with ratio of dirty:clean money)
+|-- employees: int (staffing affects revenue and capacity)
+|-- operatingCosts: float (rent, wages, supplies)
+|-- qualityRating: float (0-5, affects customer flow)
+|
+|-- Business Simulation:
+|   Restaurant -- Customer flow peaks at lunch/dinner, revenue = seats x turnover x avgCheck
+|   AutoShop   -- Service appointments, parts markup, cash-heavy transactions ideal for structuring
+|   Nightclub  -- Weekend spikes, high cash volume, cover charge + bar revenue
+|
+|-- LaunderThroughBusiness(amount) -- mix dirty cash into daily revenue
+|-- GetDailyReport() -- legitimate vs laundered breakdown
+|-- UpgradeBusiness(tier) -- increases capacity and legitimate revenue
+|-- SimulateDay() -- generate customers, revenue, expenses
+|
+|-- Risk Factors:
+|   - Revenue-to-expense ratio out of industry norms raises flags
+|   - Sudden revenue jumps without corresponding customer increase
+|   - Cash deposit patterns (round numbers, just-under-threshold amounts)
+```
+
+#### 11C: LaunderingMethod
+
+Different methods carry different risk/reward profiles.
+
+```
+LaunderingMethod (ScriptableObject)
+|-- methodName: string
+|-- riskMultiplier: float
+|-- capacityMultiplier: float
+|-- coolingPeriodDays: int
+|-- requiredCloutRank: int
+|
+|-- Types:
+|   STRUCTURING     -- Split deposits under $10K reporting threshold
+|                      Risk: Pattern detection (many sub-threshold deposits)
+|                      Capacity: Low, safe for small operations
+|                      Unlock: Rank 0
+|
+|   SMURFING        -- Use multiple workers to make deposits across banks
+|                      Risk: Moderate (workers can be traced)
+|                      Capacity: Medium, scales with worker count
+|                      Unlock: Rank 2
+|
+|   REAL_ESTATE     -- Buy/sell properties to move large sums
+|                      Risk: Low per transaction, high paper trail
+|                      Capacity: High per transaction, slow cycle
+|                      Unlock: Rank 3
+|
+|   CASH_INTENSIVE  -- Run through front businesses (default method)
+|                      Risk: Depends on business simulation quality
+|                      Capacity: Tied to front business revenue
+|                      Unlock: Rank 1
+|
+|   CRYPTO          -- Digital currency mixing (late-game)
+|                      Risk: Low if done carefully, blockchain analysis possible
+|                      Capacity: Very high, but requires tech investment
+|                      Unlock: Rank 5
+```
+
+#### 11D: IRSInvestigation
+
+The consequence layer for laundering.
+
+```
+IRSInvestigation
+|-- auditRisk: float (0-100, persistent)
+|-- activeAudit: bool
+|-- auditProgress: float (0-1, investigation completion)
+|-- frozenAssets: float (seized during audit)
+|
+|-- Trigger Conditions:
+|   - Total laundered exceeds tier thresholds
+|   - Velocity anomaly (>15% week-over-week increase)
+|   - Structuring pattern detected (multiple sub-threshold deposits)
+|   - Front business revenue anomalies flagged
+|   - Tips from arrested/betrayed workers
+|   - Random audit chance (scales with empire size)
+|
+|-- Audit Process:
+|   1. NOTICE     -- Player receives audit notification (3-day warning)
+|   2. REVIEW     -- Assets examined, suspicious transactions flagged
+|   3. FREEZE     -- Percentage of clean cash frozen pending investigation
+|   4. RESOLUTION -- Fine (10-50% of laundered amount) OR charges
+|   5. CHARGES    -- If evidence sufficient, wanted level spike + asset seizure
+|
+|-- Countermeasures:
+|   - Hire accountant (worker type, reduces audit risk)
+|   - Diversify methods (no single method > 40% of total)
+|   - Maintain realistic front business ratios
+|   - Destroy financial records (risky, additional charges if caught)
+|
+|-- CheckAuditTriggers() -- called daily
+|-- ProcessActiveAudit() -- advances audit stages
+|-- PayFine(amount) -- resolve audit with financial penalty
+|-- ContestAudit() -- hire lawyer, chance to reduce or dismiss
+```
+
+#### 11E: LaunderingUI
+
+```
+LaunderingUI (OnGUI, migrates to UI Toolkit in Phase 5)
+|-- Front Business Overview:
+|   - List of owned front businesses with daily stats
+|   - Revenue breakdown (legitimate vs laundered)
+|   - Suspicion meter per business
+|   - Upgrade options
+|
+|-- Laundering Control Panel:
+|   - Select method and front business
+|   - Amount slider (with risk preview)
+|   - Pending funds display (in cooling)
+|   - Available clean cash display
+|
+|-- Risk Dashboard:
+|   - Aggregate detection risk gauge
+|   - IRS audit probability indicator
+|   - Velocity graph (30-day rolling)
+|   - Method diversification chart
+|
+|-- Audit Status (when active):
+|   - Current audit stage
+|   - Frozen asset amount
+|   - Countermeasure options
+```
+
+#### Files to Create
+
+```
+Assets/Scripts/Empire/Laundering/LaunderingManager.cs
+Assets/Scripts/Empire/Laundering/FrontBusiness.cs
+Assets/Scripts/Empire/Laundering/LaunderingMethod.cs
+Assets/Scripts/Empire/Laundering/IRSInvestigation.cs
+Assets/Scripts/UI/Laundering/LaunderingUI.cs
+```
+
+#### Integration Points
+
+- `CashManager` -- Replace `Launder()` with `LaunderingManager.StartLaundering()`. Dirty/clean cash balances feed into laundering pipeline.
+- `TransactionLedger` -- All laundering transactions logged with method tag. Daily tick triggers `ProcessDailyLaundering()`.
+- `PropertyManager` -- Front businesses require owned properties of matching type. Property upgrades affect laundering capacity.
+- `WorkerManager` -- Smurfing method requires available workers. Accountant worker type reduces audit risk.
+- `ReputationManager` -- CLOUT rank gates method availability. High-profile laundering affects Respect dimension.
+- `WantedSystem` -- IRS charges escalate wanted level. Audit events feed into investigation graph (Step 15).
+- `EventBus` -- New events: `LaunderingCompleteEvent`, `AuditTriggeredEvent`, `FrontBusinessBustedEvent`, `AssetsFrozenEvent`.
+- `SaveManager` -- Serialize active fronts, pending funds, audit state, velocity history.
+- `PhoneFinanceTab` -- Add laundering summary section.
+- `TestArenaBuilder` -- Wire LaunderingManager, spawn 1 front business for testing.
+
+---
 
 ### Step 12: Signature & Forensics System
 
-```
-BatchSignature (512-bit vector per production batch)
-├── Generated from: facility seed + recipe + worker skill + equipment hash
-├── Propagated through distribution chain
-├── LE cosine similarity clustering traces batches to source
-├── Signature scrubbing: equipment upgrade, costs yield
-├── Batch recall: if signature compromised, all downstream sales traced
+Every production batch generates a unique forensic signature that law enforcement can use to trace product back to its source facility. This creates a persistent cat-and-mouse dynamic where players must actively manage their forensic exposure.
 
-ForensicLabAI
-├── Processes seized evidence
-├── Links signatures to facilities
-├── Builds investigation graph edges
-```
-
-### Step 13: Advanced Economy
+#### 12A: BatchSignature
 
 ```
-MarketSimulator (replaces basic EconomyManager)
-├── Full supply/demand curves per district per product
-├── Price elasticity modeling
-├── Competition effects (rival dealers suppress your prices)
-├── Market events: drought, bust, festival demand spike
-├── Global commodity prices for precursors
-├── Player can manipulate markets (dump product, create artificial scarcity)
+BatchSignature
+|-- signatureVector: float[512] -- high-dimensional fingerprint
+|-- Generation Inputs:
+|   - facilitySeed: int (derived from property ID + equipment hash)
+|   - recipeHash: int (recipe definition fingerprint)
+|   - workerSkillNoise: float (cook skill introduces variance)
+|   - equipmentWear: float (degradation changes signature over time)
+|   - ingredientSourceHash: int (supplier batch origin)
+|
+|-- Properties:
+|   - Deterministic: same facility + recipe + conditions = similar signature
+|   - Noisy: worker skill and equipment wear add controlled variance
+|   - Persistent: signature travels with product through distribution chain
+|   - Comparable: cosine similarity between signatures reveals shared origin
+|
+|-- SignatureDistance(other: BatchSignature) -> float (0-1, 1 = identical)
+|-- Scrub(scrubLevel: float) -> BatchSignature (degrades traceability)
+|-- Serialize() / Deserialize() for save system
 ```
+
+#### 12B: ForensicLabAI
+
+```
+ForensicLabAI (Singleton)
+|-- evidenceDatabase: Dictionary<int, BatchSignature> (seized samples)
+|-- signatureClusters: List<SignatureCluster> (grouped by similarity)
+|-- clusterThreshold: float (cosine similarity cutoff, default 0.85)
+|
+|-- ProcessSeizedEvidence(product, location, timestamp)
+|   1. Extract BatchSignature from product
+|   2. Compare against all known signatures (cosine similarity)
+|   3. If similarity > threshold, add to existing cluster
+|   4. If new cluster formed, create investigation lead
+|
+|-- RunClusterAnalysis() -- periodic full re-clustering
+|   - Agglomerative clustering on signature vectors
+|   - Identify facility origin candidates per cluster
+|   - Generate confidence scores per facility match
+|
+|-- GenerateInvestigationLead(cluster) -> InvestigationLead
+|   - Source facility estimate (district, property type)
+|   - Confidence level (based on sample count and similarity)
+|   - Distribution chain reconstruction
+|
+|-- GetExposureLevel(facilityId) -> float (0-1, how close LE is to ID)
+```
+
+#### 12C: Signature Scrubbing Mechanics
+
+```
+SignatureScrubber
+|-- Scrubbing Methods:
+|   EQUIPMENT_SWAP   -- Replace equipment at facility, resets facility seed
+|                       Cost: High (new equipment purchase)
+|                       Effectiveness: Full reset of facility component
+|
+|   CUTTING_AGENT    -- Mix product with inert substance, degrades signature
+|                       Cost: Low (reduces quality and street value)
+|                       Effectiveness: Partial (reduces similarity by 20-40%)
+|
+|   REPROCESSING     -- Run product through second facility
+|                       Cost: Medium (time + second facility required)
+|                       Effectiveness: High (new facility seed overlays original)
+|
+|   BATCH_MIXING     -- Combine batches from different facilities
+|                       Cost: Low (logistics only)
+|                       Effectiveness: Moderate (muddies cluster analysis)
+|
+|-- ApplyScrubbing(batch, method) -> BatchSignature (modified)
+|-- GetScrubCost(method) -> float
+|-- GetQualityLoss(method) -> float (some methods degrade product)
+```
+
+#### Files to Create
+
+```
+Assets/Scripts/Empire/Forensics/BatchSignature.cs
+Assets/Scripts/Empire/Forensics/ForensicLabAI.cs
+Assets/Scripts/Empire/Forensics/SignatureScrubber.cs
+Assets/Scripts/Empire/Forensics/SignatureCluster.cs
+Assets/Scripts/UI/Forensics/ForensicExposureUI.cs
+```
+
+#### Integration Points
+
+- `CraftingStation` -- Generate BatchSignature on batch completion using facility + recipe + worker inputs.
+- `DealManager` / `DealerAI` -- Propagate BatchSignature through sales. Seized product during arrests carries signature.
+- `PropertyRaidSystem` -- Seized product during raids feeds into ForensicLabAI evidence database.
+- `WantedSystem` -- Forensic exposure level contributes to heat accumulation.
+- `InvestigationGraph` (Step 15) -- Forensic leads create edges between Batch nodes and Location/Person nodes.
+- `PhoneProductsTab` -- Add forensic exposure indicator per product line.
+
+---
+
+### Step 13: Advanced Economy / Market Simulator
+
+Replace the current `EconomyManager` price formula with a full market simulation modeling supply, demand, elasticity, competition, and external events per district and product type.
+
+#### 13A: MarketSimulator
+
+```
+MarketSimulator (Singleton, replaces EconomyManager price logic)
+|-- districtMarkets: Dictionary<districtId, DistrictMarket>
+|
+|-- DistrictMarket:
+|   |-- productCurves: Dictionary<ProductType, SupplyDemandCurve>
+|   |-- localEvents: List<MarketEvent>
+|   |-- competitorPresence: Dictionary<ProductType, float> (rival supply)
+|   |-- consumerConfidence: float (0-1, overall spending willingness)
+|
+|-- SupplyDemandCurve:
+|   |-- basePrice: float
+|   |-- currentSupply: float (player + rival + import volume)
+|   |-- currentDemand: float (consumer population x addiction x preference)
+|   |-- elasticity: float (-0.1 to -2.0, how price-sensitive buyers are)
+|   |-- qualityPremium: float (higher quality shifts demand curve up)
+|   |
+|   |-- Price Formula:
+|   |   P = P_base x (D/S)^(1/|E|) x (1 + R_heat) x (1 + M_season) x Q_mod
+|   |   Where:
+|   |     D/S       = demand-to-supply ratio
+|   |     E         = price elasticity
+|   |     R_heat    = risk premium from district heat level
+|   |     M_season  = seasonal modifier (-0.1 to +0.3)
+|   |     Q_mod     = quality modifier (0.8 to 1.5)
+|
+|-- GetPrice(product, district, quality) -> float
+|-- SimulateDay() -- advance all district markets
+|-- InjectSupply(product, district, amount) -- player/rival adds supply
+|-- InjectDemand(district, event) -- events modify demand
+```
+
+#### 13B: Market Events
+
+```
+MarketEvent (ScriptableObject)
+|-- eventName: string
+|-- affectedProducts: ProductType[]
+|-- demandMultiplier: float
+|-- supplyMultiplier: float
+|-- duration: int (game days)
+|-- probability: float (daily chance of firing)
+|
+|-- Event Types:
+|   DROUGHT          -- Precursor shortage, supply drops 40%, prices spike
+|   FESTIVAL         -- Weekend event, demand surges 50% for recreational products
+|   BUST             -- Major rival busted, their supply removed, prices spike
+|   FLOOD            -- New competitor enters market, supply surges, prices crash
+|   CRACKDOWN        -- Police focus on specific product, heat premium doubles
+|   MEDIA_PANIC      -- Public awareness campaign, demand drops 20%
+|   CELEBRITY_DEATH  -- Specific product demand spikes then crashes
+|   SUPPLY_ROUTE_CUT -- Import disruption, precursor prices surge
+```
+
+#### 13C: Market Manipulation
+
+```
+MarketManipulation
+|-- Tactics available to player:
+|   DUMP_PRODUCT     -- Flood market to crash rival prices (sacrifice margin)
+|   CREATE_SCARCITY  -- Withhold supply to spike prices (risk losing customers)
+|   CORNER_MARKET    -- Buy all precursors to starve competitors
+|   PRICE_WAR        -- Undercut rivals to drive them out of district
+|   QUALITY_FLOOD    -- Saturate with high-quality to shift demand permanently
+|
+|-- Each tactic has:
+|   - Cost (product, cash, or opportunity)
+|   - Duration to take effect (1-7 days)
+|   - Counter-play available to rival factions
+|   - Side effects (heat, reputation changes)
+```
+
+#### Files to Create
+
+```
+Assets/Scripts/Empire/Economy/MarketSimulator.cs
+Assets/Scripts/Empire/Economy/SupplyDemandCurve.cs
+Assets/Scripts/Empire/Economy/MarketEvent.cs
+Assets/Scripts/Empire/Economy/MarketManipulation.cs
+Assets/Scripts/UI/Economy/MarketAnalysisUI.cs
+```
+
+#### Integration Points
+
+- `EconomyManager` -- MarketSimulator takes over price calculation. EconomyManager becomes a facade.
+- `DealManager` / `DealerAI` -- Pull prices from MarketSimulator instead of EconomyManager directly.
+- `DistrictManager` -- Feed district population, wealth level, and heat into market curves.
+- `FactionManager` (Step 14) -- Rival supply injected into market curves.
+- `PhoneProductsTab` -- Add market trend indicators and price history graphs.
+- `GameBalanceConfig` -- Market tuning values (elasticity ranges, event probabilities).
+
+---
 
 ### Step 14: Rival Faction AI
 
+Populate the world with 3-5 AI-controlled criminal organizations that run the same empire simulation loop as the player: production, distribution, territory control, laundering, and expansion.
+
+#### 14A: FactionManager
+
 ```
-FactionManager
-├── 3-5 AI rival organizations per shard
-├── Each runs same simulation loop as player:
-│   production → distribution → territory → laundering
-├── Faction decision weights: aggressive, cautious, diplomatic
-├── Can form alliances, declare war, absorb smaller factions
-├── Territorial skirmishes with player empire
-├── Diplomacy UI: negotiate, threaten, bribe, ally
+FactionManager (Singleton)
+|-- factions: List<Faction> (3-5 per city)
+|-- allianceMatrix: float[,] (faction-to-faction relationship, -1 to +1)
+|-- warState: Dictionary<(factionA, factionB), WarState>
+|
+|-- Faction:
+|   |-- factionId: string
+|   |-- factionName: string
+|   |-- leader: FactionLeader (personality profile)
+|   |-- territory: List<districtId> (controlled districts)
+|   |-- resources: FactionResources (cash, product, workers, properties)
+|   |-- strategy: FactionStrategy (current high-level plan)
+|   |-- strength: float (composite military + economic power)
+|   |-- heatLevel: float (law enforcement attention)
+|
+|-- SimulateFactionTick() -- called daily for each faction
+|   1. Production phase: generate product based on facilities
+|   2. Distribution phase: sell in controlled districts
+|   3. Expansion phase: evaluate territory acquisition
+|   4. Laundering phase: process dirty cash
+|   5. Personnel phase: hire/fire/promote NPCs
+|   6. Diplomacy phase: evaluate relationships with other factions and player
+|   7. Threat assessment: react to player actions in shared territories
 ```
+
+#### 14B: Faction Decision Engine
+
+```
+FactionDecisionEngine
+|-- Decision Weights (per faction leader personality):
+|   AGGRESSIVE  -- Prioritize territory expansion, initiate wars, high risk tolerance
+|   CAUTIOUS    -- Prioritize defense, avoid heat, slow expansion, save resources
+|   DIPLOMATIC  -- Prioritize alliances, trade deals, avoid direct conflict
+|   OPPORTUNIST -- React to circumstances, exploit weaknesses, flexible strategy
+|
+|-- Decision Tree (per tick):
+|   IF strength > neighbor AND relationship < -0.3 THEN evaluate war
+|   IF heat > 60 THEN reduce operations, lay low
+|   IF player encroaching on territory THEN respond per personality
+|   IF alliance opportunity AND shared enemy THEN propose alliance
+|   IF weakened faction nearby THEN evaluate absorption
+|
+|-- EvaluateWarDeclaration(target) -> bool
+|-- EvaluateAllianceProposal(faction) -> bool
+|-- EvaluateTerritoryExpansion(district) -> float (priority score)
+|-- ReactToPlayerAction(action) -> FactionResponse
+```
+
+#### 14C: Diplomacy System
+
+```
+DiplomacyManager
+|-- Relationship Modifiers:
+|   - Territorial overlap: negative
+|   - Trade agreements: positive
+|   - Attacks on faction members: strongly negative
+|   - Shared enemies: positive
+|   - Betrayal history: permanent negative
+|
+|-- Actions:
+|   NEGOTIATE    -- Propose terms (territory split, trade deal, ceasefire)
+|   THREATEN     -- Intimidation attempt (backed by strength comparison)
+|   BRIBE        -- Cash payment to improve relations
+|   ALLY         -- Formal alliance (shared defense, trade benefits)
+|   DECLARE_WAR  -- Open hostilities (territory raids, worker attacks)
+|   ABSORB       -- Take over weakened faction (requires 3x strength)
+|   BETRAY       -- Break alliance for tactical advantage (permanent reputation hit)
+|
+|-- Alliance Benefits:
+|   - Shared market access (sell in ally territory at reduced penalty)
+|   - Mutual defense (ally workers defend shared borders)
+|   - Intelligence sharing (reveal rival faction positions)
+|   - Combined operations against common enemies
+```
+
+#### 14D: DiplomacyUI
+
+```
+DiplomacyUI (OnGUI)
+|-- Faction Overview Map:
+|   - Color-coded territory control per faction
+|   - Faction strength indicators
+|   - Relationship status icons
+|
+|-- Faction Detail Panel:
+|   - Leader profile and personality hint
+|   - Relationship history
+|   - Current agreements
+|   - Strength comparison
+|
+|-- Action Panel:
+|   - Available diplomatic actions
+|   - Cost/risk preview
+|   - Proposal builder (territory, cash, trade terms)
+|
+|-- War Status (when active):
+|   - Territory control changes
+|   - Casualty reports
+|   - Ceasefire negotiation
+```
+
+#### Files to Create
+
+```
+Assets/Scripts/Empire/Factions/FactionManager.cs
+Assets/Scripts/Empire/Factions/Faction.cs
+Assets/Scripts/Empire/Factions/FactionDecisionEngine.cs
+Assets/Scripts/Empire/Factions/FactionLeader.cs
+Assets/Scripts/Empire/Factions/DiplomacyManager.cs
+Assets/Scripts/UI/Factions/DiplomacyUI.cs
+```
+
+#### Integration Points
+
+- `DistrictManager` -- Factions compete for district control. Territory changes affect market conditions.
+- `MarketSimulator` -- Faction production feeds into district supply curves. Rival pricing creates competition.
+- `WorkerManager` -- Faction workers can be poached, attacked, or flipped as informants.
+- `WantedSystem` -- Faction actions generate heat in shared districts, affecting player operations.
+- `LaunderingManager` -- Factions launder through their own fronts, competing for business types in districts.
+- `ReputationManager` -- Diplomatic actions affect Fear, Respect, and Ruthlessness dimensions.
+- `PhoneContactsTab` -- Add faction leader contacts with relationship status.
+- `PhoneMapTab` -- Territory control overlay shows faction boundaries.
+
+---
 
 ### Step 15: Advanced Police & Investigation
 
+Replace the reactive heat-based police system with a persistent investigation graph where law enforcement builds cases over time by connecting people, locations, assets, transactions, and forensic evidence.
+
+#### 15A: InvestigationGraph
+
 ```
 InvestigationGraph
-├── Node types: Person, Location, Asset, Transaction, Batch
-├── Edge types: temporal, financial, communication, physical
-├── Centrality algorithms (PageRank, Betweenness) every 30 game-days
-├── Detective AI: assigns cases, builds evidence, requests warrants
-├── Undercover operations: plainclothes officers build trust
-├── RICO charges: if graph connects enough nodes, empire-wide bust
+|-- Node Types:
+|   PERSON      -- Player, workers, faction leaders, contacts
+|   LOCATION    -- Properties, districts, known meeting points
+|   ASSET       -- Vehicles, properties, bank accounts, front businesses
+|   TRANSACTION -- Financial records, deals, purchases
+|   BATCH       -- Product batches (linked via BatchSignature)
+|
+|-- Edge Types:
+|   TEMPORAL        -- "A was at location B at time T"
+|   FINANCIAL       -- "A transferred $X to B"
+|   COMMUNICATION   -- "A contacted B" (phone, in-person)
+|   PHYSICAL        -- "Evidence A found at location B"
+|   EMPLOYMENT      -- "A works for B"
+|   OWNERSHIP       -- "A owns asset B"
+|   FORENSIC        -- "Batch A matches facility B signature"
+|
+|-- Edge Properties:
+|   - weight: float (evidence strength, 0-1)
+|   - timestamp: int (game day recorded)
+|   - degradable: bool (some evidence degrades over time)
+|   - source: EvidenceSource (witness, surveillance, forensic, financial)
+|
+|-- AddNode(type, entityId, metadata)
+|-- AddEdge(nodeA, nodeB, edgeType, weight)
+|-- RunCentralityAnalysis() -- every 30 game-days
+|   - PageRank: identify most connected/important nodes
+|   - Betweenness Centrality: identify bridge nodes (lieutenants, fronts)
+|   - Community Detection: identify organization clusters
+|-- GetExposure(entityId) -> float (how central the node is in graph)
+|-- DegradeEvidence() -- daily tick, old/weak edges lose weight
 ```
+
+#### 15B: DetectiveAI
+
+```
+DetectiveAI
+|-- activeCases: List<Case>
+|-- maxConcurrentCases: int (scales with police funding / heat)
+|
+|-- Case:
+|   |-- caseId: string
+|   |-- target: int (primary suspect node ID)
+|   |-- evidenceNodes: List<int> (graph nodes in this case)
+|   |-- caseStrength: float (0-1, prosecution viability)
+|   |-- stage: CaseStage (OPEN, ACTIVE, WARRANT_PENDING, PROSECUTION)
+|   |-- assignedOfficers: int
+|
+|-- Case Progression:
+|   1. OPEN         -- Suspicious activity flagged, case file created
+|   2. ACTIVE       -- Detective gathers evidence, adds graph edges
+|   3. SURVEILLANCE -- Undercover officers deployed to key locations
+|   4. WARRANT      -- Sufficient evidence to request search/arrest warrants
+|   5. EXECUTION    -- Raids, arrests, asset seizure
+|   6. PROSECUTION  -- Case strength determines outcome severity
+|
+|-- Evidence Gathering Methods:
+|   - Patrol observations (officers witness crimes)
+|   - Witness interviews (civilian reports)
+|   - Financial audits (IRS referrals from Step 11)
+|   - Forensic analysis (lab results from Step 12)
+|   - Surveillance (undercover placement)
+|   - Informants (arrested workers who flip)
+|   - Wiretaps (communication edge discovery)
+|
+|-- AssignCase(suspectNode) -> Case
+|-- GatherEvidence(case) -- daily progression
+|-- EvaluateCaseStrength(case) -> float
+|-- RequestWarrant(case) -> bool (requires strength > 0.6)
+|-- ExecuteWarrant(case) -- triggers raids/arrests
+```
+
+#### 15C: Undercover Operations
+
+```
+UndercoverSystem
+|-- activeOperations: List<UndercoverOp>
+|
+|-- UndercoverOp:
+|   |-- officer: UndercoverOfficer (disguised as civilian/worker)
+|   |-- targetFaction: faction or player
+|   |-- cover: CoverIdentity (fake name, role, backstory)
+|   |-- trustLevel: float (0-1, how much target trusts them)
+|   |-- intelligenceGathered: List<GraphEdge> (edges discovered)
+|   |-- blownChance: float (daily probability of cover blown)
+|
+|-- Mechanics:
+|   - Officers appear as normal NPCs (customers, potential recruits)
+|   - If hired by player, they report back to DetectiveAI
+|   - Trust level determines quality of intelligence gathered
+|   - Player can detect undercovers via loyalty checks (Compartmentalization stat)
+|   - Blown cover: officer flees, case evidence preserved
+```
+
+#### 15D: RICO Charges
+
+```
+RICOEvaluation
+|-- Trigger: InvestigationGraph connects 5+ nodes across categories
+|-- Requirements:
+|   - Pattern of criminal activity (3+ transaction edges)
+|   - Organization structure visible (employment edges)
+|   - Financial trail (laundering edges from Step 11)
+|   - Multiple participants identified (person nodes)
+|
+|-- Consequences:
+|   - All connected assets subject to forfeiture
+|   - All identified workers arrested simultaneously
+|   - Properties seized (not just raided)
+|   - Player wanted level jumps to maximum
+|   - Recovery requires rebuilding from near-zero
+|
+|-- Countermeasures:
+|   - Compartmentalization: limit edges between organization layers
+|   - Cutouts: use intermediaries to break direct connections
+|   - Signature scrubbing: weaken forensic edges
+|   - Evidence destruction: risky, additional charges if caught
+|   - Witness intimidation: reduce witness edge weights (Fear dimension)
+```
+
+#### Files to Create
+
+```
+Assets/Scripts/World/Investigation/InvestigationGraph.cs
+Assets/Scripts/World/Investigation/DetectiveAI.cs
+Assets/Scripts/World/Investigation/UndercoverSystem.cs
+Assets/Scripts/World/Investigation/RICOEvaluation.cs
+Assets/Scripts/World/Investigation/CaseFile.cs
+Assets/Scripts/UI/Investigation/InvestigationWarningUI.cs
+```
+
+#### Integration Points
+
+- `WantedSystem` -- Heat feeds case creation triggers. RICO charges cause maximum heat spike.
+- `PolicePatrolAI` -- Patrol observations create temporal edges in graph.
+- `WitnessSystem` -- Witness reports create person-location edges.
+- `PropertyRaidSystem` -- Warrants issued through DetectiveAI. Raid evidence adds physical edges.
+- `ForensicLabAI` (Step 12) -- Forensic results create batch-facility edges.
+- `IRSInvestigation` (Step 11) -- Financial audits create transaction edges. IRS referrals open cases.
+- `WorkerManager` -- Arrested workers can flip (informant mechanic), revealing employment edges.
+- `FactionManager` (Step 14) -- Rival factions also investigated; player can anonymously tip LE about rivals.
+- `ReputationManager` -- Compartmentalization (derived from Reliability) reduces graph edge exposure.
+- `PhoneMessagesTab` -- Investigation warnings delivered as messages.
+- `SaveManager` -- Serialize full investigation graph state.
 
 ---
 
-## Phase 4: World Expansion & Multiplayer
+## Phase 4: World Expansion & Multiplayer (Weeks 13-20)
 
-> **Timeline: Weeks 13–20**
-> **Focus: Scale, multiplayer, global reach**
+> Focus: Scale the world, add global systems, lay multiplayer foundation.
+> Estimated new scripts: ~30
+> Running total after phase: ~194
+
+---
 
 ### Step 16: Multi-District City
 
-- 4+ procedural districts with distinct character
-- District-to-district travel and territory borders
-- Property market across districts (prices vary by location)
-- District events (block party = demand spike, construction = access restricted)
+- Expand from 1 to 4+ procedurally generated districts with distinct profiles (wealth, demand, police presence, architecture).
+- District-to-district travel with border mechanics (checkpoints at high heat).
+- Cross-district property market with location-based pricing.
+- District events: block parties (demand spike), construction zones (access restricted), gentrification (wealth shift), gang territory disputes.
+- District reputation independent per zone (known in one, anonymous in another).
+
+Files: `World/City/CityManager.cs`, `World/City/DistrictTransition.cs`, `World/City/CrossDistrictTravel.cs`, `World/City/DistrictEventSystem.cs`.
 
 ### Step 17: Global Supply Chain
 
-- Source region selection (risk vs. cost vs. quality)
-- Transit hub routing (smuggling mini-game)
-- Import/export mechanics
-- International contacts and partnerships
+- Source region selection with risk/cost/quality trade-offs (12+ regions).
+- Smuggling pipeline: procurement, transit, customs, delivery.
+- Transit route network with interdiction risk per leg.
+- Import/export mechanics: bulk precursor purchasing, finished product export to consumption cities.
+- International contacts unlocked by CLOUT rank.
+- Supply disruption events tied to MarketSimulator (Step 13).
+
+Files: `Empire/Supply/SupplyChainManager.cs`, `Empire/Supply/SourceRegion.cs`, `Empire/Supply/TransitRoute.cs`, `Empire/Supply/SmugglingSim.cs`, `UI/Supply/SupplyChainUI.cs`.
 
 ### Step 18: Multiplayer Foundation
 
-- Re-enable FishNet / migrate to Netcode for GameObjects
-- Server-authoritative economy
-- Player organization system (syndicates, hierarchies, permissions)
-- Territory wars (real-time PvPvE zone control)
-- Anti-cheat foundation
+- Network architecture decision: FishNet reactivation or Netcode for GameObjects migration.
+- Server-authoritative economy (all cash, inventory, and market state validated server-side).
+- Player organization system: syndicates with hierarchy, roles, permissions, shared properties.
+- Territory wars: real-time PvPvE zone control with capture mechanics.
+- Anti-cheat foundation: server-side validation, stat verification, anomaly detection.
+- Lobby, matchmaking, and shard management.
+
+Files: `Network/NetworkManager.cs`, `Network/ServerEconomy.cs`, `Network/SyndicateSystem.cs`, `Network/TerritoryWarManager.cs`, `Network/AntiCheat.cs`, `Network/LobbyManager.cs`.
 
 ### Step 19: Network Graph System
 
-- Player-to-player trust/debt/info-flow graph
-- Compartmentalization mechanics
-- Informant system (flip enemy workers for intel)
-- Communication interception (wiretaps)
+- Player-to-player trust, debt, and information-flow graph (multiplayer social layer).
+- Compartmentalization mechanics: limit what each player in a syndicate knows.
+- Informant system: flip enemy organization members for intelligence.
+- Communication interception: wiretap mechanic for eavesdropping on rival comms.
+- Graph visualization UI: zoomable, filterable relationship map.
+
+Files: `Network/SocialGraph/PlayerNetworkGraph.cs`, `Network/SocialGraph/CompartmentalizationManager.cs`, `Network/SocialGraph/InformantSystem.cs`, `Network/SocialGraph/WiretapSystem.cs`, `UI/Network/NetworkGraphUI.cs`.
 
 ---
 
-## Phase 5: Content & Polish
+## Phase 5: Content & Polish (Weeks 21-30)
 
-> **Timeline: Weeks 21–30**
-> **Focus: Production quality, content variety, accessibility**
+> Focus: Production quality, content variety, accessibility, UI overhaul.
+> Estimated new scripts: ~20
+> Running total after phase: ~214
+
+---
 
 ### Step 20: Procedural Music System
 
-- Dynamic music layers that intensify with heat
-- Ambient district-specific soundscapes
-- Combat music transitions
+- Dynamic music layers that intensify with heat level and combat state.
+- Per-district ambient soundscapes reflecting wealth, time of day, and activity.
+- Combat music with smooth transitions (explore -> tension -> combat -> cooldown).
+- Adaptive mixing: empire size and success affect musical tone.
+- Procedural beat generation for dealing sequences.
+
+Files: `Audio/ProceduralMusicManager.cs`, `Audio/MusicLayerController.cs`, `Audio/DistrictAmbience.cs`.
 
 ### Step 21: Advanced Procedural Generation
 
-- Full San Francisco template with landmark zones
-- Interior generation for all property types
-- Furniture and prop placement algorithms
-- NPC home/work/leisure schedule simulation
+- Full San Francisco city template with landmark zones (Chinatown, Financial District, Mission, Tenderloin).
+- Interior generation for all 8+ property types with functional layouts.
+- Furniture and prop placement algorithms (rule-based + randomized).
+- NPC daily schedule simulation (home, work, leisure, sleep) for ambient population.
+- Seasonal and time-of-day visual variation.
 
-### Step 22: UI/UX Polish
+Files: `World/Procedural/CityTemplateGenerator.cs`, `World/Procedural/InteriorGenerator.cs`, `World/Procedural/NPCScheduleSimulator.cs`, `World/Procedural/SeasonalVariation.cs`.
 
-- Migrate OnGUI → UI Toolkit
-- War Room strategic overview
-- Network graph viewer (zoomable, filterable)
-- Heat radar map
-- Legend timeline (personal history)
+### Step 22: UI/UX Polish -- OnGUI to UI Toolkit Migration
+
+- Systematic migration of all OnGUI interfaces to Unity UI Toolkit.
+- War Room: strategic overview screen with zoomable city map, faction positions, resource flows.
+- Network graph viewer: interactive visualization of investigation and social graphs.
+- Heat radar: real-time overlay showing police attention zones.
+- Legend timeline: scrollable personal history of key events and milestones.
+- Consistent visual language, animation, and responsive layout across all screens.
+
+Files: `UI/Toolkit/UIToolkitManager.cs`, `UI/Toolkit/WarRoomUI.cs`, `UI/Toolkit/LegendTimeline.cs`, plus UXML/USS assets.
 
 ### Step 23: Accessibility Pass
 
-- Color-blind modes
-- Screen-reader compatible dashboards
-- One-button economy macros
-- Remappable controls (already using Input System)
+- Color-blind modes (protanopia, deuteranopia, tritanopia) with full UI recoloring.
+- Screen-reader compatible dashboards (ARIA-equivalent labels on all UI elements).
+- One-button economy macros (automate repetitive empire management tasks).
+- Full control remapping (already using Input System, extend to all new inputs).
+- Scalable UI text and HUD elements.
+- Subtitle system for all narrative and notification audio.
+
+Files: `Accessibility/AccessibilityManager.cs`, `Accessibility/ColorBlindFilter.cs`, `Accessibility/ScreenReaderBridge.cs`.
 
 ### Step 24: Content Pipeline
 
-- 24 source region definitions
-- 50+ NPC personality templates
-- 20+ property interior variants
-- 30+ recipe combinations
-- Vehicle system (ownership, mods, transport)
+- 24 source region definitions with unique risk/quality profiles.
+- 50+ NPC personality templates (varied appearance, stats, dialogue).
+- 20+ property interior layout variants.
+- 30+ recipe combinations with distinct quality curves.
+- Vehicle system: ownership, visual mods, transport capacity, chase mechanics.
+- Weapon variety expansion: 10+ melee, 10+ ranged with distinct movesets.
+
+Files: `Content/ContentDatabase.cs`, `Content/VehicleSystem.cs`, `Content/WeaponDatabase.cs`, plus ScriptableObject assets.
 
 ---
 
-## Phase 6: Ship
+## Phase 6: Ship (Weeks 31-40)
 
-> **Timeline: Weeks 31–40**
-> **Focus: Scale testing, live ops, launch**
+> Focus: Scale validation, infrastructure, launch execution.
+> Estimated new scripts: ~15
+> Running total after phase: ~229
+
+---
 
 ### Step 25: Scale Testing
 
-- 10k concurrent player stress test
-- Economy stability under player manipulation
-- Investigation AI performance at scale
-- Server cost optimization (Spot instances, auto-scaling)
+- 10,000 concurrent player stress testing across shards.
+- Economy stability validation under adversarial player manipulation.
+- Investigation AI performance profiling at scale (graph size limits, query optimization).
+- Server cost modeling and optimization (spot instances, auto-scaling policies).
+- Load testing for all network-authoritative systems.
+- Client performance targets: 60 FPS on target hardware, memory budget enforcement.
 
 ### Step 26: Live Ops Infrastructure
 
-- Seasonal events engine
-- Modding API (Lua scripting for custom game rules)
-- Community tools (faction leaderboards, economy dashboards)
-- Telemetry and analytics pipeline
+- Seasonal events engine: time-limited content, global modifiers, leaderboard competitions.
+- Modding API: Lua scripting layer for custom game rules, recipes, and events.
+- Community tools: faction leaderboards, economy dashboards, player statistics.
+- Telemetry and analytics pipeline: player behavior tracking, economy health metrics, engagement funnels.
+- Hotfix deployment system: server-side tuning without client patch.
+- Content delivery pipeline for post-launch updates.
 
-### Step 27: Early Access Launch (Q3 2026 Target)
+### Step 27: Early Access Launch -- Target Q3 2027
 
-- 1 city (4 districts)
-- Core loop: produce → deal → earn → buy → hire → manage → evade
-- 3 rival AI factions
-- Basic multiplayer (co-op empire, 2-4 players)
-- Investigation system (detective AI, evidence, warrants)
+Scope:
+- 1 city, 4 districts with full procedural generation.
+- Complete core loop: produce, deal, earn, buy, hire, manage, launder, evade.
+- 3 rival AI factions with diplomacy.
+- Full investigation system (detective AI, forensics, RICO).
+- Cooperative multiplayer (2-4 players per syndicate).
+- Money laundering pipeline with IRS audits.
+- Market simulation with events.
+- Phone UI empire management.
 
-### Step 28: Full Launch (Q4 2027 Target)
+### Step 28: Full Launch -- Target Q4 2027
 
-- 4 cities with 8 consumption megacities
-- Global supply chain
-- 10k+ player shards
-- Full investigation graph
-- War Room UI
-- Modding API
+Scope:
+- 4 cities with 8 consumption megacities in global supply chain.
+- 10,000+ player shards with server-authoritative economy.
+- Full investigation graph with undercover operations.
+- War Room strategic UI.
+- Modding API and community tools.
+- Vehicle system and expanded weapon variety.
+- Accessibility features complete.
+- Live ops infrastructure operational.
 
 ---
 
 ## Post-Launch Roadmap
 
-| Timeframe | Content |
-|-----------|---------|
-| Year 1 | New global regions, advanced laundering mechanics (free update) |
-| Year 2 | Mobile companion app for managing remote facilities |
-| Year 3 | VR War Room mode |
+| Timeframe | Focus Area | Content |
+|-----------|------------|---------|
+| Year 1 Q1 | Regions    | 2 new global source regions, advanced transit route mechanics |
+| Year 1 Q2 | Systems    | Advanced laundering methods, cryptocurrency mixing, offshore accounts |
+| Year 1 Q3 | Content    | New city (Los Angeles), 2 new districts, 15 new recipes |
+| Year 1 Q4 | Social     | Syndicate wars season system, ranked competitive mode |
+| Year 2 H1 | Platform   | Mobile companion app for remote facility management and market monitoring |
+| Year 2 H2 | Content    | New city (Miami), cartel storyline, boat smuggling routes |
+| Year 3     | Innovation | VR War Room mode, cross-platform syndicate management |
 
 ---
 
-## Monetization Plan (Fair & Player-First)
+## Monetization (Fair & Player-First)
 
-- **Cosmetic only**: syndicate logos, vehicle skins, safehouse themes
-- **Expansion Packs**: new global regions (not pay-to-win)
-- **No loot boxes** — ever
+- **Cosmetic Only:** Syndicate logos, vehicle skins, safehouse interior themes, character outfits. No gameplay advantage.
+- **Expansion Packs:** New global regions, cities, and storylines. Substantial content, fairly priced. No pay-to-win mechanics.
+- **Season Pass:** Cosmetic reward tracks tied to seasonal events. Free tier always available.
+- **No Loot Boxes.** No randomized monetization. Players see exactly what they are purchasing.
+- **No Pay-to-Skip.** Empire progression cannot be accelerated with real money.
 
 ---
 
 ## Script Count Projections
 
-| Phase | New Scripts | Running Total | Status |
-|-------|-------------|---------------|--------|
-| Phase 1 (complete) | 62 | 62 | ✅ Done |
-| Phase 2 Steps 1-5 (complete) | 39 | 101 | ✅ Done |
-| Phase 2 Steps 6-9 (complete) | ~31 | ~132 | ✅ Done |
-| Phase 2 Step 10 (complete) | 3 | ~135 | ✅ Done |
-| Phase 3 (advanced empire) | ~25 | ~160 | 🔜 Next |
-| Phase 4 (world + multiplayer) | ~30 | ~191 | ⬜ Planned |
-| Phase 5 (content + polish) | ~20 | ~211 | ⬜ Planned |
-| Phase 6 (ship) | ~15 | ~226 | ⬜ Planned |
+| Phase | Description | New Scripts | Running Total | Status |
+|-------|-------------|-------------|---------------|--------|
+| Phase 0 | Foundation | -- | -- | COMPLETE |
+| Phase 1 | Core Loop | 62 | 62 | COMPLETE |
+| Phase 2 Steps 1-5 | Empire Foundation | 39 | 101 | COMPLETE |
+| Phase 2 Steps 6-9 | Empire Expansion | 34 | 135 | COMPLETE |
+| Phase 2 Step 10 | Integration & Polish | 4 | 139 | COMPLETE |
+| Phase 3 Step 11 | Money Laundering | 5 | 144 | NEXT |
+| Phase 3 Step 12 | Forensics | 5 | 149 | Planned |
+| Phase 3 Step 13 | Market Simulator | 5 | 154 | Planned |
+| Phase 3 Step 14 | Rival Factions | 6 | 160 | Planned |
+| Phase 3 Step 15 | Investigation | 6 | 166 | Planned |
+| Phase 4 Steps 16-19 | World & Multiplayer | ~28 | ~194 | Planned |
+| Phase 5 Steps 20-24 | Content & Polish | ~20 | ~214 | Planned |
+| Phase 6 Steps 25-28 | Ship | ~15 | ~229 | Planned |
 
 ---
 
 ## Immediate Next Action
 
-**Phase 2 is COMPLETE. Begin Phase 3: Advanced Empire.**
+**Phase 3 Step 11: Money Laundering Pipeline**
 
-**Build Phase 3 Step 11: Money Laundering Pipeline**
+Begin implementation. Files to create in order:
 
-Files to create:
-1. `Empire/Laundering/LaunderingManager.cs` — Full 5-step laundering system replacing basic `Launder()` method
-2. `Empire/Laundering/FrontBusiness.cs` — Restaurant, AutoShop, Nightclub front business simulation (actual customers, revenue, expenses)
-3. `Empire/Laundering/LaunderingMethod.cs` — Structuring, smurfing, real estate, cash-intensive business methods
-4. `Empire/Laundering/IRSInvestigation.cs` — Audit triggers, velocity anomaly detection, deposit threshold flagging
-5. `UI/Laundering/LaunderingUI.cs` — OnGUI interface for managing front businesses and laundering operations
-6. Update `TestArenaBuilder.cs` — Wire laundering system
+```
+1. Assets/Scripts/Empire/Laundering/LaunderingMethod.cs
+   -- ScriptableObject defining method types (structuring, smurfing, real estate, cash-intensive, crypto)
+   -- Risk multipliers, capacity multipliers, cooling periods, CLOUT rank requirements
 
-The laundering pipeline transforms the current simple `CashManager.Launder()` into a full simulation
-with front business management, detection avoidance, and IRS audit risk.
+2. Assets/Scripts/Empire/Laundering/FrontBusiness.cs
+   -- MonoBehaviour attached to owned properties (Restaurant, AutoShop, Nightclub)
+   -- Business simulation: customer flow, legitimate revenue, operating costs
+   -- Laundering capacity derived from legitimate revenue
+   -- Suspicion tracking based on dirty-to-clean ratio
+
+3. Assets/Scripts/Empire/Laundering/IRSInvestigation.cs
+   -- Audit trigger evaluation (thresholds, velocity, patterns, tips)
+   -- 5-stage audit process (notice, review, freeze, resolution, charges)
+   -- Countermeasures (accountant worker, diversification, record destruction)
+
+4. Assets/Scripts/Empire/Laundering/LaunderingManager.cs
+   -- Singleton orchestrating 5-step pipeline (placement, layering, integration, cooling, extraction)
+   -- Velocity tracking (30-day rolling window)
+   -- Daily processing tied to TransactionLedger.OnDayEnd
+   -- Integration with CashManager, PropertyManager, WorkerManager, WantedSystem, EventBus
+
+5. Assets/Scripts/UI/Laundering/LaunderingUI.cs
+   -- OnGUI interface: front business overview, laundering controls, risk dashboard, audit status
+   -- Wired to LaunderingManager for real-time data
+
+6. Update: Assets/Scripts/Testing/TestArenaBuilder.cs
+   -- Wire LaunderingManager singleton
+   -- Spawn one front business for testing
+   -- Add test laundering scenario to arena setup
+```
+
+After Step 11 is complete, proceed to Step 12: Signature & Forensics System.
 
 ---
 
-*CLOUT Development Roadmap v2.1 — SlicedLabs — April 1, 2026*
+*CLOUT Development Roadmap v3.0 -- SlicedLabs -- April 1, 2026*

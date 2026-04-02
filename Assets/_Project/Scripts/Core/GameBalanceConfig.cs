@@ -84,6 +84,41 @@ namespace Clout.Core
         [Tooltip("Maximum daily launder amount per front business")]
         public float maxDailyLaunderPerBusiness = 5000f;
 
+        [Tooltip("IRS attention decay rate per game day")]
+        public float irsAttentionDecayRate = 0.015f;
+
+        [Tooltip("IRS attention reduction per accountant (diminishing returns)")]
+        public float accountantAttentionReduction = 0.25f;
+
+        [Tooltip("Safe laundering ratio — below this % of capacity, no suspicion growth")]
+        [Range(0f, 1f)]
+        public float safeLaunderingRatio = 0.6f;
+
+        [Tooltip("Suspicion growth rate at full capacity (per day)")]
+        public float maxSuspicionGrowthRate = 0.08f;
+
+        [Tooltip("IRS flag threshold (0-1)")]
+        [Range(0f, 1f)]
+        public float irsFlagThreshold = 0.4f;
+
+        [Tooltip("IRS investigation threshold (0-1)")]
+        [Range(0f, 1f)]
+        public float irsInvestigationThreshold = 0.6f;
+
+        [Tooltip("IRS audit threshold (0-1)")]
+        [Range(0f, 1f)]
+        public float irsAuditThreshold = 0.8f;
+
+        [Tooltip("Audit duration in game days")]
+        public int auditDurationDays = 14;
+
+        [Tooltip("Seizure fine as percentage of detected laundering (0-1)")]
+        [Range(0f, 1f)]
+        public float seizureFineRate = 0.5f;
+
+        [Tooltip("Heat penalty from IRS criminal charges")]
+        public float irsHeatPenalty = 80f;
+
         // ─── Workers — Wages & Capacity ─────────────────────────────
 
         [Header("Workers — Wages & Capacity")]
