@@ -82,7 +82,7 @@ namespace Clout.Empire.Economy
 
             // Heat from suspicious volume
             float heat = dumpQuantity * 0.5f;
-            var wanted = Object.FindAnyObjectByType<World.Police.WantedSystem>();
+            var wanted = GameObject.FindAnyObjectByType<Clout.World.Police.WantedSystem>();
             if (wanted != null)
                 wanted.AddHeat(heat, "market flooding — suspicious volume");
 
@@ -166,7 +166,7 @@ namespace Clout.Empire.Economy
 
             // Major heat
             float heat = 30f + cashInvested * 0.002f;
-            var wanted = Object.FindAnyObjectByType<World.Police.WantedSystem>();
+            var wanted = GameObject.FindAnyObjectByType<Clout.World.Police.WantedSystem>();
             if (wanted != null)
                 wanted.AddHeat(heat, "market cornering — bulk precursor purchase");
 
@@ -213,7 +213,7 @@ namespace Clout.Empire.Economy
 
             // Moderate heat
             float heat = 10f + subsidyAmount * 0.001f;
-            var wanted = Object.FindAnyObjectByType<World.Police.WantedSystem>();
+            var wanted = GameObject.FindAnyObjectByType<Clout.World.Police.WantedSystem>();
             if (wanted != null)
                 wanted.AddHeat(heat, "price war — aggressive dealing");
 

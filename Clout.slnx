@@ -1,0 +1,4 @@
+﻿<Solution>
+  <Project Path="Clout.csproj" />
+  <Project Path="Clout.Editor.csproj" />
+</Solution>

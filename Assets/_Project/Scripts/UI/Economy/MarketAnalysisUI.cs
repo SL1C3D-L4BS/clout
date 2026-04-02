@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using System;
 using System.Collections.Generic;
 using Clout.Core;
@@ -22,7 +23,7 @@ namespace Clout.UI.Economy
     public class MarketAnalysisUI : MonoBehaviour
     {
         [Header("Toggle")]
-        public KeyCode toggleKey = KeyCode.M;
+        public Key toggleKey = Key.N;  // N for market aNalysis (M is Phone)
 
         [Header("Layout")]
         public float windowWidth = 720f;
@@ -57,7 +58,8 @@ namespace Clout.UI.Economy
 
         private void Update()
         {
-            if (Input.GetKeyDown(toggleKey))
+            if (Keyboard.current == null) return;
+            if (Keyboard.current[toggleKey].wasPressedThisFrame)
             {
                 _visible = !_visible;
                 if (_visible)
@@ -70,6 +72,12 @@ namespace Clout.UI.Economy
                     Cursor.lockState = CursorLockMode.Locked;
                     Cursor.visible = false;
                 }
+            }
+            if (_visible && Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                _visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
         }
 

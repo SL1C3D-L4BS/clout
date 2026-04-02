@@ -24,6 +24,11 @@ using Clout.Empire.Employees;
 using Clout.World.Districts;
 using Clout.UI;
 using Clout.UI.Phone;
+using Clout.UI.Laundering;
+using Clout.UI.Economy;
+using Clout.UI.Forensics;
+using Clout.Empire.Economy.Laundering;
+using Clout.Forensics;
 using Clout.Save;
 using UnityEditor.Animations;
 
@@ -729,7 +734,37 @@ namespace Clout.Editor
             // PropertyManager — property ownership and daily tick
             econObj.AddComponent<PropertyManager>();
 
-            Debug.Log("[Clout] Economy system created: CashManager + TransactionLedger + EconomyManager + PropertyManager.");
+            // LaunderingManager — Step 11: money laundering pipeline
+            econObj.AddComponent<LaunderingManager>();
+
+            // LaunderingUI — L to toggle money laundering dashboard
+            econObj.AddComponent<LaunderingUI>();
+
+            // Step 12: Forensics System
+            GameObject forensicObj = new GameObject("ForensicsSystem");
+
+            // SignatureDatabase — clusters product signatures by facility origin
+            forensicObj.AddComponent<SignatureDatabase>();
+
+            // ForensicLabAI — processes seized evidence, links signatures to facilities
+            forensicObj.AddComponent<ForensicLabAI>();
+
+            // ForensicsUI — F to toggle forensics dashboard
+            forensicObj.AddComponent<ForensicsUI>();
+
+            // Step 13: Advanced Economy & Market Simulator
+            GameObject marketObj = new GameObject("MarketSystem");
+
+            // MarketSimulator — dynamic supply/demand with events and competition
+            marketObj.AddComponent<MarketSimulator>();
+
+            // CommodityTracker — precursor ingredient price simulation
+            marketObj.AddComponent<CommodityTracker>();
+
+            // MarketAnalysisUI — N to toggle market intelligence dashboard
+            marketObj.AddComponent<MarketAnalysisUI>();
+
+            Debug.Log("[Clout] Economy system created: CashManager + TransactionLedger + EconomyManager + PropertyManager + LaunderingManager + LaunderingUI + SignatureDatabase + ForensicLabAI + ForensicsUI + MarketSimulator + CommodityTracker + MarketAnalysisUI.");
         }
 
         // ─────────────────────────────────────────────────────────
