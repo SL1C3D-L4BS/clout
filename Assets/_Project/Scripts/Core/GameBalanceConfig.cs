@@ -359,6 +359,60 @@ namespace Clout.Core
         [Tooltip("Auto-save interval in game days")]
         public int autoSaveIntervalDays = 1;
 
+        // ─── Rival Factions (Step 14) ─────────────────────────────
+
+        [Header("Rival Factions")]
+        [Tooltip("Influence gained per faction expansion action")]
+        public float factionExpansionRate = 5f;
+
+        [Tooltip("Combat strength damage dealt per attack action")]
+        public float factionAttackDamage = 0.15f;
+
+        [Tooltip("Daily income per controlled territory zone")]
+        public float factionDailyIncomePerZone = 500f;
+
+        [Tooltip("Daily disposition decay rate toward neutral (0.0)")]
+        public float factionDispositionDecayRate = 0.01f;
+
+        [Tooltip("Heat generated in area during faction wars")]
+        public float factionWarHeatGeneration = 30f;
+
+        [Tooltip("Minimum days before a faction can betray again")]
+        public float factionBetrayalCooldown = 10f;
+
+        [Tooltip("Minimum disposition required to form alliance")]
+        public float factionAllianceDispositionReq = 0.3f;
+
+        [Tooltip("Disposition threshold that triggers AI war declaration")]
+        public float factionWarDispositionThreshold = -0.6f;
+
+        [Tooltip("Cash cost per +0.1 disposition when offering tribute")]
+        public float factionTributeRate = 5000f;
+
+        [Tooltip("Maximum price undercut percentage from faction competition")]
+        [Range(0.05f, 0.4f)]
+        public float factionUndercutIntensity = 0.15f;
+
+        [Tooltip("Daily combat strength regeneration rate")]
+        public float factionCombatStrengthRegen = 0.02f;
+
+        [Tooltip("Maximum faction combat strength (with growth)")]
+        public float factionMaxCombatStrength = 1.5f;
+
+        [Tooltip("Random jitter on AI decision scoring (0-1)")]
+        [Range(0f, 0.3f)]
+        public float factionDecisionJitter = 0.15f;
+
+        [Tooltip("Minimum days between major faction actions")]
+        public int factionMinDaysBetweenActions = 1;
+
+        [Tooltip("Ceasefire reparation cost as fraction of faction cash")]
+        [Range(0.1f, 0.5f)]
+        public float factionCeasefireRate = 0.3f;
+
+        [Tooltip("Disposition penalty when player betrays an alliance")]
+        public float factionBetrayalDispositionPenalty = 0.3f;
+
         // ─── Difficulty Presets ─────────────────────────────────────
 
         /// <summary>Apply Easy difficulty preset.</summary>

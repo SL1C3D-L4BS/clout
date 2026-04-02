@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "unity": {
+      "command": "npx",
+      "args": ["-y", "mcp-unity-server"],
+      "env": {
+        "UNITY_PROJECT_PATH": "/Volumes/SL1C3D-L4BS/projects/Clout"
+      }
+    }
+  }
+}

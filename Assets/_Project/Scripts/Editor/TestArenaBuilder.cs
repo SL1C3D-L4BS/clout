@@ -30,6 +30,8 @@ using Clout.UI.Forensics;
 using Clout.Empire.Economy.Laundering;
 using Clout.Forensics;
 using Clout.Save;
+using Clout.AI.Factions;
+using Clout.UI.Factions;
 using UnityEditor.Animations;
 
 namespace Clout.Editor
@@ -133,12 +135,19 @@ namespace Clout.Editor
             // === GAME FLOW (Step 10) ===
             BuildGameFlow();
 
+            // === RIVAL FACTIONS (Step 14) ===
+            BuildFactionSystem();
+
             // === NAVMESH ===
             BakeNavMesh();
 
-            // Save scene
+            // Save scene — mark dirty first to avoid Unity 6 "Unknown error" on fresh scenes
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
-            EditorSceneManager.SaveScene(scene, SCENE_PATH);
+            EditorSceneManager.MarkSceneDirty(scene);
+            bool saved = EditorSceneManager.SaveScene(scene, SCENE_PATH);
+            if (!saved)
+                Debug.LogWarning("[Clout] Scene save returned false — file may still be valid.");
+            AssetDatabase.Refresh();
 
             Debug.Log("[Clout] Test Arena built successfully! Open: " + SCENE_PATH);
             EditorUtility.DisplayDialog("Clout", "Test Arena built!\n\n" +
@@ -159,6 +168,9 @@ namespace Clout.Editor
                 "• Phone UI (M key) — Map, Contacts, Products, Finances, Messages\n" +
                 "• Game Flow Manager — milestones, tutorials, auto-save\n" +
                 "• Performance Monitor (F3) — FPS, memory, budgets\n" +
+                "• Rival Factions — 5 AI factions with Utility Theory AI\n" +
+                "  - Diplomacy panel (F key) — alliances, wars, tribute\n" +
+                "  - Personality-driven decisions & betrayal mechanics\n" +
                 "• Save/Load: F5 = Quick Save, F9 = Quick Load\n" +
                 "• Pause: ESC when phone is closed\n\n" +
                 "Hit Play to test.", "Let's Go");
@@ -199,8 +211,10 @@ namespace Clout.Editor
             BuildDistrictSystem();
             BuildPhoneUI();
             BuildGameFlow();
+            BuildFactionSystem();
             BakeNavMesh();
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(SCENE_PATH));
+            EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
             AssetDatabase.Refresh();
             Debug.Log("[Clout] Test Arena built (headless): " + SCENE_PATH);
@@ -1040,6 +1054,182 @@ namespace Clout.Editor
             flowObj.AddComponent<PerformanceMonitor>();
 
             Debug.Log("[Clout] Game flow system created: GameFlowManager + PerformanceMonitor + GameBalanceConfig.");
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  RIVAL FACTION SYSTEM (Step 14)
+        // ─────────────────────────────────────────────────────────
+
+        private static void BuildFactionSystem()
+        {
+            // ── Faction Profile ScriptableObjects ─────────────────
+            string soPath = "Assets/_Project/ScriptableObjects/Factions";
+            if (!AssetDatabase.IsValidFolder(soPath))
+            {
+                if (!AssetDatabase.IsValidFolder("Assets/_Project/ScriptableObjects"))
+                    AssetDatabase.CreateFolder("Assets/_Project", "ScriptableObjects");
+                AssetDatabase.CreateFolder("Assets/_Project/ScriptableObjects", "Factions");
+            }
+
+            FactionProfile[] profiles = CreateFactionProfiles(soPath);
+
+            // ── FactionManager — central orchestrator ─────────────
+            GameObject factionObj = new GameObject("FactionSystem");
+
+            FactionManager fm = factionObj.AddComponent<FactionManager>();
+            fm.factionProfiles = profiles;
+
+            // Wire TerritoryManager reference if it exists in scene
+            Clout.Empire.Territory.TerritoryManager tm =
+                Object.FindAnyObjectByType<Clout.Empire.Territory.TerritoryManager>();
+            if (tm != null)
+                fm.territoryManager = tm;
+
+            // ── FactionDiplomacy — alliance, war, trade, betrayal ─
+            factionObj.AddComponent<FactionDiplomacy>();
+
+            // ── DiplomacyUI — F key to toggle diplomacy panel ─────
+            factionObj.AddComponent<DiplomacyUI>();
+
+            Debug.Log("[Clout] Faction system created: FactionManager (5 factions) + FactionDiplomacy + DiplomacyUI (F key).");
+        }
+
+        private static FactionProfile[] CreateFactionProfiles(string soPath)
+        {
+            FactionProfile[] profiles = new FactionProfile[5];
+
+            // ── 1. The Cartel — aggressive drug lords ─────────────
+            profiles[0] = CreateOrLoadProfile(soPath, "FP_Cartel", profile =>
+            {
+                profile.factionId = FactionId.Cartel;
+                profile.factionName = "The Cartel";
+                profile.leaderName = "El Padrino";
+                profile.description = "Old-school narcos with deep pockets and a short fuse. Control supply chains and don't tolerate competition.";
+                profile.factionColor = new Color(0.8f, 0.1f, 0.1f); // Dark red
+                profile.aggression = 0.8f;
+                profile.caution = 0.2f;
+                profile.diplomacy = 0.3f;
+                profile.expansion = 0.7f;
+                profile.greed = 0.6f;
+                profile.preferredProducts = new[] { ProductType.Methamphetamine, ProductType.Cannabis };
+                profile.startingZoneIds = new[] { "fillmore_industrial_01" };
+                profile.baseSupplyPerDay = 15f;
+                profile.baseCombatStrength = 0.7f;
+                profile.startingCash = 15000f;
+                profile.betrayalThreshold = -0.2f;
+                profile.desperateCashThreshold = 3000f;
+                profile.heatCautionThreshold = 250f;
+            });
+
+            // ── 2. Eastside Syndicate — calculating enforcers ─────
+            profiles[1] = CreateOrLoadProfile(soPath, "FP_EastsideSyndicate", profile =>
+            {
+                profile.factionId = FactionId.EastsideSyndicate;
+                profile.factionName = "Eastside Syndicate";
+                profile.leaderName = "Marcus Cole";
+                profile.description = "Street-smart crew that controls the east blocks. Calculated, loyal to their own, ruthless to outsiders.";
+                profile.factionColor = new Color(0.2f, 0.4f, 0.9f); // Blue
+                profile.aggression = 0.5f;
+                profile.caution = 0.6f;
+                profile.diplomacy = 0.4f;
+                profile.expansion = 0.5f;
+                profile.greed = 0.5f;
+                profile.preferredProducts = new[] { ProductType.Cannabis, ProductType.Prescription };
+                profile.startingZoneIds = new[] { "fillmore_commercial_01" };
+                profile.baseSupplyPerDay = 12f;
+                profile.baseCombatStrength = 0.6f;
+                profile.startingCash = 12000f;
+                profile.betrayalThreshold = -0.4f;
+                profile.desperateCashThreshold = 2500f;
+                profile.heatCautionThreshold = 200f;
+            });
+
+            // ── 3. Downtown Collective — trade-focused diplomats ──
+            profiles[2] = CreateOrLoadProfile(soPath, "FP_DowntownCollective", profile =>
+            {
+                profile.factionId = FactionId.DowntownCollective;
+                profile.factionName = "Downtown Collective";
+                profile.leaderName = "Nina Vasquez";
+                profile.description = "Business-minded coalition that prefers deals over bullets. Will backstab if the price is right.";
+                profile.factionColor = new Color(0.1f, 0.8f, 0.3f); // Green
+                profile.aggression = 0.2f;
+                profile.caution = 0.5f;
+                profile.diplomacy = 0.9f;
+                profile.expansion = 0.3f;
+                profile.greed = 0.8f;
+                profile.preferredProducts = new[] { ProductType.Prescription, ProductType.Cannabis };
+                profile.startingZoneIds = new[] { "fillmore_residential_01" };
+                profile.baseSupplyPerDay = 10f;
+                profile.baseCombatStrength = 0.4f;
+                profile.startingCash = 20000f;
+                profile.betrayalThreshold = -0.15f;
+                profile.desperateCashThreshold = 5000f;
+                profile.heatCautionThreshold = 150f;
+            });
+
+            // ── 4. Northside Family — old guard expansionists ─────
+            profiles[3] = CreateOrLoadProfile(soPath, "FP_NorthsideFamily", profile =>
+            {
+                profile.factionId = FactionId.NorthsideFamily;
+                profile.factionName = "Northside Family";
+                profile.leaderName = "Big Tommy Rossi";
+                profile.description = "Italian-American legacy crew. Territorial, honor-bound, and slowly expanding from the north end.";
+                profile.factionColor = new Color(0.6f, 0.3f, 0.7f); // Purple
+                profile.aggression = 0.5f;
+                profile.caution = 0.4f;
+                profile.diplomacy = 0.5f;
+                profile.expansion = 0.9f;
+                profile.greed = 0.4f;
+                profile.preferredProducts = new[] { ProductType.Methamphetamine };
+                profile.startingZoneIds = new[] { "fillmore_residential_02" };
+                profile.baseSupplyPerDay = 8f;
+                profile.baseCombatStrength = 0.55f;
+                profile.startingCash = 10000f;
+                profile.betrayalThreshold = -0.5f;
+                profile.desperateCashThreshold = 2000f;
+                profile.heatCautionThreshold = 300f;
+            });
+
+            // ── 5. Docks Union — cautious waterfront operators ────
+            profiles[4] = CreateOrLoadProfile(soPath, "FP_DocksUnion", profile =>
+            {
+                profile.factionId = FactionId.DocksUnion;
+                profile.factionName = "Docks Union";
+                profile.leaderName = "Harbor Jack";
+                profile.description = "Longshoremen turned smugglers. Control the waterfront and import routes. Slow to anger, hard to beat.";
+                profile.factionColor = new Color(0.9f, 0.6f, 0.1f); // Orange
+                profile.aggression = 0.3f;
+                profile.caution = 0.8f;
+                profile.diplomacy = 0.6f;
+                profile.expansion = 0.4f;
+                profile.greed = 0.7f;
+                profile.preferredProducts = new[] { ProductType.Cannabis, ProductType.Methamphetamine };
+                profile.startingZoneIds = new[] { "fillmore_industrial_02" };
+                profile.baseSupplyPerDay = 18f;
+                profile.baseCombatStrength = 0.5f;
+                profile.startingCash = 18000f;
+                profile.betrayalThreshold = -0.6f;
+                profile.desperateCashThreshold = 4000f;
+                profile.heatCautionThreshold = 180f;
+            });
+
+            return profiles;
+        }
+
+        private static FactionProfile CreateOrLoadProfile(string soPath, string assetName,
+            System.Action<FactionProfile> configure)
+        {
+            string assetPath = $"{soPath}/{assetName}.asset";
+            FactionProfile profile = AssetDatabase.LoadAssetAtPath<FactionProfile>(assetPath);
+            if (profile == null)
+            {
+                profile = ScriptableObject.CreateInstance<FactionProfile>();
+                configure(profile);
+                AssetDatabase.CreateAsset(profile, assetPath);
+                EditorUtility.SetDirty(profile);
+                Debug.Log($"[Clout] Created faction profile: {profile.factionName}");
+            }
+            return profile;
         }
 
         // ─────────────────────────────────────────────────────────

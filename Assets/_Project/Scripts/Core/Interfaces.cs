@@ -202,4 +202,48 @@ namespace Clout.Core
         MostWanted = 4,
         Kingpin = 5
     }
+
+    // ─────────────────────────────────────────────────────────────
+    //  RIVAL FACTIONS (Step 14)
+    // ─────────────────────────────────────────────────────────────
+
+    public enum FactionId
+    {
+        None,
+        Cartel,
+        EastsideSyndicate,
+        DowntownCollective,
+        NorthsideFamily,
+        DocksUnion
+    }
+
+    public enum DiplomacyAction
+    {
+        ProposeAlliance,
+        OfferTribute,
+        DeclareWar,
+        RequestCeasefire,
+        ProposeTrade,
+        BetrayAlliance,
+        DemandTribute,
+        RequestHelp
+    }
+
+    public enum FactionMood
+    {
+        Passive,
+        Aggressive,
+        Defensive,
+        Expanding,
+        Economic
+    }
+
+    public enum FactionRelationship
+    {
+        War,
+        Hostile,
+        Neutral,
+        Friendly,
+        Allied
+    }
 }

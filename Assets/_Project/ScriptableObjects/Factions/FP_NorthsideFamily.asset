@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55ef56df1dd38479685c40e6f4572e1e, type: 3}
+  m_Name: FP_NorthsideFamily
+  m_EditorClassIdentifier: Clout::Clout.AI.Factions.FactionProfile
+  factionId: 4
+  factionName: Northside Family
+  leaderName: Big Tommy Rossi
+  description: Italian-American legacy crew. Territorial, honor-bound, and slowly
+    expanding from the north end.
+  factionColor: {r: 0.6, g: 0.3, b: 0.7, a: 1}
+  aggression: 0.5
+  caution: 0.4
+  diplomacy: 0.5
+  expansion: 0.9
+  greed: 0.4
+  preferredProducts: 01000000
+  startingZoneIds:
+  - fillmore_residential_02
+  baseSupplyPerDay: 8
+  baseCombatStrength: 0.55
+  startingCash: 10000
+  betrayalThreshold: -0.5
+  desperateCashThreshold: 2000
+  heatCautionThreshold: 300
