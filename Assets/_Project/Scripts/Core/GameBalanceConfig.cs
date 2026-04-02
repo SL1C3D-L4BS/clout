@@ -119,6 +119,44 @@ namespace Clout.Core
         [Tooltip("Heat penalty from IRS criminal charges")]
         public float irsHeatPenalty = 80f;
 
+        // ─── Forensics — Signature & Evidence (Step 12) ───────────────
+
+        [Header("Forensics — Signatures")]
+        [Tooltip("Cosine similarity threshold for clustering to same facility")]
+        [Range(0.5f, 0.99f)]
+        public float forensicClusterThreshold = 0.85f;
+
+        [Tooltip("Daily degradation rate for signature reliability")]
+        [Range(0f, 0.05f)]
+        public float signatureDegradationRate = 0.005f;
+
+        [Tooltip("Days after which signatures become unreliable")]
+        public float maxSignatureReliableDays = 60f;
+
+        [Tooltip("Scrubbed signature degradation multiplier (faster decay)")]
+        public float scrubbedDegradationMultiplier = 3f;
+
+        [Tooltip("Max signatures stored in forensic database")]
+        public int maxForensicSignatures = 500;
+
+        [Tooltip("Forensic lab items processed per game day")]
+        public int forensicDailyCapacity = 1;
+
+        [Tooltip("Minimum confidence for forensic facility link")]
+        [Range(0.3f, 0.95f)]
+        public float forensicLinkConfidenceThreshold = 0.6f;
+
+        [Tooltip("Heat generated per confirmed forensic facility link")]
+        public float forensicHeatPerLink = 25f;
+
+        [Tooltip("Base chance of undercover street buy capturing product signature (0-1)")]
+        [Range(0f, 0.2f)]
+        public float undercoverBuyBaseChance = 0.02f;
+
+        [Tooltip("Additional undercover buy chance per unit of normalized heat")]
+        [Range(0f, 0.2f)]
+        public float undercoverBuyHeatScaling = 0.08f;
+
         // ─── Workers — Wages & Capacity ─────────────────────────────
 
         [Header("Workers — Wages & Capacity")]

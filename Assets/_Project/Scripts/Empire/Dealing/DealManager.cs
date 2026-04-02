@@ -1,5 +1,6 @@
 using UnityEngine;
 using Clout.Core;
+using Clout.Forensics;
 using Clout.Player;
 using Clout.Empire.Crafting;
 using Clout.Empire.Reputation;
@@ -211,6 +212,43 @@ namespace Clout.Empire.Dealing
             if (snitched && wanted != null)
             {
                 wanted.AddHeat(WantedSystem.HeatValues.DealingNearPolice, "customer snitched");
+            }
+
+            // ── Step 12: Forensic signature propagation ────────────
+            // When product is sold, its signature enters the street ecosystem.
+            // Snitching customers or undercover buys can capture the signature.
+            BatchSignature dealSignature = inventory.GetSignature(productStack.productId,
+                productStack.quality);
+            if (dealSignature != null)
+            {
+                // If customer snitched, police immediately get a signature sample
+                if (snitched)
+                {
+                    ForensicLabAI lab = ForensicLabAI.Instance;
+                    if (lab != null)
+                    {
+                        lab.SubmitEvidence(dealSignature, EvidenceSource.StreetBuy,
+                            $"Snitch buy: {productStack.productId} x{quantity}");
+                    }
+                }
+
+                // Small chance of undercover street buy capturing signature
+                // (scales with heat — more police attention = more undercover ops)
+                WantedSystem wantedForBuy = _currentPlayer.wantedSystem;
+                float buyChance = 0.02f; // 2% base
+                if (wantedForBuy != null && wantedForBuy.maxHeat > 0)
+                    buyChance += (wantedForBuy.CurrentHeat / wantedForBuy.maxHeat) * 0.08f; // Up to 10% at max heat
+
+                if (!snitched && Random.value < buyChance)
+                {
+                    ForensicLabAI lab = ForensicLabAI.Instance;
+                    if (lab != null)
+                    {
+                        lab.SubmitEvidence(dealSignature, EvidenceSource.StreetBuy,
+                            $"Undercover buy: {productStack.productId} x{quantity}");
+                        Debug.Log("[DealManager] Undercover officer intercepted product signature.");
+                    }
+                }
             }
 
             // Publish event

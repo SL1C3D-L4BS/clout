@@ -282,7 +282,7 @@ Assets/Scripts/UI/Laundering/LaunderingUI.cs
 
 ---
 
-### Step 12: Signature & Forensics System
+### Step 12: Signature & Forensics System -- COMPLETE
 
 Every production batch generates a unique forensic signature that law enforcement can use to trace product back to its source facility. This creates a persistent cat-and-mouse dynamic where players must actively manage their forensic exposure.
 
@@ -968,9 +968,9 @@ Scope:
 | Phase 2 Steps 1-5 | Empire Foundation | 39 | 101 | COMPLETE |
 | Phase 2 Steps 6-9 | Empire Expansion | 34 | 135 | COMPLETE |
 | Phase 2 Step 10 | Integration & Polish | 4 | 139 | COMPLETE |
-| Phase 3 Step 11 | Money Laundering | 5 | 144 | NEXT |
-| Phase 3 Step 12 | Forensics | 5 | 149 | Planned |
-| Phase 3 Step 13 | Market Simulator | 5 | 154 | Planned |
+| Phase 3 Step 11 | Money Laundering | 5 | 144 | COMPLETE |
+| Phase 3 Step 12 | Forensics | 5 | 149 | COMPLETE |
+| Phase 3 Step 13 | Market Simulator | 5 | 154 | NEXT |
 | Phase 3 Step 14 | Rival Factions | 6 | 160 | Planned |
 | Phase 3 Step 15 | Investigation | 6 | 166 | Planned |
 | Phase 4 Steps 16-19 | World & Multiplayer | ~28 | ~194 | Planned |
@@ -1017,8 +1017,8 @@ Begin implementation. Files to create in order:
    -- Add test laundering scenario to arena setup
 ```
 
-After Step 11 is complete, proceed to Step 12: Signature & Forensics System.
+Steps 11-12 are complete. Proceed to Step 13: Advanced Economy / Market Simulator.
 
 ---
 
-*CLOUT Development Roadmap v3.0 -- SlicedLabs -- April 1, 2026*
+*CLOUT Development Roadmap v3.1 -- SlicedLabs -- April 2, 2026*

@@ -1,7 +1,7 @@
 # CLOUT -- Phase 3 Completion Log
 
-> Version 1.0 | April 2, 2026
-> Status: IN PROGRESS (Step 11 of 15 complete)
+> Version 1.1 | April 2, 2026
+> Status: IN PROGRESS (Steps 11-12 of 15 complete)
 
 ---
 
@@ -81,13 +81,102 @@ Phase 3 adds depth, consequences, and advanced simulation layers to the empire. 
 
 ---
 
+## Step 12: Signature & Forensics System -- COMPLETE
+
+**Date:** April 2, 2026
+**New Scripts:** 5
+**New Lines:** ~1,800 (new files) + ~120 (integration edits)
+**Modified Files:** 4 existing scripts
+
+### Files Created
+
+| File | Type | Lines | Purpose |
+|------|------|-------|---------|
+| `Scripts/Forensics/BatchSignature.cs` | Serializable Class | 389 | 512-dimensional forensic fingerprint vector. Deterministic generation from facility seed, recipe hash, operator hash, equipment config + random variance. Cosine similarity computation (full, facility-only, recipe-only). Scrub noise injection. Robert Jenkins' integer hash. Full save/load |
+| `Scripts/Forensics/SignatureDatabase.cs` | Singleton | 531 | Central evidence database. Signature clustering by facility origin (cosine similarity > 0.85). Daily degradation (unreliable after ~60 game days). Scrubbed signatures degrade 3x faster. FIFO eviction at 500 max. FindRelated() and FindFacilityOrigin() queries. 3 EventBus events. Full save/load |
+| `Scripts/Forensics/ForensicLabAI.cs` | Singleton | 469 | Queue-based evidence processing pipeline (1 item/day capacity). Auto-intake from PropertyRaidedEvent and WorkerArrestedEvent. Processing times by source (1-7 days). Quality ranges by source. Facility identification with heat generation via WantedSystem. Full save/load |
+| `Scripts/Forensics/SignatureScrubber.cs` | MonoBehaviour | 276 | CraftingStation equipment upgrade (3 levels). Level 1: -5% yield, noise 0.15, $2,500. Level 2: -12% yield, noise 0.30, $8,000. Level 3: -20% yield, noise 0.50, $25,000. Toggle on/off without losing level. Static InstallOnStation() factory. Full save/load |
+| `Scripts/UI/Forensics/ForensicsUI.cs` | OnGUI | ~280 | Forensic Intelligence Dashboard: database overview, lab status, cluster intel, recent analysis results, scrubber equipment status. Threat level indicator. Toggle: F key |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `Scripts/Empire/Crafting/CraftingStation.cs` | +using Clout.Forensics/Economy. CompleteBatch() now generates BatchSignature, applies SignatureScrubber if present, passes signature to ProductInventory. CraftingResult struct gains `signature` field. New ResolvePropertyId() helper walks parent hierarchy. Publishes BatchSignatureCreatedEvent |
+| `Scripts/Empire/Dealing/ProductInventory.cs` | +using Clout.Forensics. New signature tracking dictionary (_signatureMap). AddProduct() overload accepting BatchSignature. GetSignature() query method for downstream propagation |
+| `Scripts/Empire/Dealing/DealManager.cs` | +using Clout.Forensics. ExecuteDeal() propagates signatures: snitching customers auto-submit to ForensicLabAI. Undercover buy chance (2% base + 8% heat scaling) captures product signatures from street deals |
+| `Scripts/Core/GameBalanceConfig.cs` | +11 forensic tuning values: cluster threshold, degradation rate, max reliable days, scrubbed degradation multiplier, max signatures, daily capacity, link confidence threshold, heat per link, undercover buy base chance, undercover buy heat scaling |
+
+### EventBus Events Added (4)
+
+| Event | Publisher |
+|-------|----------|
+| `BatchSignatureCreatedEvent` | CraftingStation (via SignatureScrubber.cs definition) |
+| `ForensicLinkEstablishedEvent` | SignatureDatabase |
+| `ForensicEvidenceSubmittedEvent` | ForensicLabAI |
+| `ForensicAnalysisCompleteEvent` | ForensicLabAI |
+
+### Data Structures Added
+
+| Type | Purpose |
+|------|---------|
+| `BatchSignature` | 512-dim vector fingerprint (facility/recipe/operator/variance segments) |
+| `BatchSignatureSaveData` | Serialization struct for BatchSignature |
+| `ForensicEntry` | Database entry with signature, source, quality, reliability, age |
+| `EvidenceItem` | Lab queue item with signature, source, processing time, quality |
+| `ForensicResult` | Analysis output with facility identification and confidence |
+| `FacilityLink` | Facility origin match with confidence, match count, product ID |
+| `SignatureCluster` | Grouped signatures by facility seed with member indices |
+| `SimilarityResult` | Query result with raw/effective/facility/recipe similarity scores |
+| `ScrubProfile` | Internal scrub level config (yield penalty, noise, cost) |
+| `ScrubberSaveData` | Serialization for SignatureScrubber state |
+| `EvidenceSource` | 6-value enum: RaidSeizure, ArrestEvidence, StreetBuy, InformantTip, TrashPull, WorkerBetrayal |
+
+### Integration Points
+
+- **CraftingStation** -- BatchSignature generated on every CompleteBatch(), scrubbed if scrubber present, attached to ProductStack
+- **ProductInventory** -- Signature tracked per product stack, propagated on deal execution
+- **DealManager** -- Signatures enter forensic pipeline via snitch/undercover buy mechanics
+- **TransactionLedger** -- OnDayEnd drives daily lab processing and signature degradation
+- **WantedSystem** -- Confirmed facility links generate heat via AddHeat()
+- **CashManager** -- Scrubber upgrades require clean cash
+- **PropertyRaidSystem** -- Raids auto-submit evidence to ForensicLabAI via EventBus
+- **WorkerManager** -- Worker arrests auto-submit evidence if worker had critical info
+- **GameBalanceConfig** -- All 11 forensic config values read from GameBalanceConfig.Active
+- **EventBus** -- 4 new event structs for cross-system reactivity
+
+### Key Design Decisions
+
+1. **512-dimensional vectors** -- 4 segments (facility/recipe/operator/variance) enable partial matching. Facility-only similarity allows quick source identification without full vector comparison.
+2. **Deterministic generation** -- Same facility + recipe + operator always produces similar signatures (minus random variance), enabling realistic forensic clustering.
+3. **Scrubber yield tradeoff** -- Players sacrifice 5-20% output to reduce forensic exposure. Level 2 drops below cluster threshold, Level 3 effectively randomizes. Creates meaningful strategic decision.
+4. **Evidence degradation** -- 60-day max reliability prevents permanent consequences from old evidence. Scrubbed signatures degrade 3x faster.
+5. **Signature propagation chain** -- CraftingStation -> ProductInventory -> DealManager -> ForensicLabAI. Each handoff preserves the forensic fingerprint.
+6. **Undercover buy mechanic** -- Heat-scaled chance (2-10%) that any street deal captures a signature for the forensic lab. Adds risk to high-heat dealing.
+
+### Validation
+
+- [x] BatchSignature generates deterministic 512-dim vectors from crafting parameters
+- [x] Cosine similarity correctly computes full and partial (facility/recipe) similarity
+- [x] SignatureDatabase clusters related signatures above 0.85 threshold
+- [x] ForensicLabAI processes evidence queue with source-based timing
+- [x] SignatureScrubber injects noise reducing traceability at 3 levels
+- [x] CraftingStation generates and attaches signature on CompleteBatch()
+- [x] ProductInventory tracks signatures per stack for downstream propagation
+- [x] DealManager propagates signatures via snitch and undercover buy paths
+- [x] ForensicsUI dashboard displays database, lab, clusters, results, scrubbers
+- [x] GameBalanceConfig exposes all 11 forensic tuning values in Inspector
+- [x] All save/load serialization implemented for forensic state persistence
+
+---
+
 ## Upcoming Steps
 
 | Step | Title | Status | Est. Scripts |
 |------|-------|--------|-------------|
 | 11 | Money Laundering Pipeline | **COMPLETE** | 5 delivered |
-| 12 | Signature & Forensics System | UP NEXT | ~4-5 |
-| 13 | Advanced Economy / Market Simulator | PLANNED | ~3-4 |
+| 12 | Signature & Forensics System | **COMPLETE** | 5 delivered |
+| 13 | Advanced Economy / Market Simulator | UP NEXT | ~3-4 |
 | 14 | Rival Faction AI | PLANNED | ~5-6 |
 | 15 | Advanced Police & Investigation | PLANNED | ~4-5 |
 

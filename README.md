@@ -30,13 +30,15 @@ CLOUT drops players into a living open world where they build a criminal empire 
 | 0 | Foundation | -- | COMPLETE |
 | 1 | Core Loop | -- | COMPLETE (62 scripts) |
 | 2 | Empire Systems | 10/10 | COMPLETE (+77 scripts) |
-| 3 | Advanced Empire | 1/5 | IN PROGRESS |
+| 3 | Advanced Empire | 2/5 | IN PROGRESS |
 
-**Total: ~134 scripts** across 18 system modules. Phase 3 Step 11 (Money Laundering Pipeline) complete.
+**Total: ~151 scripts** across 19 system modules. Phase 3 Steps 11-12 complete.
 
 Phase 2 delivered: crafting pipeline, property management, employee AI with betrayal mechanics, dynamic economy, dealing systems, 6-tier wanted/police systems, procedural districts, phone UI empire hub, game flow management with milestones and tutorials, and GameBalanceConfig with 50+ tunable values across 3 difficulty presets.
 
-Phase 3 Step 11 delivered: Full 5-stage money laundering pipeline (Placement → Layering → Integration → Cooling → Complete), 5 front business types with simulated revenue and suspicion tracking, 5 laundering methods (Structuring, Smurfing, RealEstate, CashIntensive, Crypto), 4-stage IRS investigation system (Flag → Investigation → Audit → Seizure), laundering dashboard UI (L key), and Accountant worker role activation.
+Phase 3 Step 11 delivered: Full 5-stage money laundering pipeline (Placement -> Layering -> Integration -> Cooling -> Complete), 5 front business types with simulated revenue and suspicion tracking, 5 laundering methods (Structuring, Smurfing, RealEstate, CashIntensive, Crypto), 4-stage IRS investigation system (Flag -> Investigation -> Audit -> Seizure), laundering dashboard UI (L key), and Accountant worker role activation.
+
+Phase 3 Step 12 delivered: 512-dimensional forensic batch signatures with cosine similarity clustering. Every crafted batch carries a unique forensic fingerprint traceable to its origin facility. ForensicLabAI processes seized evidence through a queue-based pipeline. SignatureDatabase clusters signatures by facility origin with 60-day degradation. SignatureScrubber equipment (3 levels) lets players trade yield for anonymity. Full integration: CraftingStation -> ProductInventory -> DealManager -> ForensicLabAI evidence chain. Undercover buy mechanic captures signatures from street deals. Forensics dashboard (F key).
 
 ---
 
@@ -59,6 +61,7 @@ Phase 3 Step 11 delivered: Full 5-stage money laundering pipeline (Placement →
 | Empire / Employees | 10 | WorkerManager, RecruitmentManager, DealerAI, CookAI, GuardAI, WorkerInstance, EmployeeDefinition, HireUI, WorkerManagementUI |
 | Empire / Economy | 3 | EconomyManager, CashManager, TransactionLedger |
 | Empire / Laundering | 4 | LaunderingManager, FrontBusiness, LaunderingMethod (SO), IRSInvestigation |
+| Forensics | 5 | BatchSignature, SignatureDatabase, ForensicLabAI, SignatureScrubber, ForensicsUI |
 | Empire / Reputation | 1 | ReputationManager |
 | Empire / Territory | 1 | TerritoryManager |
 | World / Police | 6 | WantedSystem, WitnessSystem, PoliceOfficerAI, HeatResponseManager, PropertyRaidSystem, PoliceStation |
@@ -71,6 +74,7 @@ Phase 3 Step 11 delivered: Full 5-stage money laundering pipeline (Placement →
 | UI / Dealing | 2 | DealUI, SupplierUI |
 | UI / Economy | 1 | ShopUI |
 | UI / Laundering | 1 | LaunderingUI (L key toggle dashboard) |
+| UI / Forensics | 1 | ForensicsUI (F key toggle dashboard) |
 | UI / Production | 1 | CraftingUI |
 | Stats | 1 | RuntimeStats |
 | Save | 1 | SaveManager (V2 -- JSON, auto-save, slot management) |
@@ -205,6 +209,7 @@ This invokes `TestArenaBuilder` to scaffold a playable arena with enemies, NPCs,
 | P | Phone (empire hub) |
 | I | Inventory |
 | L | Laundering dashboard |
+| F | Forensics intelligence dashboard |
 | F3 | Performance monitor |
 | Esc | Pause menu |
 
@@ -234,7 +239,7 @@ This invokes `TestArenaBuilder` to scaffold a playable arena with enemies, NPCs,
 | 0 | Foundation | Project setup, URP, input system, bootstrap, assembly definitions | COMPLETE |
 | 1 | Core Loop | Movement, combat, camera, AI, inventory, networking scaffold, world basics (62 scripts) | COMPLETE |
 | 2 | Empire Systems | Crafting, dealing, properties, employees, economy, police, districts, phone UI, game flow, balance (10 steps, +77 scripts) | COMPLETE |
-| 3 | Advanced Empire | Money laundering, forensic accounting, rival factions, investigation AI, advanced territory warfare | IN PROGRESS (Step 11 complete) |
+| 3 | Advanced Empire | Money laundering, forensic signatures, rival factions, investigation AI, advanced territory warfare | IN PROGRESS (Steps 11-12 complete) |
 | 4 | World and Multiplayer | FishNet re-enable, co-op, persistent world, expanded districts, dynamic world events | PLANNED |
 | 5 | Content and Polish | Story missions, side content, audio, VFX, UI polish, localization, QA | PLANNED |
 | 6 | Ship | Platform certification, optimization, launch prep, post-launch roadmap | PLANNED |

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Clout.Core;
 using Clout.Empire.Crafting;
+using Clout.Forensics;
 
 namespace Clout.Empire.Dealing
 {
@@ -31,7 +32,57 @@ namespace Clout.Empire.Dealing
         public int SlotCount => _products.Count;
         public bool HasSpace => _products.Count < maxProductSlots;
 
+        // ── Step 12: Forensic Signature Tracking ─────────────
+        // Maps productId+qualityTier → most recent BatchSignature for that stack.
+        // Signatures propagate from CraftingStation → ProductInventory → DealManager.
+        private readonly Dictionary<string, BatchSignature> _signatureMap = new();
+
         public event Action OnProductsChanged;
+
+        /// <summary>
+        /// Get the forensic signature associated with a product stack (if any).
+        /// Returns null if product was acquired without signature tracking (legacy/pre-Step 12).
+        /// </summary>
+        public BatchSignature GetSignature(string productId, float quality)
+        {
+            string key = productId + "_" + GetQualityTierIdByName(productId, quality);
+            return _signatureMap.TryGetValue(key, out var sig) ? sig : null;
+        }
+
+        /// <summary>
+        /// Get the signature key for a product stack.
+        /// </summary>
+        private string GetSignatureKey(ProductDefinition product, float quality)
+        {
+            return product.productName + "_" + GetQualityTierId(product, quality);
+        }
+
+        private string GetQualityTierIdByName(string productId, float quality)
+        {
+            // Search existing stacks for the product definition
+            foreach (var stack in _products)
+            {
+                if (stack.productId == productId && stack.product != null)
+                    return GetQualityTierId(stack.product, quality);
+            }
+            return "default";
+        }
+
+        /// <summary>
+        /// Add product with forensic signature (Step 12).
+        /// Signature is tracked alongside the stack for downstream propagation.
+        /// </summary>
+        public int AddProduct(ProductDefinition product, int quantity, float quality,
+            BatchSignature signature)
+        {
+            int added = AddProduct(product, quantity, quality);
+            if (added > 0 && signature != null)
+            {
+                string key = GetSignatureKey(product, quality);
+                _signatureMap[key] = signature;
+            }
+            return added;
+        }
 
         /// <summary>
         /// Add product to inventory. Returns actual quantity added.

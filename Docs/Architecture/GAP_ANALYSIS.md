@@ -2,9 +2,9 @@
 
 > **Version:** 2.1
 > **Date:** April 2, 2026
-> **Codebase:** ~146 C# scripts | Unity 6 (6000.4.0f1) | URP
+> **Codebase:** ~151 C# scripts | Unity 6 (6000.4.0f1) | URP
 > **Spec:** BUILD_SPECIFICATION v3.0 (70 sections)
-> **Phase Status:** Phase 3 IN PROGRESS (Step 11 COMPLETE)
+> **Phase Status:** Phase 3 IN PROGRESS (Steps 11-12 COMPLETE)
 
 This document maps every section of the v3.0 spec to the current codebase.
 It identifies gaps, tracks implementation status, and prioritizes what must
@@ -58,7 +58,7 @@ be built in Phase 3 and beyond.
 |---|---------|--------|---------------|-------------|
 | 9 | Empire Architecture | **[X] BUILT** | Properties, Economy, Workforce, Territory subsystems all functional | Aligned |
 | 10 | Production | **[X] BUILT** | 6 station types, recipe system, quality calculation, risk events, CookAI automation | Aligned |
-| 11 | Signature System | **[ ] MISSING** | No product signature or forensics system | Phase 3 (Step 12) |
+| 11 | Signature System | **[X] BUILT** | 512-dimensional forensic signatures, cosine similarity clustering, ForensicLabAI evidence pipeline, SignatureScrubber countermeasure, ForensicsUI dashboard. 5 new scripts, ~1,800 lines. | Phase 3 Step 12 COMPLETE |
 | 12 | Facility System | **[~] PARTIAL** | Upgrade paths exist but no structured skill tree or tech tree | Phase 3: add facility skill trees |
 | 13 | Workforce & NPC Graph | **[X] BUILT** | WorkerManager, DealerAI, CookAI, GuardAI, RecruitmentManager, betrayal mechanics | Aligned |
 | 14 | Supply Chain | **[ ] MISSING** | No multi-node supply chain or logistics system | Phase 4 |

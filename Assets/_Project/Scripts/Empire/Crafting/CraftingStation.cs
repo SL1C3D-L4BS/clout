@@ -1,6 +1,8 @@
 using UnityEngine;
 using Clout.Core;
 using Clout.Empire.Dealing;
+using Clout.Empire.Economy;
+using Clout.Forensics;
 using Clout.Player;
 using Clout.Utils;
 using Clout.World.Police;
@@ -398,10 +400,40 @@ namespace Clout.Empire.Crafting
             ProductDefinition outputProduct = batch.recipe.outputProduct;
             if (outputProduct != null)
             {
-                int added = productInv.AddProduct(outputProduct, batch.outputQuantity, batch.quality);
+                // ── Step 12: Generate forensic batch signature ──────────
+                int currentDay = TransactionLedger.Instance != null
+                    ? TransactionLedger.Instance.CurrentDay : 0;
+
+                // Resolve property ID from parent hierarchy (station lives on property)
+                string propertyId = ResolvePropertyId();
+
+                // Worker skill placeholder (will integrate with real skill system)
+                float workerSkill = 0.3f;
+
+                BatchSignature signature = BatchSignature.Generate(
+                    stationId,
+                    propertyId,
+                    batch.recipe,
+                    batch.usedAdditives,
+                    batch.quality,
+                    workerSkill,
+                    qualityBonus,
+                    currentDay);
+
+                // ── Step 12: Apply scrubber if installed ────────────────
+                int finalQuantity = batch.outputQuantity;
+                SignatureScrubber scrubber = GetComponent<SignatureScrubber>();
+                if (scrubber != null && scrubber.IsEnabled)
+                {
+                    scrubber.ScrubSignature(signature);
+                    finalQuantity = scrubber.AdjustYield(finalQuantity);
+                }
+
+                int added = productInv.AddProduct(outputProduct, finalQuantity, batch.quality, signature);
 
                 Debug.Log($"[Crafting] BATCH COMPLETE: {batch.recipe.recipeName} → " +
-                          $"{added}x {outputProduct.productName} (Quality: {batch.quality:P0})");
+                          $"{added}x {outputProduct.productName} (Quality: {batch.quality:P0}, " +
+                          $"Sig: {signature.BatchId}, Scrub: {signature.ScrubLevel})");
 
                 // Build result
                 var result = new CraftingResult
@@ -411,7 +443,8 @@ namespace Clout.Empire.Crafting
                     quantity = added,
                     quality = batch.quality,
                     usedAdditives = batch.usedAdditives,
-                    stationId = stationId
+                    stationId = stationId,
+                    signature = signature
                 };
 
                 // Fire local event
@@ -425,6 +458,17 @@ namespace Clout.Empire.Crafting
                     quantity = added,
                     qualityTier = GetQualityTierIndex(outputProduct, batch.quality),
                     stationId = stationId
+                });
+
+                // ── Step 12: Publish forensic signature event ───────────
+                EventBus.Publish(new BatchSignatureCreatedEvent
+                {
+                    batchId = signature.BatchId,
+                    productId = outputProduct.productName,
+                    stationId = stationId,
+                    facilitySeed = signature.FacilitySeed,
+                    scrubLevel = signature.ScrubLevel,
+                    quality = batch.quality
                 });
             }
 
@@ -502,6 +546,24 @@ namespace Clout.Empire.Crafting
             return 0;
         }
 
+        /// <summary>
+        /// Resolve property ID from the station's parent hierarchy.
+        /// CraftingStations live on Property GameObjects — walk up to find propertyId.
+        /// </summary>
+        private string ResolvePropertyId()
+        {
+            // Check for a Property component on this or any parent
+            Transform current = transform;
+            while (current != null)
+            {
+                var prop = current.GetComponent<Clout.Empire.Properties.Property>();
+                if (prop != null && prop.Definition != null)
+                    return prop.Definition.propertyName ?? stationId;
+                current = current.parent;
+            }
+            return stationId; // Fallback to stationId if not on a property
+        }
+
         private void OnDestroy()
         {
             _activeBatches.Clear();
@@ -545,6 +607,7 @@ namespace Clout.Empire.Crafting
         public float quality;
         public List<IngredientDefinition> usedAdditives;
         public string stationId;
+        public BatchSignature signature;     // Step 12 — Forensic fingerprint
     }
 
     public enum RiskEventType
